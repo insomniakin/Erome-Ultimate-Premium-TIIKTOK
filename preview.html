@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Erome Ultimate Premium — Preview</title>
+<link rel="icon" href="assets/erome-logo-icon.png">
+<style>
+    :root {
+        --accent: #8a5acc;
+        --accent-soft: #b39ad6;
+        --dark: #14151f;
+        --darker: #0e0f17;
+        --red: #ff0050;
+        --teal: #00f2ea;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+        height: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #0e0f17 0%, #14151f 50%, #2a1f3d 100%);
+        color: #fff;
+        overflow-x: hidden;
+    }
+
+    /* ===== Header ===== */
+    .hero {
+        padding: 60px 20px 40px;
+        text-align: center;
+        border-bottom: 1px solid rgba(138, 90, 204, 0.2);
+    }
+    .hero img.logo {
+        max-width: 620px;
+        width: 90%;
+        height: auto;
+        filter: drop-shadow(0 0 40px rgba(138, 90, 204, 0.4));
+        animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-10px); }
+    }
+    .hero h1 {
+        font-size: 48px;
+        margin-top: 20px;
+        background: linear-gradient(90deg, #fff, #b39ad6, #fff);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer {
+        0%   { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .hero p {
+        color: #b39ad6;
+        font-size: 18px;
+        margin-top: 8px;
+        letter-spacing: 1px;
+    }
+    .badges {
+        margin-top: 24px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .badge {
+        background: rgba(138, 90, 204, 0.15);
+        border: 1px solid rgba(138, 90, 204, 0.4);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #b39ad6;
+    }
+
+    /* ===== Main Layout ===== */
+    .main {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    @media (max-width: 900px) {
+        .main { grid-template-columns: 1fr; }
+    }
+
+    /* ===== Feature list ===== */
+    .features h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .features h2::before {
+        content: '';
+        width: 6px;
+        height: 28px;
+        background: linear-gradient(to bottom, var(--red), var(--accent), var(--teal));
+        border-radius: 3px;
+    }
+    .feature-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+        transition: all .25s ease;
+    }
+    .feature-card:hover {
+        transform: translateX(6px);
+        border-color: rgba(138, 90, 204, 0.5);
+        background: rgba(138, 90, 204, 0.08);
+    }
+    .feature-card h3 {
+        font-size: 16px;
+        color: #fff;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .feature-card .emoji {
+        font-size: 22px;
+    }
+    .feature-card p {
+        font-size: 13px;
+        color: #9a9aaa;
+        line-height: 1.5;
+    }
+
+    /* ===== Phone Preview ===== */
+    .phone-wrap {
+        position: sticky;
+        top: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    .phone-label {
+        color: #b39ad6;
+        font-weight: 700;
+        letter-spacing: 2px;
+        font-size: 11px;
+        text-transform: uppercase;
+    }
+
+    .phone {
+        width: 320px;
+        height: 640px;
+        background: #000;
+        border-radius: 44px;
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+            0 0 0 12px #1a1a1a,
+            0 0 0 14px #2a2a2a,
+            0 30px 80px rgba(0, 0, 0, 0.7),
+            0 0 60px rgba(138, 90, 204, 0.4);
+    }
+    .phone::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 22px;
+        background: #000;
+        border-radius: 0 0 16px 16px;
+        z-index: 200;
+    }
+
+    /* ===== Splash Screen ===== */
+    .splash {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: linear-gradient(135deg, #0e0f17 0%, #14151f 50%, #2a1f3d 100%);
+        z-index: 100;
+        transition: opacity .6s ease, visibility .6s ease;
+    }
+    .splash.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+    .splash img {
+        max-width: 76%;
+        filter: drop-shadow(0 0 30px rgba(138, 90, 204, 0.7));
+        animation: pop .8s cubic-bezier(.2, .9, .3, 1.2);
+    }
+    .splash-tag {
+        color: #b39ad6;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        animation: pop 1s cubic-bezier(.2, .9, .3, 1.2);
+    }
+    .splash-dots {
+        display: flex;
+        gap: 8px;
+    }
+    .splash-dots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #8a5acc;
+        animation: dot 1.2s ease-in-out infinite;
+    }
+    .splash-dots span:nth-child(2) { animation-delay: .2s; }
+    .splash-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes pop {
+        0% { opacity: 0; transform: scale(.6); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes dot {
+        0%, 100% { opacity: 0.3; transform: translateY(0); }
+        50%      { opacity: 1;   transform: translateY(-6px); }
+    }
+
+    /* ===== Top Bar ===== */
+    .topbar {
+        position: absolute;
+        top: 42px;
+        left: 14px;
+        right: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+    }
+    .topbar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+    }
+    .topbar-title img {
+        height: 22px;
+        border-radius: 4px;
+        filter: drop-shadow(0 0 6px rgba(138, 90, 204, 0.7));
+    }
+    .topbar-title span {
+        border-bottom: 2px solid var(--accent);
+        padding-bottom: 2px;
+    }
+    .topbar-tabs {
+        display: flex;
+        gap: 4px;
+    }
+    .tab {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+    .tab.active { background: var(--accent); }
+    .tab:hover { transform: translateY(-1px); }
+
+    /* ===== Feed Card ===== */
+    .card {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .card-media {
+        position: absolute;
+        inset: 0;
+        background: url('https://images.unsplash.com/photo-1519638831568-d9897f54ed69?w=800') center/cover;
+        filter: brightness(.75);
+    }
+
+    /* Top pills */
+    .pills-top {
+        position: absolute;
+        top: 90px;
+        left: 14px;
+        display: flex;
+        gap: 8px;
+        z-index: 15;
+    }
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 9px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+        position: absolute;
+        right: 8px;
+        bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        z-index: 20;
+    }
+    .avatar {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        overflow: visible;
+        border: 2px solid #fff;
+        background: var(--accent);
+        margin-bottom: 6px;
+    }
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .avatar .plus {
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--red);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        color: #fff;
+        cursor: pointer;
+        transition: transform .15s ease;
+    }
+    .action:hover { transform: scale(1.12); }
+    .action-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 18px;
+        transition: all .2s ease;
+    }
+    .action.liked .action-icon { background: #ef4444; animation: pulse .35s; }
+    .action.faved .action-icon { background: #f59e0b; animation: pulse .35s; }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.25); }
+    }
+    .action-label {
+        font-size: 9px;
+        font-weight: 700;
+        text-shadow: 0 0 6px rgba(0, 0, 0, 0.95);
+    }
+    .disc {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 5px solid #111;
+        background: #000;
+        animation: spin 6s linear infinite;
+        margin-top: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+    .disc img { width: 100%; height: 100%; object-fit: cover; }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
+    /* ===== Caption ===== */
+    .caption {
+        position: absolute;
+        left: 14px;
+        right: 70px;
+        bottom: 30px;
+        z-index: 15;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
+        padding: 40px 10px 12px 10px;
+        margin-left: -10px;
+        margin-right: -10px;
+        margin-bottom: -10px;
+    }
+    .caption .user {
+        font-weight: 700;
+        font-size: 14px;
+        color: #fff;
+        margin-bottom: 4px;
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.95);
+    }
+    .caption .desc {
+        font-size: 11px;
+        opacity: .92;
+        line-height: 1.35;
+        margin-bottom: 6px;
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.95);
+    }
+    .album-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(138, 90, 204, 0.25);
+        border: 1px solid rgba(138, 90, 204, 0.5);
+        padding: 5px 10px;
+        border-radius: 16px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #fff !important;
+        text-decoration: none;
+        transition: all .2s ease;
+        cursor: pointer;
+    }
+    .album-btn:hover {
+        background: rgba(138, 90, 204, 0.5);
+        transform: translateY(-1px);
+    }
+    .ticker {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #fff;
+        font-size: 10px;
+        opacity: .85;
+        margin-top: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    /* ===== Progress Bar ===== */
+    .progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.15);
+        z-index: 6;
+    }
+    .progress-fill {
+        height: 100%;
+        background: #fff;
+        width: 0;
+        animation: fill 8s linear infinite;
+    }
+    @keyframes fill {
+        from { width: 0; }
+        to   { width: 100%; }
+    }
+
+    /* ===== Heart Pop ===== */
+    .heart-pop {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 96px;
+        z-index: 50;
+        pointer-events: none;
+    }
+    .heart-pop.animate {
+        animation: heartPop 1s ease forwards;
+    }
+    @keyframes heartPop {
+        0%   { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 0; }
+        30%  { transform: translate(-50%, -50%) scale(1.3) rotate(0deg); opacity: 1; }
+        60%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+    }
+
+    /* ===== Controls ===== */
+    .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .control-btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all .2s ease;
+    }
+    .control-btn:hover {
+        background: var(--accent-soft);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(138, 90, 204, 0.4);
+    }
+    .control-btn.red { background: var(--red); }
+    .control-btn.teal { background: var(--teal); color: #000; }
+
+    /* ===== Footer ===== */
+    .footer {
+        text-align: center;
+        padding: 40px 20px 60px;
+        color: #6a6a7a;
+        font-size: 12px;
+        border-top: 1px solid rgba(138, 90, 204, 0.2);
+        margin-top: 40px;
+    }
+    .footer img {
+        width: 60px;
+        opacity: 0.6;
+        margin-bottom: 10px;
+    }
+
+    /* ===== FAB demo ===== */
+    .fab-demo {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff0050 0%, #8a5acc 50%, #00f2ea 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(138, 90, 204, 0.5);
+        transition: all .2s ease;
+        z-index: 1000;
+        border: none;
+        animation: fabPulse 2s ease-in-out infinite;
+    }
+    @keyframes fabPulse {
+        0%, 100% { box-shadow: 0 8px 24px rgba(138, 90, 204, 0.5); }
+        50%      { box-shadow: 0 8px 32px rgba(138, 90, 204, 0.9); }
+    }
+    .fab-demo:hover { transform: scale(1.1); }
+    .fab-demo img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    }
+    .fab-tooltip {
+        position: fixed;
+        bottom: 88px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(8px);
+        transition: all .2s ease;
+        z-index: 999;
+    }
+    .fab-demo:hover + .fab-tooltip {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Toast */
+    .toast-wrap {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .toast {
+        background: #1d1e2a;
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border-left: 4px solid var(--accent);
+        font-size: 13px;
+        min-width: 220px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        animation: toastIn .3s ease;
+    }
+    .toast.success { border-left-color: #10b981; }
+    .toast.error   { border-left-color: #ef4444; }
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(50px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+</style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+    <img src="assets/erome-logo-medium.png" alt="Erome Ultimate Premium" class="logo">
+    <h1>Erome Ultimate Premium</h1>
+    <p>All-in-one Erome enhancer · v7.1.0</p>
+    <div class="badges">
+        <span class="badge">🎬 TikTok Feed</span>
+        <span class="badge">💾 Bulk ZIP Downloads</span>
+        <span class="badge">📊 Smart Sorting</span>
+        <span class="badge">🔞 NSFW Blur</span>
+        <span class="badge">🎨 Dark Theme</span>
+        <span class="badge">🌐 Infinite Scroll</span>
+        <span class="badge">⚡ Zero Lag</span>
+    </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main">
+    <!-- FEATURES -->
+    <div class="features">
+        <h2>✨ Features</h2>
+
+        <div class="feature-card">
+            <h3><span class="emoji">📱</span> TikTok-Style Feed</h3>
+            <p>Phone-shaped vertical scroll with background album preloading. When you're near the end, the next album is already loaded — just like TikTok loading the next person.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">💾</span> Downloads</h3>
+            <p>One-click single download, bulk ZIP packaging (JSZip), smart filenames, background queue with progress tracking, M3U8/HLS auto-detection.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">🎬</span> Video Enhancements</h3>
+            <p>Speed control (0.5× to 3×), flip horizontal, Picture-in-Picture, Cinema Mode, instant download — all as Video.js control buttons.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">📊</span> Smart Sorting</h3>
+            <p>Sort by views, by video count (most videos first), or by photo count. Toggle direction instantly. Video-only filter hides photo-only albums.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">❤️</span> Erome-Native Buttons</h3>
+            <p>TikTok feed includes every Erome action: Like, Favorite, Comment, Share, Save, Copy, Report — with real like/favorite counts from the album page.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">🔞</span> NSFW & Privacy</h3>
+            <p>One-click blur toggle, hide photos/videos independently, redirect/popup blocker stops aggressive redirects.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">🎨</span> Modern UI</h3>
+            <p>Twitter-style popup cards, dark theme with purple accent, toast notifications, animated splash screen with the Erome logo.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3><span class="emoji">⌨️</span> Keyboard Shortcuts</h3>
+            <p>Space=pause, L=like, D=download, ↑↓=scroll, Esc=close. Works in TikTok mode and on regular video pages.</p>
+        </div>
+    </div>
+
+    <!-- PHONE PREVIEW -->
+    <div class="phone-wrap">
+        <div class="phone-label">🔴 Live Preview</div>
+        <div class="phone" id="phone">
+
+            <!-- Splash -->
+            <div class="splash" id="splash">
+                <img src="assets/erome-logo-splash.png" alt="Erome">
+                <div class="splash-tag">Ultimate Premium</div>
+                <div class="splash-dots"><span></span><span></span><span></span></div>
+            </div>
+
+            <!-- Top bar -->
+            <div class="topbar">
+                <div class="topbar-title">
+                    <img src="assets/erome-logo-icon.png" alt="Erome">
+                    <span>For You</span>
+                </div>
+                <div class="topbar-tabs">
+                    <button class="tab active">Videos</button>
+                    <button class="tab">Photos</button>
+                    <button class="tab">All</button>
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="card" id="card">
+                <div class="card-media"></div>
+
+                <div class="pills-top">
+                    <span class="pill">👁️ 12.4K</span>
+                    <span class="pill">🎥 Video</span>
+                </div>
+
+                <div class="heart-pop" id="heartPop">❤️</div>
+
+                <div class="sidebar">
+                    <div class="avatar">
+                        <img src="https://api.dicebear.com/7.x/initials/svg?seed=Erome&backgroundColor=8a5acc" alt="Erome">
+                        <span class="plus">+</span>
+                    </div>
+                    <div class="action" id="likeBtn" onclick="toggleLike()">
+                        <div class="action-icon">❤️</div>
+                        <div class="action-label" id="likeCount">2.1K</div>
+                    </div>
+                    <div class="action" id="favBtn" onclick="toggleFav()">
+                        <div class="action-icon">⭐</div>
+                        <div class="action-label">Favorite</div>
+                    </div>
+                    <div class="action" onclick="showToast('Comments', 'info')">
+                        <div class="action-icon">💬</div>
+                        <div class="action-label">Comments</div>
+                    </div>
+                    <div class="action" onclick="showToast('Shared! 📤', 'success')">
+                        <div class="action-icon">📤</div>
+                        <div class="action-label">Share</div>
+                    </div>
+                    <div class="action" onclick="showToast('Download started 💾', 'success')">
+                        <div class="action-icon">⬇️</div>
+                        <div class="action-label">Save</div>
+                    </div>
+                    <div class="action" onclick="showToast('URL copied! 📋', 'success')">
+                        <div class="action-icon">📋</div>
+                        <div class="action-label">Copy</div>
+                    </div>
+                    <div class="disc">
+                        <img src="https://api.dicebear.com/7.x/initials/svg?seed=Erome&backgroundColor=14151f" alt="">
+                    </div>
+                </div>
+
+                <div class="caption">
+                    <div class="user">@eromeuser</div>
+                    <div class="desc">🎥 Amazing content you have to see — background preloading keeps the feed going forever!</div>
+                    <a href="#" class="album-btn" onclick="showToast('Opening album in new tab', 'info'); return false;">👁️ View Album on Erome</a>
+                    <div class="ticker">🎵 Erome · @eromeuser</div>
+                </div>
+
+                <div class="progress"><div class="progress-fill"></div></div>
+            </div>
+
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="control-btn" onclick="replaySplash()">🔄 Replay Splash</button>
+            <button class="control-btn red" onclick="doubleTap()">💞 Double-Tap Like</button>
+            <button class="control-btn teal" onclick="showToast('TikTok Mode demo!', 'success')">🎬 Open Feed</button>
+        </div>
+
+        <div style="text-align: center; color: #6a6a7a; font-size: 11px; max-width: 320px;">
+            <strong>Try the buttons above!</strong><br>
+            This is an interactive preview — install the userscript to get the real experience on erome.com.
+        </div>
+    </div>
+</div>
+
+<!-- FAB demo -->
+<button class="fab-demo" onclick="showToast('This is the TikTok Mode FAB!', 'info')">
+    <img src="assets/erome-logo-icon.png" alt="Erome">
+</button>
+<div class="fab-tooltip">← Click the Erome logo FAB</div>
+
+<!-- Toast area -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Footer -->
+<div class="footer">
+    <img src="assets/erome-logo-icon.png" alt="Erome">
+    <div>Made with 💜 for the Erome power-user community</div>
+    <div style="margin-top: 8px; opacity: 0.6;">Version 7.1.0 · MIT License · Built by SuperNinja</div>
+</div>
+
+<script>
+    // Hide splash after 2 seconds
+    setTimeout(() => {
+        document.getElementById('splash').classList.add('hidden');
+    }, 2000);
+
+    function replaySplash() {
+        const s = document.getElementById('splash');
+        s.classList.remove('hidden');
+        setTimeout(() => s.classList.add('hidden'), 2000);
+    }
+
+    function toggleLike() {
+        const btn = document.getElementById('likeBtn');
+        const count = document.getElementById('likeCount');
+        btn.classList.toggle('liked');
+        if (btn.classList.contains('liked')) {
+            count.textContent = '2.2K';
+            showHeartPop();
+            showToast('Liked ♥', 'success');
+        } else {
+            count.textContent = '2.1K';
+        }
+    }
+
+    function toggleFav() {
+        const btn = document.getElementById('favBtn');
+        btn.classList.toggle('faved');
+        showToast(
+            btn.classList.contains('faved') ? 'Added to favorites ⭐' : 'Removed from favorites',
+            'success'
+        );
+    }
+
+    function doubleTap() {
+        showHeartPop();
+        document.getElementById('likeBtn').classList.add('liked');
+        document.getElementById('likeCount').textContent = '2.2K';
+        showToast('Double-tap to like!', 'success');
+    }
+
+    function showHeartPop() {
+        const pop = document.getElementById('heartPop');
+        pop.classList.remove('animate');
+        void pop.offsetWidth;
+        pop.classList.add('animate');
+    }
+
+    function showToast(msg, type = 'info') {
+        const wrap = document.getElementById('toastWrap');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        wrap.appendChild(t);
+        setTimeout(() => {
+            t.style.opacity = '0';
+            t.style.transform = 'translateX(50px)';
+            t.style.transition = 'all .3s ease';
+            setTimeout(() => t.remove(), 300);
+        }, 2200);
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            showToast(`Switched to ${tab.textContent} tab`, 'info');
+        });
+    });
+
+    // Double-tap on the card
+    let lastTap = 0;
+    document.getElementById('card').addEventListener('click', (e) => {
+        if (e.target.closest('.sidebar') || e.target.closest('.caption')) return;
+        const now = Date.now();
+        if (now - lastTap < 350) {
+            doubleTap();
+        }
+        lastTap = now;
+    });
+</script>
+</body>
+</html>
