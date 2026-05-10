@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Erome Ultimate Premium — By Insomnia
-// @namespace    https://github.com// @version      7.3.6-hover-length-filter
-// @description  The ultimate all-in-one Erome enhancer: TikTok-style vertical feed plus desktop feed with Erome-native buttons (Like, Favorite, Comment, Share, Report), background album preloading, downloads (single + bulk ZIP), M3U8/HLS, sort by views/video-count/photo-count, infinite scroll, video-only mode, cinema mode, playback speed, flip video, PiP, NSFW blur, hide photos/videos, album counts, video duration badges, like counts, hidden-by-duration, redirect/popup blocker, modern Twitter-like popup UI, persistent settings, seen/downloaded tracking, smart download manager, feed controls, status panel, performance modes, search/listing feed scope, and restored album-page next-album loading, auto-hiding feed tools, logo control toggle, and min/max video-length filtering.
-// @author       Insomniakin
+// @name         Erome Ultimate Premium - Optimized by Insomnia
+// @namespace    https://github.com/
+// @version      8.0.0-optimized
+// @description  Fast, polished Erome enhancer with smart downloads, premium feed mode, filters, tracking, and low-overhead UI refreshes.
 // @icon         https://www.erome.com/favicon-32x32.png
 // @match        https://*.erome.com/*
 // @match        https://www.erome.com/*
@@ -22,4407 +22,1659 @@
 // @license      MIT
 // ==/UserScript==
 
-/* globals $ JSZip saveAs */
+/* globals JSZip saveAs GM GM_xmlhttpRequest GM_addStyle GM_setClipboard */
 
 (function () {
     'use strict';
 
-    /* ============================================================
-     *  CONFIGURATION & STATE
-     * ============================================================ */
-    const CONFIG = {
-        brand: 'Erome Ultimate',
-        version: '7.3.6-hover-length-filter',
-        accent: '#8a5acc',
-        accentSoft: '#b39ad6',
-        dark: '#14151f',
-        darker: '#0e0f17',
-        surface: '#1d1e2a',
+    const APP = {
+        name: 'Erome Ultimate',
+        version: '8.0.0-optimized',
+        storage: 'eu8:',
+        accent: '#9b6cff',
+        accent2: '#00d5ff',
+        danger: '#ff4d6d',
         success: '#4ade80',
-        danger: '#ef4444',
-        warning: '#fbbf24'
+        warn: '#fbbf24'
     };
 
-    /* === Embedded Erome Logo (base64 PNG) === */
-    const LOGO_SPLASH = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAACcCAMAAABm1A0xAAAB/lBMVEWcHy2hV1ceFCBUICHc2uCcKE3PV2+WatIQEB2tkY7Ms9kPkpPgJGHbqKqHSzqhjnJgM1jcX4yOcpq3nd49QD3rxK1tU5nCCSZd196o9fclYmUp0tXWmHRUPoB+R8fmPYV7cF+FPrwFBQoRERsUEiN2dnKsCCNWVlM2NTS0hnDGyshJSEksKSZoaGlMOStxWEbS1tDMlnjn7OOMZ1JWRTe1uLaPhXOuemrSmYiUlpTlp47WpInl59tyZFOHiYgAAAHqt5Tv9O6OdFqnqKjFiXJpSTeOemcDAwUBAQMtIxuvlXgCAgSKWUnHxrm9wsJvUj2SBhgUDyCsdVpTR2mwpY+9wrsqGhOmAhvd4desmod5eYMGBgwEBAinalZFOlVwOS90Z41bWWZkWnHNua1IKhp0CBK6vMHToX07OUN9gYOIVsyxaWUGBgs+QUHhnIvUtZSdoaLuSZLo2NBeYWKbnKHGeXFxKCrJi4htTUFuWpGqh9ldYFlvFxl9gXusNVDV/f0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS69gxAAAAgHRSTlP//+n//////6z//////////////////////////////////v7+//////////////////////////////////8F/////////43P//+x////////////////////US7///////////////////9w/////////////////////////+lpkHUAABqCSURBVHja7d2LX9NY9gBwanmsDr7H2dn375cQkzS5Sds0SUNJVvKaaadS7SBYdpGnCjK+38/913/n3PSRloIocX9lN0cUFHTmky/nnHtuHh37e2LxzyHxj6HxWyd+6o/f/fQ7jF/gjQZ+FMWpfTFzhGAPC2Yk47ex/kPyS1/8PDQS/5847LDNHC9OnMhvY6Pz/xI7UEnoHAwxyiIjCMIklywHpsboivw0NmIew7Mj4ao1wiKjAxJlxjCPmWPHgSIMm4Icnh/st/AY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';
-    const LOGO_ICON   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAB/lBMVEWXHiq1mNve4ttgIxyXbNPQcJp1WZuDTzyhUk2fjXHoIVrDp+Day7MQEBs/QDyvK0OtqZvEYGjgn34fIB45LEVfUjxjT2KHY7bABCPCpq4MCxUREBwUEiNVVlQ3NzRISEjGycezhnByWEfNl3mtCCMsKSZnaGmKZ1LR19CuemlLOStTRDd1dXLn7ONwZFWNhnTRmYe0t7Xlp4+HiIjYpIlmSjjk5tuVl5Tqt5OnqaeOdFqNe2fr8uqvlHbEiHEvIxuMWkoUDiDHxrptUTypARurdlu0pI2SBRi9wsJ5eIMJCREICBB0aYusmIcqGxNDOlBlWnKmali9wrnd4dhQQ2c9OkVxOjA+QUFeYWLNuLIQEB2doaLa4+Pm2s59gYS5vMLIioVdYFvinYtcV2R3BxNsFxl0KCWal6S0Z2W1jIaUaNWrFy2rJzbHe2nXtI99gHuwQ1O1WWiqh9dFKBdvWZKWISuUbGOCeomzOETJnKXQoX3Mu8jjxLgkHS5HLSdtTUIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+vwaQAAAAgHRSTlP/////////////////v/////////////////7+/v///////////////////////////////////////////////////////////7nR///////////////////T/////////////////////////////////////////////////zEiVIkAAArlSURBVHja7Zn3X9tIGocNJJtsL9elqMwISVZBxbIQkpHtuGHvYlpCCwRISAKk92w2u5t//d4ZGWODDVifu/vpvsTYOPb76C3zzowm83NX3377y507d34hupOIBd04T+wZMaeVSZ7OfvLGxWIHaQigAzlFGo2RfHkogD1l/8Zl1Yu4AJDKfh9iAKEPkMp8L4I5S+gBnDgwNIMD1Uc4k4bMafsM/cbpnF1EGO5CZmCAzi0/Vu5XP+G0C5mTEhpwQSBioiTLPV/5C39K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';
-
-
-    const DEFAULT_SETTINGS = {
-        defaultFeedLayout: 'desktop',      // 'phone' | 'desktop'
-        defaultFeedType: 'all',           // 'videos' | 'photos' | 'all'
-        performanceMode: 'normal',        // 'lite' | 'normal' | 'aggressive'
+    const DEFAULTS = {
+        performanceMode: 'balanced', // eco | balanced | max
+        feedLayout: matchMedia('(min-width: 800px)').matches ? 'desktop' : 'phone',
+        feedType: 'all',
+        fitMode: 'cover',
         autoplay: true,
-        muteVideos: false,
-        loopVideos: true,
-        autoResume: true,
-        fitMode: 'contain',               // 'contain' | 'cover' | 'natural'
-        showSeenBadges: true,
+        muted: true,
+        loop: true,
+        showDownloadButtons: true,
+        showBadges: true,
         hideSeen: false,
         hideDownloaded: false,
-        skipDownloadedInDownloads: false,
+        skipDownloaded: false,
         zipFolders: true,
-        retryDownloads: true,
-        showDownloadButtons: true,
-        hiddenSeconds: 0,              // legacy min-length value
-        minVideoSeconds: 0,             // 0 = off; hide videos shorter than this
-        maxVideoSeconds: 0,             // 0 = off; hide videos longer than this
-        sortMode: 'views',
-        sortAscending: false,
-        albumSearch: '',
-        lockFeedToSearch: true,          // listing/search feeds stay inside the current result set/pagination
-        allowRelatedAlbumExpansion: true,  // album-page feeds preload next/related albums by default
-        strictSearchTitleMatch: false,   // optional extra filter: album card/title must contain a search word
-        feedControlsAutoHide: true,      // hide the feed tools/search/shuffle row after a moment
-        feedControlsPinned: false,       // keep feed tools visible until manually hidden
-        lastFeed: null
+        minSeconds: 0,
+        maxSeconds: 0,
+        search: '',
+        lockListingFeed: true,
+        loadRelatedAlbums: true,
+        autoHideFeedTools: true
     };
 
-    const SETTINGS = Object.assign({}, DEFAULT_SETTINGS, loadJSON('eu_settings_v73', {}));
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const isAlbumPage = /^\/a\//.test(location.pathname);
+    const seenNodes = new WeakSet();
+    let refreshTimer = 0;
+    let observer;
 
-    const TRACKING = {
-        seenAlbums: new Set(loadJSON('eu_seen_albums_v1', [])),
-        downloadedMedia: new Set(loadJSON('eu_downloaded_media_v1', [])),
-        downloadedAlbums: new Set(loadJSON('eu_downloaded_albums_v1', [])),
-        hiddenAlbums: new Set(loadJSON('eu_hidden_albums_v1', [])),
-        favorites: loadJSON('eu_favorites_v1', [])
+    const settings = Object.assign({}, DEFAULTS, loadJSON('settings', {}));
+    const tracking = {
+        seenAlbums: new Set(loadJSON('seenAlbums', [])),
+        downloadedAlbums: new Set(loadJSON('downloadedAlbums', [])),
+        downloadedMedia: new Set(loadJSON('downloadedMedia', [])),
+        favorites: loadJSON('favorites', [])
     };
 
-    const DLX = {
-        running: false,
-        cancel: false,
-        done: 0,
-        total: 0,
-        ok: 0,
-        failed: []
+    const feed = {
+        open: false,
+        items: [],
+        itemUrls: new Set(),
+        albumQueue: [],
+        albumSeen: new Set(),
+        loading: false,
+        index: 0,
+        io: null,
+        listingPage: Number(new URL(location.href).searchParams.get('page') || 1) + 1,
+        stopped: false
     };
 
-    const STATE = {
-        showPhotos: true,
-        showVideos: true,
-        showDownloadButtons: SETTINGS.showDownloadButtons !== false,
-        cinemaMode: false,
-        nsfwBlur: loadBool('eu_nsfw', false),
-        hiddenSeconds: Math.max(0, Number(SETTINGS.minVideoSeconds || SETTINGS.hiddenSeconds) || 0),
-        maxVideoSeconds: Math.max(0, Number(SETTINGS.maxVideoSeconds) || 0),
-        videoOnlyMode: loadBool('eu_video_only', false),
-        sortAscending: !!SETTINGS.sortAscending,
-        sortMode: SETTINGS.sortMode || 'views', // 'views' | 'videos' | 'photos'
-        videoDurations: new Map(),
-        downloadQueue: [],
-        downloadInProgress: false,
-        tiktokMode: false,
-        tiktokLayout: SETTINGS.defaultFeedLayout === 'desktop' ? 'desktop' : 'phone', // 'phone' | 'desktop'
-        tiktokType: SETTINGS.defaultFeedType || 'videos', // 'videos' | 'photos' | 'all'
-        tiktokIndex: 0
+    const ICON = {
+        logo: '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="eu-g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#9b6cff"/><stop offset=".55" stop-color="#ff4d9d"/><stop offset="1" stop-color="#00d5ff"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#eu-g)"/><path fill="#fff" d="M18 18h28v8H27v8h17v7H27v9h20v8H18z"/></svg>',
+        brand: '<svg viewBox="0 0 420 96" aria-hidden="true"><defs><linearGradient id="eu-brand-g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00e5ff"/><stop offset=".45" stop-color="#7c7cff"/><stop offset="1" stop-color="#ff4dd8"/></linearGradient><filter id="eu-brand-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#eu-brand-glow)"><rect x="8" y="13" width="70" height="70" rx="20" fill="rgba(0,0,0,.36)" stroke="url(#eu-brand-g)" stroke-width="5"/><path fill="url(#eu-brand-g)" d="M48 25h10v31c0 11-8 20-20 20-10 0-18-6-18-15 0-10 9-16 20-14 3 .5 5 1.5 8 3V25zm0 33c-3-2-6-3-9-3-6 0-10 3-10 7s4 7 9 7c6 0 10-4 10-11zM58 25c5 9 12 15 22 17v10c-10-2-17-6-22-12z"/><text x="98" y="65" fill="url(#eu-brand-g)" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="52" font-weight="900">EroTok</text></g></svg>',
+        download: '<svg viewBox="0 0 24 24"><path d="M12 3v10.2l3.8-3.8 1.4 1.4L12 16l-5.2-5.2 1.4-1.4 3.8 3.8V3h2zm-7 15h14v2H5z"/></svg>',
+        settings: '<svg viewBox="0 0 24 24"><path d="M19.4 13.5c.1-.5.1-1 .1-1.5s0-1-.1-1.5l2-1.5-2-3.5-2.4 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.4 3a8 8 0 0 0-2.6 1.5l-2.4-1-2 3.5 2 1.5A9 9 0 0 0 4.5 12c0 .5 0 1 .1 1.5l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 2.6 1.5l.4 3h4l.4-3a8 8 0 0 0 2.6-1.5l2.4 1 2-3.5-2-1.5zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z"/></svg>',
+        close: '<svg viewBox="0 0 24 24"><path d="m6.4 5 12.6 12.6-1.4 1.4L5 6.4z"/><path d="M17.6 5 19 6.4 6.4 19 5 17.6z"/></svg>',
+        play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+        pause: '<svg viewBox="0 0 24 24"><path d="M14 19h4V5h-4M6 19h4V5H6v14z"/></svg>',
+        volumeHigh: '<svg viewBox="0 0 24 24"><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.84-5 6.7v2.07c4-.91 7-4.49 7-8.77s-3-7.86-7-8.77zM16.5 12c0-1.77-1-3.29-2.5-4.03V16c1.5-.71 2.5-2.24 2.5-4zM3 9v6h4l5 5V4L7 9H3z"/></svg>',
+        volumeLow: '<svg viewBox="0 0 24 24"><path d="M5 9v6h4l5 5V4L9 9H5zm13.5 3c0-1.77-1-3.29-2.5-4.03V16c1.5-.71 2.5-2.24 2.5-4z"/></svg>',
+        volumeMuted: '<svg viewBox="0 0 24 24"><path d="M12 4 9.91 6.09 12 8.18M4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.26c-.67.51-1.42.93-2.25 1.17v2.07c1.38-.32 2.63-.95 3.68-1.81L19.73 21 21 19.73 12 10.73M19 12c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.95 8.95 0 0 0 21 12c0-4.28-3-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71z"/></svg>',
+        captions: '<svg viewBox="0 0 24 24"><path d="M18 11h-1.5v-.5h-2v3h2V13H18v1a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1M11 11H9.5v-.5h-2v3h2V13H11v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6c0-1.11-.9-2-2-2z"/></svg>',
+        mini: '<svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z"/></svg>',
+        theaterTall: '<svg viewBox="0 0 24 24"><path d="M19 6H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H5V8h14v8z"/></svg>',
+        theaterWide: '<svg viewBox="0 0 24 24"><path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/></svg>',
+        fullOpen: '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>',
+        fullClose: '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>',
+        heart: '<svg viewBox="0 0 24 24"><path d="M12 21 10.6 19.7C5.4 15 2 11.9 2 8.3 2 5.4 4.3 3 7.2 3c1.7 0 3.3.8 4.4 2 1.1-1.2 2.7-2 4.4-2C18.9 3 21.2 5.4 21.2 8.3c0 3.6-3.4 6.7-8.6 11.4z"/></svg>',
+        copy: '<svg viewBox="0 0 24 24"><path d="M16 1H4v14h2V3h10zm3 4H8v18h11z"/></svg>',
+        eye: '<svg viewBox="0 0 24 24"><path d="M12 5c5.5 0 9 5.2 10 7-1 1.8-4.5 7-10 7S3 13.8 2 12c1-1.8 4.5-7 10-7zm0 3.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"/></svg>',
+        shuffle: '<svg viewBox="0 0 24 24"><path d="M16 3h5v5h-2V6.4l-4.8 4.8-1.4-1.4L17.6 5H16zM4 7h3.5c1.5 0 2.8.8 3.5 2l5 7h3v-2.6l3 3.6-3 3.6V18h-4l-5.6-7.8A2.3 2.3 0 0 0 7.5 9H4zm0 10h3.5c.8 0 1.5-.4 1.9-1.1l1-1.4 1.2 1.8-.6.8A4.3 4.3 0 0 1 7.5 19H4z"/></svg>'
     };
 
-    function loadBool(key, def) {
-        try { return localStorage.getItem(key) === 'true' ? true : (localStorage.getItem(key) === 'false' ? false : def); }
-        catch (e) { return def; }
-    }
-    function saveBool(key, val) {
-        try { localStorage.setItem(key, val ? 'true' : 'false'); } catch (e) {}
-    }
-    function loadJSON(key, def) {
+    injectStyles();
+
+    function key(name) { return APP.storage + name; }
+    function loadJSON(name, fallback) {
         try {
-            const raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : def;
-        } catch (e) { return def; }
+            const raw = localStorage.getItem(key(name));
+            return raw ? JSON.parse(raw) : fallback;
+        } catch { return fallback; }
     }
-    function saveJSON(key, value) {
-        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    function saveJSON(name, value) {
+        try { localStorage.setItem(key(name), JSON.stringify(value)); } catch {}
     }
-    function saveSettings() {
-        saveJSON('eu_settings_v73', SETTINGS);
-    }
-    function updateSetting(key, value) {
-        SETTINGS[key] = value;
-        saveSettings();
-    }
-
-    // 7.3.3 migration: 7.3.1 saved album-page feeds as "Current album only".
-    // Restore the old behavior one time so album pages preload the next/related album again.
-    (function migrateV733NextAlbumDefault() {
-        try {
-            const key = 'eu_migrated_v733_album_next_restored';
-            if (localStorage.getItem(key) !== '1') {
-                SETTINGS.allowRelatedAlbumExpansion = true;
-                saveSettings();
-                localStorage.setItem(key, '1');
-            }
-        } catch (e) {
-            SETTINGS.allowRelatedAlbumExpansion = true;
-        }
-    })();
-    function saveLimitedSet(key, set, limit = 2500) {
+    function saveSettings() { saveJSON('settings', settings); }
+    function saveSet(name, set, limit = 5000) {
         const arr = Array.from(set).filter(Boolean);
-        saveJSON(key, arr.slice(Math.max(0, arr.length - limit)));
+        saveJSON(name, arr.slice(Math.max(0, arr.length - limit)));
     }
-
-    const IS_ALBUM_PAGE = /^\/a\//.test(window.location.pathname);
-
-    /* ============================================================
-     *  REDIRECT & POPUP BLOCKER
-     * ============================================================ */
-    const BLOCKED_PATTERNS = [
-        'brightadnetwork.com',
-        'pemsrv.com',
-        '/jump/next.php',
-        'splash.php'
-    ];
-
-    function isBlockedUrl(url) {
-        return url && typeof url === 'string' && BLOCKED_PATTERNS.some(p => url.includes(p));
-    }
-
-    (function installRedirectBlocker() {
-        const origOpen = window.open;
-        window.open = function (url, ...rest) {
-            if (isBlockedUrl(url)) { console.log('[EU] Blocked popup:', url); return null; }
-            return origOpen.apply(this, [url, ...rest]);
-        };
-
-        document.addEventListener('click', function (e) {
-            let t = e.target;
-            while (t && t.tagName !== 'A' && t.tagName !== 'FORM') t = t.parentElement;
-            if (t && t.tagName === 'A' && isBlockedUrl(t.href)) {
-                console.log('[EU] Blocked click redirect:', t.href);
-                e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-            }
-        }, { capture: true, passive: false });
-
-        const observer = new MutationObserver(muts => {
-            muts.forEach(m => m.addedNodes.forEach(node => {
-                if (node.tagName === 'A' && isBlockedUrl(node.href)) { node.href = '#'; node.onclick = e => { e.preventDefault(); return false; }; }
-                if ((node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') && isBlockedUrl(node.src)) node.remove();
-            }));
-        });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
-    })();
-
-    /* ============================================================
-     *  STYLES — Modern Twitter-like UI
-     * ============================================================ */
-    GM_addStyle(`
-    /* ---------- Global Theme ---------- */
-    body {
-        background-color: ${CONFIG.surface} !important;
-        color: #fff;
-    }
-    a { color: ${CONFIG.accent}; }
-
-    /* ---------- Navbar ---------- */
-    .navbar-inverse { background-color: ${CONFIG.dark} !important; }
-    .nav.navbar-nav.navbar-right li a {
-        color: ${CONFIG.accent};
-        transition: all .2s ease-in-out;
-    }
-    .nav.navbar-nav.navbar-right li a:hover {
-        color: #fff;
-        text-shadow: 0 0 10px rgba(138,90,204,.9);
-        transform: scale(1.05);
-    }
-
-    /* ---------- Buttons ---------- */
-    .btn-pink {
-        color: #fff;
-        background-color: rgba(138,90,204,.35);
-        border-radius: 6px;
-        border: 1px solid transparent;
-        transition: all .25s ease;
-    }
-    .btn-pink:hover {
-        background-color: transparent;
-        border: 1px solid ${CONFIG.accent} !important;
-        box-shadow: 0 0 20px 2px rgba(138,90,204,.5);
-        color: #fff;
-    }
-    .btn-grey {
-        color: #fff;
-        border-radius: 6px;
-        filter: drop-shadow(0 0 5px rgba(138,90,204,.6));
-    }
-    .btn-grey:hover {
-        background: transparent !important;
-        border: 1px solid ${CONFIG.accent} !important;
-        box-shadow: 0 0 15px rgba(138,90,204,.5);
-    }
-
-    /* ---------- Album Cards ---------- */
-    .album-thumbnail-container {
-        transition: all .25s ease-in-out;
-        position: relative;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .album-thumbnail-container:hover {
-        transform: scale(.96);
-        box-shadow: 0 0 25px 4px rgba(138,90,204,.55);
-    }
-    .album .album-thumbnail {
-        object-fit: cover;
-        width: 100%;
-        height: 100%;
-    }
-
-    /* ---------- Pagination ---------- */
-    .pagination > li > a, .pagination > li > span {
-        background-color: ${CONFIG.dark};
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        margin: 0 4px;
-        transition: background-color .3s ease;
-    }
-    .pagination > li > a:hover, .pagination > .active > a,
-    .pagination > .active > span {
-        background-color: ${CONFIG.accent};
-        color: #fff;
-        box-shadow: 0 0 10px rgba(138,90,204,.7);
-    }
-
-    /* ---------- NSFW Blur ---------- */
-    .eu-blur {
-        filter: grayscale(100%) blur(10px) invert(100%) hue-rotate(90deg) contrast(170%);
-        transition: filter .3s ease;
-    }
-
-    /* ---------- Keyframes ---------- */
-    @keyframes eu-spin { to { transform: rotate(360deg); } }
-    @keyframes eu-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-    @keyframes eu-fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes eu-toast-in {
-        0%   { opacity: 0; transform: translateX(100px); }
-        100% { opacity: 1; transform: translateX(0); }
-    }
-
-    /* ---------- Download Button on Media ---------- */
-    .eu-dl-btn {
-        position: absolute;
-        top: 10px; left: 10px;
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        background: ${CONFIG.dark};
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 0 3px rgba(138,90,204,.4);
-        cursor: pointer;
-        transition: all .3s ease;
-        overflow: hidden;
-        color: #fff;
-        font-size: 13px;
-        font-weight: 600;
-        z-index: 9999;
-        white-space: nowrap;
-    }
-    .eu-dl-btn svg { width: 16px; height: 16px; transition: margin-right .2s ease; }
-    .eu-dl-btn:hover {
-        width: 110px;
-        border-radius: 24px;
-        background: ${CONFIG.accent};
-    }
-    .eu-dl-btn:hover .eu-dl-label { display: inline; margin-left: 6px; }
-    .eu-dl-btn .eu-dl-label { display: none; }
-    .eu-dl-btn.downloading { background: ${CONFIG.accent}; width: 110px; border-radius: 24px; pointer-events: none; }
-    .eu-dl-btn.downloading .eu-dl-label { display: inline; margin-left: 6px; }
-
-    /* ---------- Album Badges ---------- */
-    .eu-duration-badge {
-        position: absolute;
-        top: 8px; right: 8px;
-        background: rgba(0,0,0,.82);
-        color: #fff;
-        padding: 3px 7px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 700;
-        z-index: 15;
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255,255,255,.08);
-    }
-    .eu-count-badge {
-        position: absolute;
-        top: 8px; left: 8px;
-        background: rgba(0,0,0,.82);
-        color: #fff;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 700;
-        z-index: 15;
-        display: flex;
-        gap: 8px;
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255,255,255,.08);
-    }
-    .eu-likes-badge {
-        color: ${CONFIG.accent};
-        filter: drop-shadow(0 0 4px rgba(138,90,204,.8));
-        margin-left: 6px;
-        font-weight: 600;
-    }
-
-    /* ---------- Toast Notifications ---------- */
-    .eu-toast-wrap {
-        position: fixed;
-        bottom: 24px; right: 24px;
-        display: flex;
-        flex-direction: column-reverse;
-        gap: 10px;
-        z-index: 100000;
-        pointer-events: none;
-    }
-    .eu-toast {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 240px;
-        max-width: 360px;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: rgba(20,21,31,.95);
-        color: ${CONFIG.accentSoft};
-        font-size: 13.5px;
-        font-family: 'Segoe UI', Roboto, sans-serif;
-        box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 0 1px rgba(138,90,204,.25);
-        backdrop-filter: blur(10px);
-        animation: eu-toast-in .35s cubic-bezier(.22,1,.36,1);
-        border-left: 3px solid ${CONFIG.accent};
-        pointer-events: auto;
-    }
-    .eu-toast.success { border-left-color: ${CONFIG.success}; color: #e0ffef; }
-    .eu-toast.error   { border-left-color: ${CONFIG.danger};  color: #ffe0e0; }
-    .eu-toast.warning { border-left-color: ${CONFIG.warning}; color: #fff4d6; }
-    .eu-toast svg { flex-shrink: 0; }
-
-    /* ---------- Hub Menu (Twitter-like popup cards) ---------- */
-    .eu-hub {
-        position: relative;
-        display: inline-block;
-        margin-left: 10px;
-        vertical-align: middle;
-        margin-top: 15px;
-    }
-    .eu-hub-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 9px;
-        background: ${CONFIG.surface};
-        border-radius: 10px;
-        color: ${CONFIG.accentSoft};
-        transition: all .3s ease;
-        cursor: pointer;
-        border: 1px solid transparent;
-    }
-    .eu-hub-btn:hover {
-        border-color: ${CONFIG.accent};
-        box-shadow: 0 0 15px rgba(138,90,204,.4);
-        transform: translateY(-1px);
-    }
-    .eu-hub-btn svg { width: 18px; height: 18px; fill: #fff; }
-    .eu-hub-menu {
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        background: ${CONFIG.dark};
-        border-radius: 12px;
-        box-shadow: 0 12px 32px rgba(0,0,0,.6), 0 0 0 1px rgba(138,90,204,.2);
-        padding: 8px;
-        list-style: none;
-        display: none;
-        min-width: 220px;
-        z-index: 10000;
-        backdrop-filter: blur(12px);
-        animation: eu-fade-in .2s ease;
-    }
-    .eu-hub.open .eu-hub-menu { display: block; }
-    .eu-hub-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        cursor: pointer;
-        color: #fff;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        transition: all .2s ease;
-        white-space: nowrap;
-    }
-    .eu-hub-item:hover {
-        background: rgba(138,90,204,.15);
-        transform: translateX(3px);
-    }
-    .eu-hub-item svg { width: 16px; height: 16px; fill: ${CONFIG.accentSoft}; flex-shrink: 0; }
-    .eu-hub-item.inactive { opacity: .45; }
-    .eu-hub-item .eu-kbd {
-        margin-left: auto;
-        background: rgba(255,255,255,.08);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 10px;
-        color: ${CONFIG.accentSoft};
-    }
-
-    /* ---------- Bulk Download Modal ---------- */
-    .eu-modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,.75);
-        backdrop-filter: blur(6px);
-        z-index: 99998;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        animation: eu-fade-in .2s ease;
-    }
-    .eu-modal-overlay.open { display: flex; }
-    .eu-modal {
-        background: ${CONFIG.dark};
-        border-radius: 16px;
-        width: 440px;
-        max-width: 92vw;
-        max-height: 90vh;
-        overflow: hidden;
-        box-shadow: 0 24px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(138,90,204,.2);
-        animation: eu-fade-in .25s cubic-bezier(.22,1,.36,1);
-    }
-    .eu-modal-header {
-        padding: 18px 22px;
-        background: linear-gradient(135deg, ${CONFIG.accent}, #6b3fb0);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .eu-modal-header h3 {
-        margin: 0;
-        color: #fff;
-        font-size: 17px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .eu-modal-close {
-        background: rgba(255,255,255,.2);
-        border: none;
-        color: #fff;
-        width: 30px; height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background .2s ease;
-    }
-    .eu-modal-close:hover { background: rgba(255,255,255,.35); }
-    .eu-modal-body { padding: 22px; }
-
-    .eu-option-group { margin-bottom: 18px; }
-    .eu-option-title {
-        color: ${CONFIG.accentSoft};
-        font-weight: 700;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: .8px;
-        margin-bottom: 10px;
-    }
-    .eu-option {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 0;
-        color: #e4e4e8;
-        cursor: pointer;
-        transition: color .2s ease;
-        font-size: 14px;
-    }
-    .eu-option:hover { color: ${CONFIG.accentSoft}; }
-    .eu-option input { display: none; }
-    .eu-radio, .eu-check {
-        width: 18px; height: 18px;
-        border: 2px solid #555;
-        border-radius: 50%;
-        position: relative;
-        transition: all .25s ease;
-        flex-shrink: 0;
-    }
-    .eu-check { border-radius: 4px; }
-    .eu-option input:checked + .eu-radio,
-    .eu-option input:checked + .eu-check {
-        border-color: ${CONFIG.accent};
-        background: ${CONFIG.accent};
-    }
-    .eu-option input:checked + .eu-radio::after {
-        content: ''; position: absolute;
-        top: 4px; left: 4px;
-        width: 6px; height: 6px;
-        background: #fff; border-radius: 50%;
-    }
-    .eu-option input:checked + .eu-check::after {
-        content: '✓'; position: absolute;
-        top: -2px; left: 2px;
-        color: #fff; font-size: 13px; font-weight: bold;
-    }
-    .eu-zip-preview {
-        font-size: 11px;
-        color: #888;
-        margin-top: 6px;
-        padding: 8px 10px;
-        background: ${CONFIG.darker};
-        border-radius: 6px;
-        word-break: break-all;
-        font-family: monospace;
-    }
-    .eu-btn-primary {
-        width: 100%;
-        padding: 13px;
-        background: linear-gradient(135deg, ${CONFIG.accent}, #a77fd4);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 15px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all .25s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    .eu-btn-primary:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(138,90,204,.5);
-    }
-    .eu-btn-primary:disabled { opacity: .55; cursor: not-allowed; }
-
-    .eu-progress-box {
-        margin-top: 14px;
-        padding: 14px;
-        background: ${CONFIG.darker};
-        border-radius: 10px;
-    }
-    .eu-progress-bar {
-        width: 100%; height: 6px;
-        background: rgba(255,255,255,.08);
-        border-radius: 3px;
-        overflow: hidden;
-        margin-bottom: 8px;
-    }
-    .eu-progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, ${CONFIG.accent}, ${CONFIG.accentSoft});
-        width: 0;
-        transition: width .25s ease;
-    }
-    .eu-progress-text {
-        color: ${CONFIG.accentSoft};
-        font-size: 12px;
-        text-align: center;
-        font-weight: 600;
-    }
-
-    /* ---------- Floating Action Button (FAB) ---------- */
-    .eu-fab {
-        position: fixed;
-        bottom: 24px; right: 24px;
-        width: 56px; height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, ${CONFIG.accent}, #6b3fb0);
-        border: none;
-        cursor: pointer;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        box-shadow: 0 6px 18px rgba(138,90,204,.55);
-        transition: all .3s ease;
-    }
-    .eu-fab:hover { transform: scale(1.08); box-shadow: 0 8px 26px rgba(138,90,204,.75); }
-    .eu-fab svg { width: 24px; height: 24px; fill: #fff; }
-    .eu-fab-badge {
-        position: absolute;
-        top: -4px; right: -4px;
-        min-width: 22px; height: 22px;
-        padding: 0 6px;
-        background: ${CONFIG.danger};
-        color: #fff;
-        border-radius: 11px;
-        font-size: 11px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid ${CONFIG.dark};
-    }
-
-    /* ---------- Hidden Slider (bottom-left) ---------- */
-    .eu-hidden-slider {
-        position: fixed;
-        bottom: 24px; left: 24px;
-        width: 44px; height: 44px;
-        border-radius: 50%;
-        background: ${CONFIG.dark};
-        border: none;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 0 3px rgba(138,90,204,.35);
-        cursor: pointer;
-        transition: all .3s ease;
-        z-index: 9999;
-        color: #fff;
-        font-weight: 700;
-        font-size: 12px;
-        overflow: hidden;
-    }
-    .eu-hidden-slider.visible { display: flex; }
-    .eu-hidden-slider:hover {
-        width: 110px;
-        border-radius: 22px;
-        background: ${CONFIG.accent};
-    }
-    .eu-hidden-slider svg { width: 20px; height: 20px; fill: #fff; }
-
-    /* ---------- Video Player Custom Controls ---------- */
-    .video-js .vjs-play-progress {
-        background: ${CONFIG.accent} !important;
-        box-shadow: 0 0 18px 4px rgba(138,90,204,.5);
-    }
-    .vjs-control:hover { background: rgba(138,90,204,.3); }
-    .eu-player-btn {
-        background: ${CONFIG.accent};
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        padding: 6px 10px;
-        margin: 0 3px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background .2s ease;
-        font-weight: 600;
-        font-size: 12px;
-    }
-    .eu-player-btn:hover { background: #a77fd4; }
-    .eu-player-btn svg { width: 16px; height: 16px; fill: #fff; }
-
-    /* ---------- Cinema Overlay ---------- */
-    .eu-cinema-overlay {
-        position: fixed; inset: 0;
-        background: rgba(0,0,0,.92);
-        z-index: 998;
-        pointer-events: none;
-        display: none;
-    }
-    body.eu-cinema .eu-cinema-overlay { display: block; }
-    body.eu-cinema .video-js,
-    body.eu-cinema .media-group img { z-index: 9999; position: relative; }
-
-    /* ---------- Utility ---------- */
-    .eu-hidden-video { display: none !important; }
-
-    /* ---------- Video-Only Filter (no gaps!) ---------- */
-    .eu-filtered-out {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-        position: absolute !important;
-        pointer-events: none !important;
-    }
-    /* Compact grid auto-flow so remaining items reflow with no empty slots */
-    .eu-grid-compact {
-        display: grid !important;
-        grid-auto-flow: row dense !important;
-    }
-    /* Some Erome templates use flex-wrap — ensure items reflow */
-    .user-albums.eu-grid-compact,
-    .albums.eu-grid-compact {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 12px !important;
-    }
-    .eu-spinner {
-        width: 14px; height: 14px;
-        border: 2px solid rgba(255,255,255,.3);
-        border-top-color: #fff;
-        border-radius: 50%;
-        animation: eu-spin .8s linear infinite;
-        display: inline-block;
-    }
-    `);
-
-    /* ============================================================
-     *  ICONS (SVG)
-     * ============================================================ */
-    const ICONS = {
-        download:  '<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>',
-        upload:    '<svg viewBox="0 0 384 512"><path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg>',
-        settings:  '<svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>',
-        eye:       '<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>',
-        eyeOff:    '<svg viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.82l2.92 2.92c1.51-1.39 2.59-3.26 3.1-5.34-1.71-4.38-5.98-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1.14 12c1.71 4.38 5.98 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27z"/></svg>',
-        photo:     '<svg viewBox="0 0 24 24"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>',
-        video:     '<svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>',
-        cinema:    '<svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
-        heart:     '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
-        copy:      '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>',
-        zip:       '<svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-4 17h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm3 12h-2v-2h2v2zm0-4h-2v-2h2v2z"/></svg>',
-        flip:      '<svg viewBox="0 0 16 16"><path d="M7 16V0H9V16H7Z"/><path d="M15 12H14L10 8L14 4H15L15 12Z"/><path d="M2 12H1L1 4H2L6 8L2 12Z"/></svg>',
-        pip:       '<svg viewBox="0 0 24 24"><path d="M19 7h-8v6h8V7zm2-4H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>',
-        clock:     '<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/></svg>',
-        sort:      '<svg viewBox="0 0 24 24"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>',
-        bell:      '<svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>',
-        close:     '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>',
-        check:     '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
-        star:      '<svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>',
-        starFill:  '<svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>',
-        share:     '<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>',
-        flag:      '<svg viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg>',
-        comment:   '<svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>',
-        user:      '<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>',
-        music:     '<svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>'
-    };
-
-    /* ============================================================
-     *  TOAST SYSTEM
-     * ============================================================ */
-    const toastWrap = document.createElement('div');
-    toastWrap.className = 'eu-toast-wrap';
-    (document.body || document.documentElement).appendChild(toastWrap);
-
-    function toast(message, type = 'info', duration = 2600) {
-        const t = document.createElement('div');
-        t.className = `eu-toast ${type}`;
-        const iconMap = { success: ICONS.check, error: ICONS.close, warning: ICONS.bell, info: ICONS.bell };
-        t.innerHTML = `${iconMap[type] || ICONS.bell}<span>${message}</span>`;
-        toastWrap.appendChild(t);
-        setTimeout(() => {
-            t.style.opacity = '0';
-            t.style.transform = 'translateX(100px)';
-            t.style.transition = 'all .3s ease';
-            setTimeout(() => t.remove(), 350);
-        }, duration);
-    }
-
-    /* ============================================================
-     *  UTILITIES
-     * ============================================================ */
-    function formatFileSize(bytes) {
-        if (!bytes) return '0 B';
-        const units = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
-    }
-    function formatDuration(ms) {
-        let s = Math.floor(ms / 1000);
-        const h = Math.floor(s / 3600); s %= 3600;
-        const m = Math.floor(s / 60); s %= 60;
-        return h > 0
-            ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-            : `${m}:${String(s).padStart(2, '0')}`;
-    }
-    function getFilename(url) {
-        try { return url.split('?')[0].split('/').pop(); }
-        catch (e) { return 'file'; }
-    }
-    function sanitize(name) {
-        return (name || '').replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_').substring(0, 60);
-    }
-
     function normalizeUrl(url, base = location.href) {
         if (!url) return '';
         try {
             const u = new URL(url, base);
             u.hash = '';
             return u.href;
-        } catch (e) { return url || ''; }
+        } catch { return String(url); }
     }
-    function getAlbumUrlFromElement(album, base = location.href) {
-        const link = album?.querySelector?.('a.album-link, a[href*="/a/"]');
-        const href = link?.getAttribute('href') || link?.href || '';
-        return href ? normalizeUrl(href, base) : '';
+    function sanitize(name) {
+        return String(name || 'Erome')
+            .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '_')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 90) || 'Erome';
     }
-    function currentAlbumUrl() {
-        return IS_ALBUM_PAGE ? normalizeUrl(location.href) : '';
+    function htmlEscape(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
     }
-    function markSeenAlbum(url) {
-        const clean = normalizeUrl(url || currentAlbumUrl());
-        if (!clean) return;
-        TRACKING.seenAlbums.add(clean);
-        saveLimitedSet('eu_seen_albums_v1', TRACKING.seenAlbums);
+    function filenameFromUrl(url) {
+        try { return decodeURIComponent(new URL(url, location.href).pathname.split('/').pop()) || 'media'; }
+        catch { return 'media'; }
     }
-    function markDownloadedMedia(url, albumUrl = '') {
-        const media = normalizeUrl(url);
-        if (media) TRACKING.downloadedMedia.add(media);
-        const album = normalizeUrl(albumUrl || currentAlbumUrl());
-        if (album) TRACKING.downloadedAlbums.add(album);
-        saveLimitedSet('eu_downloaded_media_v1', TRACKING.downloadedMedia, 5000);
-        saveLimitedSet('eu_downloaded_albums_v1', TRACKING.downloadedAlbums, 2500);
+    function pageTitle(doc = document) {
+        return sanitize($('h1, .album-title, .page-title', doc)?.textContent || doc.title || 'Erome Album');
     }
-    function saveFavoriteItem(item) {
-        if (!item || !item.url) return;
-        const clean = normalizeUrl(item.url);
-        const exists = TRACKING.favorites.some(f => f.url === clean);
-        if (!exists) {
-            TRACKING.favorites.unshift({
-                url: clean,
-                kind: item.kind || 'media',
-                albumUrl: normalizeUrl(item.albumUrl || ''),
-                title: item.title || 'Media',
-                username: item.username || 'Erome',
-                savedAt: new Date().toISOString()
-            });
-            TRACKING.favorites = TRACKING.favorites.slice(0, 1000);
-            saveJSON('eu_favorites_v1', TRACKING.favorites);
-        }
+    function formatTime(seconds) {
+        seconds = Math.max(0, Math.floor(Number(seconds) || 0));
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`;
     }
-    function exportTextFile(name, text) {
-        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-        const u = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = u; a.download = name; a.style.display = 'none';
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(u), 5000);
-    }
+    function isVideo(url) { return /\.(mp4|webm|mov|m3u8)(?:[?#]|$)/i.test(url); }
+    function isImage(url) { return /\.(jpe?g|png|gif|webp|bmp)(?:[?#]|$)/i.test(url); }
 
-    function gmRequest(opts) {
-        const fn = (typeof GM !== 'undefined' && GM.xmlHttpRequest) ? GM.xmlHttpRequest
-                 : (typeof GM_xmlhttpRequest !== 'undefined' ? GM_xmlhttpRequest : null);
-        if (!fn) throw new Error('GM.xmlHttpRequest not available');
-        return fn(opts);
+    function gmRequest(options) {
+        const fn = (typeof GM !== 'undefined' && GM.xmlHttpRequest) || (typeof GM_xmlhttpRequest !== 'undefined' && GM_xmlhttpRequest);
+        if (!fn) throw new Error('GM_xmlHttpRequest is unavailable');
+        return fn(options);
     }
-
-    /* ============================================================
-     *  DOWNLOAD ENGINE
-     * ============================================================ */
-    function downloadBlob(url) {
+    function getBlob(url) {
         return new Promise((resolve, reject) => {
             gmRequest({
                 method: 'GET',
                 url,
                 responseType: 'blob',
-                headers: {
-                    'User-Agent': 'Mozilla/5.0',
-                    'Referer': 'https://www.erome.com/',
-                    'Accept': '*/*'
-                },
-                timeout: 60000,
-                onload: r => r.status === 200 ? resolve(r.response) : reject(`HTTP ${r.status}`),
-                onerror: e => reject(e?.error || 'Network error'),
-                ontimeout: () => reject('Timeout')
+                timeout: 90000,
+                headers: { Referer: location.origin + '/', Accept: '*/*' },
+                onload: res => res.status >= 200 && res.status < 300 ? resolve(res.response) : reject(new Error(`HTTP ${res.status}`)),
+                onerror: err => reject(err?.error || new Error('Network error')),
+                ontimeout: () => reject(new Error('Timeout'))
             });
         });
     }
-
-    async function downloadBlobWithRetry(url, attempts = 2) {
-        let lastErr;
-        for (let i = 0; i < Math.max(1, attempts); i++) {
-            try { return await downloadBlob(url); }
-            catch (e) {
-                lastErr = e;
-                await new Promise(r => setTimeout(r, 500 + (i * 350)));
+    async function getBlobRetry(url, attempts = 2) {
+        let last;
+        for (let i = 0; i < attempts; i++) {
+            try { return await getBlob(url); }
+            catch (err) {
+                last = err;
+                await sleep(450 + i * 650);
             }
         }
-        throw lastErr;
+        throw last;
+    }
+    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    function toast(message, type = 'info', ms = 2500) {
+        let wrap = $('#eu-toast-wrap');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.id = 'eu-toast-wrap';
+            document.body.appendChild(wrap);
+        }
+        const el = document.createElement('div');
+        el.className = `eu-toast eu-${type}`;
+        el.innerHTML = `<span class="eu-toast-dot"></span><span>${htmlEscape(message)}</span>`;
+        wrap.appendChild(el);
+        setTimeout(() => {
+            el.classList.add('eu-gone');
+            setTimeout(() => el.remove(), 260);
+        }, ms);
     }
 
-    async function downloadSingle(url, filename, btn) {
-        const name = filename || getFilename(url);
-        const originalHTML = btn ? btn.innerHTML : null;
-
-        if (btn) {
-            btn.classList.add('downloading');
-            btn.innerHTML = `<span class="eu-spinner"></span><span class="eu-dl-label">Downloading</span>`;
+    function injectStyles() {
+        GM_addStyle(`
+        :root {
+            --eu-accent: ${APP.accent};
+            --eu-accent2: ${APP.accent2};
+            --eu-bg: #0c0d13;
+            --eu-panel: rgba(17, 18, 28, .88);
+            --eu-line: rgba(255,255,255,.12);
+            --eu-text: #f8f7ff;
+            --eu-muted: #b8b1ca;
         }
+        body { background: #151620 !important; color: var(--eu-text); }
+        a { color: #bfa8ff; }
+        .navbar-inverse { background: rgba(10,11,17,.96) !important; border-color: rgba(255,255,255,.08) !important; }
+        .album-thumbnail-container, .album-image, .media-group { position: relative; }
+        .album-thumbnail-container {
+            border-radius: 8px !important;
+            overflow: hidden;
+            background: #0a0a0d;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+            border: 1px solid rgba(255,255,255,.07);
+        }
+        .album-thumbnail-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 42px rgba(0,0,0,.45), 0 0 0 1px rgba(155,108,255,.65), 0 0 32px rgba(155,108,255,.26);
+        }
+        .eu-shell * { box-sizing: border-box; }
+        .eu-fab {
+            position: fixed;
+            right: 18px;
+            width: 52px;
+            height: 52px;
+            border: 0;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            cursor: pointer;
+            z-index: 90000;
+            background: linear-gradient(135deg, var(--eu-accent), #ff4d9d 55%, var(--eu-accent2));
+            box-shadow: 0 14px 38px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.14), 0 0 34px rgba(155,108,255,.35);
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .eu-fab:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 20px 52px rgba(0,0,0,.55), 0 0 42px rgba(155,108,255,.5); }
+        .eu-fab svg { width: 26px; height: 26px; fill: currentColor; }
+        #eu-feed-fab { bottom: 86px; }
+        #eu-download-fab { bottom: 22px; background: linear-gradient(135deg, #282a36, var(--eu-accent)); }
+        .eu-badge-count {
+            position: absolute; top: -5px; right: -5px; min-width: 22px; height: 22px; padding: 0 6px;
+            border-radius: 999px; background: ${APP.danger}; color: #fff; border: 2px solid #11121c;
+            display: grid; place-items: center; font-size: 11px; font-weight: 900;
+        }
+        .eu-dl-btn {
+            position: absolute; top: 10px; left: 10px; z-index: 40;
+            height: 36px; min-width: 36px; padding: 0 10px;
+            border-radius: 999px; border: 1px solid rgba(255,255,255,.16);
+            background: rgba(8,9,14,.72); color: #fff; backdrop-filter: blur(12px);
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            cursor: pointer; font-size: 12px; font-weight: 800; box-shadow: 0 10px 26px rgba(0,0,0,.35);
+            opacity: .86; transition: opacity .18s ease, transform .18s ease, background .18s ease;
+        }
+        .eu-dl-btn:hover { opacity: 1; transform: translateY(-1px); background: rgba(155,108,255,.85); }
+        .eu-dl-btn svg { width: 17px; height: 17px; fill: currentColor; }
+        .eu-chip {
+            position: absolute; z-index: 30;
+            border-radius: 999px; padding: 4px 8px;
+            background: rgba(0,0,0,.68); color: #fff; border: 1px solid rgba(255,255,255,.12);
+            backdrop-filter: blur(10px); font-size: 11px; font-weight: 900; line-height: 1.2;
+        }
+        .eu-chip-count { top: 8px; right: 8px; display: flex; gap: 7px; }
+        .eu-chip-track { right: 8px; bottom: 8px; }
+        .eu-chip-track.eu-downloaded { bottom: 34px; color: #d6ffe7; border-color: rgba(74,222,128,.45); }
+        .eu-filtered { display: none !important; }
+        .eu-modal {
+            position: fixed; inset: 0; z-index: 100000; display: none; align-items: center; justify-content: center;
+            background: rgba(0,0,0,.72); backdrop-filter: blur(10px); padding: 18px;
+        }
+        .eu-modal.eu-open { display: flex; }
+        .eu-card {
+            width: min(620px, 94vw); max-height: min(820px, 92vh); overflow: auto;
+            border-radius: 18px; background: linear-gradient(180deg, rgba(24,25,37,.98), rgba(12,13,20,.98));
+            border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 30px 100px rgba(0,0,0,.75), 0 0 70px rgba(155,108,255,.18);
+        }
+        .eu-card-head {
+            position: sticky; top: 0; z-index: 2;
+            display: flex; align-items: center; justify-content: space-between; gap: 14px;
+            padding: 16px 18px; background: rgba(17,18,28,.94); backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+        .eu-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 16px; font-weight: 900; color: #fff; }
+        .eu-title svg { width: 26px; height: 26px; }
+        .eu-close {
+            width: 34px; height: 34px; border: 0; border-radius: 50%; display: grid; place-items: center;
+            background: rgba(255,255,255,.08); color: #fff; cursor: pointer;
+        }
+        .eu-close svg { width: 18px; height: 18px; fill: currentColor; }
+        .eu-card-body { padding: 18px; }
+        .eu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .eu-field { display: grid; gap: 6px; margin-bottom: 12px; }
+        .eu-field label { color: var(--eu-muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+        .eu-field input, .eu-field select {
+            width: 100%; height: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12);
+            background: rgba(0,0,0,.32); color: #fff; padding: 0 10px; outline: 0;
+        }
+        .eu-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin: 8px 0 14px; }
+        .eu-checks label { display: flex; align-items: center; gap: 8px; color: #eee; font-size: 13px; user-select: none; }
+        .eu-checks input { accent-color: var(--eu-accent); }
+        .eu-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .eu-btn {
+            min-height: 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,.13);
+            background: rgba(255,255,255,.08); color: #fff; font-weight: 900; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .eu-btn svg { width: 17px; height: 17px; fill: currentColor; }
+        .eu-btn-primary { border: 0; background: linear-gradient(135deg, var(--eu-accent), #ff4d9d); }
+        .eu-btn:hover { filter: brightness(1.08); }
+        .eu-note, .eu-log {
+            padding: 10px 12px; border-radius: 12px; background: rgba(0,0,0,.28);
+            border: 1px solid rgba(255,255,255,.08); color: var(--eu-muted); font-size: 12px;
+        }
+        .eu-log { height: 150px; overflow: auto; white-space: pre-wrap; font: 11px/1.45 Consolas, monospace; }
+        .eu-progress { height: 8px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.09); margin: 12px 0 8px; }
+        .eu-progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--eu-accent), var(--eu-accent2)); transition: width .18s ease; }
+        #eu-toast-wrap { position: fixed; right: 18px; bottom: 148px; z-index: 110000; display: grid; gap: 9px; pointer-events: none; }
+        .eu-toast {
+            pointer-events: auto; display: flex; align-items: center; gap: 9px;
+            min-width: 220px; max-width: 360px; padding: 11px 13px; border-radius: 13px;
+            background: rgba(14,15,24,.94); color: #fff; border: 1px solid rgba(255,255,255,.12);
+            box-shadow: 0 16px 44px rgba(0,0,0,.45); animation: eu-in .22s ease both;
+            font-size: 13px; font-weight: 700;
+        }
+        .eu-toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--eu-accent); box-shadow: 0 0 16px var(--eu-accent); flex: 0 0 auto; }
+        .eu-success .eu-toast-dot { background: ${APP.success}; box-shadow: 0 0 16px ${APP.success}; }
+        .eu-error .eu-toast-dot { background: ${APP.danger}; box-shadow: 0 0 16px ${APP.danger}; }
+        .eu-warn .eu-toast-dot { background: ${APP.warn}; box-shadow: 0 0 16px ${APP.warn}; }
+        .eu-gone { opacity: 0; transform: translateX(20px); transition: .25s ease; }
+        @keyframes eu-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        #eu-feed {
+            position: fixed; inset: 0; z-index: 99999; display: none; background: #000;
+            color: #fff;
+        }
+        #eu-feed *, #eu-feed *::before, #eu-feed *::after { box-sizing: border-box; }
+        #eu-feed.eu-open { display: grid; place-items: center; }
+        #eu-feed .video-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: center;
+            margin-inline: auto;
+            background-color: #000;
+        }
+        #eu-feed .video-container.theater,
+        #eu-feed .video-container.full-screen {
+            max-width: initial;
+            width: 100%;
+        }
+        #eu-feed .video-container.theater { max-height: 90vh; }
+        #eu-feed .video-container.full-screen { max-height: 100vh; }
+        .eu-phone {
+            position: relative; overflow: hidden; background: #000;
+            width: min(430px, 94vw); height: min(94vh, 764px); aspect-ratio: 9 / 16;
+            border-radius: 28px; border: 1px solid rgba(255,255,255,.16);
+            box-shadow: 0 30px 100px rgba(0,0,0,.75), 0 0 65px rgba(155,108,255,.23);
+        }
+        #eu-feed.eu-desktop.eu-open { display: block; }
+        #eu-feed.eu-desktop .eu-phone {
+            width: 100vw; height: 100vh; max-width: none; max-height: none; aspect-ratio: auto;
+            border-radius: 0; border: 0; box-shadow: none;
+        }
+        .eu-feed-head {
+            position: absolute; inset: 0 0 auto 0; z-index: 8; height: 92px;
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+            padding: 18px; background: linear-gradient(180deg, rgba(0,0,0,.72), transparent); pointer-events: none;
+        }
+        .eu-feed-head > * { pointer-events: auto; }
+        .eu-brand { display: flex; align-items: center; gap: 9px; font-weight: 950; text-shadow: 0 2px 10px rgba(0,0,0,.8); }
+        .eu-brand svg { width: 156px; height: 36px; flex: none; filter: drop-shadow(0 0 18px rgba(0,213,255,.3)); }
+        .eu-feed-tabs { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+        .eu-pill {
+            height: 32px; padding: 0 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14);
+            background: rgba(0,0,0,.45); color: #fff; font-size: 12px; font-weight: 900; cursor: pointer; backdrop-filter: blur(10px);
+        }
+        .eu-pill.eu-active { background: rgba(155,108,255,.75); border-color: rgba(255,255,255,.24); }
+        .eu-feed-scroll { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .eu-feed-scroll::-webkit-scrollbar { display: none; }
+        .eu-feed-item { position: relative; width: 100%; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden; }
+        #eu-feed .eu-feed-item.video-container { max-width: initial; width: 100%; max-height: 100%; margin: 0; }
+        .eu-feed-media { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        #eu-feed.eu-fit-contain .eu-feed-media { object-fit: contain; }
+        #eu-feed.eu-fit-cover .eu-feed-media { object-fit: cover; }
+        #eu-feed.eu-fit-natural .eu-feed-media { object-fit: scale-down; }
+        .eu-feed-item:after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 -180px 140px -60px rgba(0,0,0,.72), inset 0 80px 100px -70px rgba(0,0,0,.65); }
+        .eu-caption { position: absolute; z-index: 4; left: 18px; right: 96px; bottom: 24px; text-shadow: 0 2px 14px #000; }
+        .eu-user { color: #fff !important; font-size: 14px; font-weight: 950; text-decoration: none; }
+        .eu-desc { margin-top: 4px; color: rgba(255,255,255,.9); font-size: 12px; line-height: 1.35; max-height: 52px; overflow: hidden; }
+        .eu-album-link { display: inline-flex; margin-top: 8px; padding: 6px 10px; border-radius: 999px; color: #fff !important; text-decoration: none; background: rgba(155,108,255,.42); border: 1px solid rgba(255,255,255,.14); font-size: 12px; font-weight: 900; }
+        .eu-side { position: absolute; z-index: 5; right: 14px; bottom: 28px; display: grid; gap: 10px; justify-items: center; }
+        .eu-action {
+            width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.15);
+            background: rgba(0,0,0,.48); color: #fff; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(10px);
+        }
+        .eu-action svg { width: 20px; height: 20px; fill: currentColor; }
+        .video-controls-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: #fff;
+            z-index: 7;
+            opacity: 0;
+            transition: opacity 150ms ease-in-out;
+        }
+        .video-controls-container::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,.86), rgba(0,0,0,.5) 48%, transparent);
+            width: 100%;
+            aspect-ratio: 6 / 1;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .video-container:hover .video-controls-container,
+        .video-container:focus-within .video-controls-container,
+        .video-container.paused .video-controls-container { opacity: 1; }
+        .video-controls-container .controls {
+            display: flex;
+            gap: .45rem;
+            padding: .3rem .65rem .7rem;
+            align-items: center;
+        }
+        .video-controls-container .controls button {
+            display: grid;
+            place-items: center;
+            background: rgba(255,255,255,.06);
+            border: none;
+            color: inherit;
+            padding: 0;
+            height: 34px;
+            width: 34px;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: 900;
+            cursor: pointer;
+            opacity: .85;
+            transition: opacity 150ms ease-in-out, background 150ms ease-in-out, transform 150ms ease-in-out;
+        }
+        .video-controls-container .controls button:hover { opacity: 1; background: rgba(155,108,255,.36); transform: translateY(-1px); }
+        .video-controls-container .controls button svg { width: 21px; height: 21px; fill: currentColor; filter: drop-shadow(0 1px 6px rgba(0,0,0,.8)); }
+        .video-container.paused .pause-icon { display: none; }
+        .video-container:not(.paused) .play-icon { display: none; }
+        .video-container.theater .tall { display: none; }
+        .video-container:not(.theater) .wide { display: none; }
+        .video-container.full-screen .open { display: none; }
+        .video-container:not(.full-screen) .close { display: none; }
+        .volume-high-icon, .volume-low-icon, .volume-muted-icon { display: none; }
+        .video-container[data-volume-level="high"] .volume-high-icon { display: block; }
+        .video-container[data-volume-level="low"] .volume-low-icon { display: block; }
+        .video-container[data-volume-level="muted"] .volume-muted-icon { display: block; }
+        .volume-container { display: flex; align-items: center; gap: .35rem; }
+        .volume-slider {
+            width: 0;
+            max-width: 100px;
+            transform-origin: left;
+            transform: scaleX(0);
+            accent-color: var(--eu-accent2);
+            transition: width 150ms ease-in-out, transform 150ms ease-in-out;
+        }
+        .volume-container:hover .volume-slider,
+        .volume-slider:focus { width: 100px; transform: scaleX(1); }
+        .duration-container {
+            display: flex;
+            align-items: center;
+            gap: .25rem;
+            flex-grow: 1;
+            font-size: 12px;
+            font-weight: 800;
+            text-shadow: 0 1px 8px #000;
+        }
+        .video-container.captions .captions-btn { color: var(--eu-accent2); box-shadow: inset 0 -3px 0 var(--eu-accent2); }
+        .video-controls-container .controls button.wide-btn { width: 48px; border-radius: 999px; }
+        .speed-btn { font-variant-numeric: tabular-nums; }
+        .timeline-container {
+            height: 7px;
+            margin-inline: .65rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .timeline {
+            --progress-position: 0;
+            --preview-position: 0;
+            background-color: rgba(255,255,255,.2);
+            height: 3px;
+            width: 100%;
+            position: relative;
+            border-radius: 999px;
+        }
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: calc(100% - var(--preview-position) * 100%);
+            background-color: rgba(255,255,255,.42);
+            display: none;
+        }
+        .timeline::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: calc(100% - var(--progress-position) * 100%);
+            background: linear-gradient(90deg, var(--eu-accent2), #7c7cff, #ff4d9d);
+        }
+        .timeline .thumb-indicator {
+            --scale: 0;
+            position: absolute;
+            transform: translateX(-50%) scale(var(--scale));
+            height: 200%;
+            top: -50%;
+            left: calc(var(--progress-position) * 100%);
+            background-color: #fff;
+            box-shadow: 0 0 14px var(--eu-accent2), 0 0 20px #ff4d9d;
+            border-radius: 50%;
+            transition: transform 150ms ease-in-out;
+            aspect-ratio: 1 / 1;
+        }
+        .timeline .preview-img {
+            position: absolute;
+            height: 80px;
+            aspect-ratio: 16 / 9;
+            top: -1rem;
+            transform: translate(-50%, -100%);
+            left: calc(var(--preview-position) * 100%);
+            border-radius: .25rem;
+            border: 2px solid #fff;
+            display: none;
+            object-fit: cover;
+            background: #000;
+        }
+        .thumbnail-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .video-container.scrubbing .thumbnail-img { display: block; }
+        .video-container.scrubbing .preview-img,
+        .timeline-container:hover .preview-img { display: block; }
+        .thumbnail-img:not([src]),
+        .preview-img:not([src]) { display: none !important; }
+        .video-container.scrubbing .timeline::before,
+        .timeline-container:hover .timeline::before { display: block; }
+        .video-container.scrubbing .thumb-indicator,
+        .timeline-container:hover .thumb-indicator { --scale: 1; }
+        .video-container.scrubbing .timeline,
+        .timeline-container:hover .timeline { height: 100%; }
+        .eu-counter, .eu-status {
+            position: absolute; z-index: 9; left: 18px; top: 88px; padding: 5px 9px; border-radius: 999px;
+            background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.12); color: #fff; font-size: 11px; font-weight: 900; backdrop-filter: blur(10px);
+        }
+        .eu-status { top: 120px; color: var(--eu-muted); }
+        #eu-feed.eu-desktop .eu-feed-head { padding: 18px clamp(18px, 3vw, 42px); }
+        #eu-feed.eu-desktop .eu-tools { top: 66px; width: min(860px, calc(100% - 120px)); }
+        #eu-feed.eu-desktop .eu-counter { left: clamp(18px, 3vw, 42px); top: 94px; }
+        #eu-feed.eu-desktop .eu-status { left: clamp(18px, 3vw, 42px); top: 126px; }
+        #eu-feed.eu-desktop .eu-caption {
+            left: clamp(18px, 3vw, 42px); right: 128px; bottom: 36px;
+            max-width: min(620px, calc(100vw - 180px));
+        }
+        #eu-feed.eu-desktop .eu-side { right: clamp(18px, 3vw, 42px); bottom: 36px; }
+        #eu-feed.eu-desktop .eu-feed-item:after {
+            box-shadow: inset 0 -230px 170px -70px rgba(0,0,0,.74), inset 0 120px 130px -78px rgba(0,0,0,.72);
+        }
+        .eu-tools {
+            position: absolute; z-index: 10; left: 50%; top: 58px; transform: translateX(-50%);
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; width: min(740px, calc(100% - 34px));
+            transition: opacity .2s ease, transform .2s ease;
+        }
+        .eu-tools.eu-hidden { opacity: 0; pointer-events: none; transform: translate(-50%, -8px); }
+        .eu-progress-video { position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.14); }
+        .eu-progress-video span { display: block; height: 100%; width: 0; background: #fff; }
+        .eu-empty { width: 100%; height: 100%; display: grid; place-items: center; text-align: center; color: var(--eu-muted); padding: 28px; font-weight: 800; }
+        @media (max-width: 560px) {
+            .eu-grid, .eu-checks, .eu-actions { grid-template-columns: 1fr; }
+            .eu-phone { width: 100vw; height: 100vh; border-radius: 0; border: 0; }
+            .eu-feed-tabs .eu-pill:nth-child(n+5) { display: none; }
+            .eu-caption { right: 76px; }
+        }
+        `);
+    }
 
-        try {
-            const blob = await downloadBlob(url);
-            const tmp = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = tmp; a.download = name; a.style.display = 'none';
-            document.body.appendChild(a); a.click(); a.remove();
-            setTimeout(() => URL.revokeObjectURL(tmp), 5000);
-            markDownloadedMedia(url, arguments[3] || currentAlbumUrl());
-            decorateTrackingBadges();
-            toast(`Downloaded: ${name}`, 'success');
-        } catch (err) {
-            console.error('[EU] Download failed:', err);
-            toast(`Download failed: ${err}`, 'error');
-        } finally {
-            if (btn) {
-                btn.classList.remove('downloading');
-                btn.innerHTML = originalHTML;
+    function scheduleRefresh(reason = 'mutation') {
+        clearTimeout(refreshTimer);
+        const delay = settings.performanceMode === 'eco' ? 700 : settings.performanceMode === 'max' ? 90 : 220;
+        refreshTimer = setTimeout(() => refreshAll(reason), delay);
+    }
+
+    function refreshAll() {
+        attachDownloadButtons();
+        decorateAlbums();
+        decorateMediaDurations();
+        applyFilters();
+        updateFabCount();
+    }
+
+    function installBlockers() {
+        const blocked = ['brightadnetwork.com', 'pemsrv.com', '/jump/next.php', 'splash.php'];
+        const bad = url => url && blocked.some(part => String(url).includes(part));
+        const open = window.open;
+        window.open = function (url, ...rest) {
+            if (bad(url)) {
+                toast('Blocked popup redirect', 'warn', 1300);
+                return null;
             }
-        }
+            return open.call(this, url, ...rest);
+        };
+        document.addEventListener('click', event => {
+            const link = event.target.closest?.('a[href]');
+            if (link && bad(link.href)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        }, true);
     }
 
-    /* ============================================================
-     *  INLINE DOWNLOAD BUTTONS ON MEDIA
-     * ============================================================ */
-    function buildDownloadButton(url) {
-        const btn = document.createElement('button');
-        btn.className = 'eu-dl-btn';
-        btn.innerHTML = `${ICONS.upload}<span class="eu-dl-label">Download</span>`;
-        btn.addEventListener('click', (e) => {
-            e.preventDefault(); e.stopPropagation();
-            downloadSingle(url, getFilename(url), btn);
+    function bypassDialogs() {
+        $('#disclaimer')?.remove();
+        $('#needAccount')?.remove();
+        document.body.style.overflow = '';
+        try { fetch('/user/disclaimer', { method: 'POST', credentials: 'include' }).catch(() => {}); } catch {}
+    }
+
+    function collectMediaUrls(root = document) {
+        const urls = new Set();
+        $$('.media-group img, img.media, .album-image img', root).forEach(img => {
+            const src = img.currentSrc || img.src || img.dataset?.src || img.getAttribute('data-src') || img.getAttribute('data-original');
+            if (src && !/avatar|logo|favicon/i.test(src)) urls.add(normalizeUrl(src));
         });
-        return btn;
+        $$('.media-group video, .video-js video, video, video source, source', root).forEach(v => {
+            const src = v.currentSrc || v.src || v.dataset?.src || v.getAttribute('src') || v.getAttribute('data-src');
+            if (src) urls.add(normalizeUrl(src));
+        });
+        return Array.from(urls).filter(Boolean);
     }
 
     function attachDownloadButtons() {
-        if (!STATE.showDownloadButtons) return;
-
-        document.querySelectorAll('.media-group video, .media-group img').forEach(media => {
-            const parent = media.parentElement?.parentElement;
-            if (!parent || parent.querySelector('.eu-dl-btn')) return;
-
-            let src;
-            if (media.tagName === 'IMG') {
-                src = media.src || media.getAttribute('data-src');
-            } else {
-                src = media.querySelector('source')?.src || media.src || media.currentSrc;
-            }
+        if (!settings.showDownloadButtons) return;
+        $$('.media-group img, .media-group video, .video-js video, .album-image img').forEach(media => {
+            if (seenNodes.has(media)) return;
+            seenNodes.add(media);
+            const parent = media.closest('.media-group, .video, .album-image, .media') || media.parentElement;
+            if (!parent || $('.eu-dl-btn', parent)) return;
+            const src = media.currentSrc || media.src || $('source', media)?.src || media.dataset?.src || media.getAttribute('data-src');
             if (!src) return;
-
-            parent.style.position = parent.style.position || 'relative';
-            parent.appendChild(buildDownloadButton(src));
-        });
-
-        // Also handle album thumbnails on listing pages for image detection
-        document.querySelectorAll('.album-image img').forEach(img => {
-            const src = img.src || img.getAttribute('data-src');
-            if (!src) return;
-            const host = img.closest('.album-image');
-            if (!host || host.querySelector('.eu-dl-btn')) return;
-            host.style.position = host.style.position || 'relative';
-            host.appendChild(buildDownloadButton(src));
-        });
-    }
-
-    /* ============================================================
-     *  VIDEO DURATION DETECTION (from file header)
-     * ============================================================ */
-    function detectVideoDuration(url) {
-        return new Promise(resolve => {
-            if (!url) return resolve(0);
-            if (STATE.videoDurations.has(url)) return resolve(STATE.videoDurations.get(url));
-
-            const cacheKey = 'eu_vl_' + url;
-            const cached = localStorage.getItem(cacheKey);
-            if (cached && !isNaN(parseInt(cached))) {
-                const d = parseInt(cached);
-                STATE.videoDurations.set(url, d);
-                return resolve(d);
-            }
-
-            try {
-                let req = gmRequest({
-                    method: 'GET',
-                    url,
-                    headers: {
-                        'Accept': 'video/webm,video/ogg,video/*;q=0.9,*/*;q=0.5',
-                        'Referer': 'https://www.erome.com/',
-                        'Range': 'bytes=0-500'
-                    },
-                    responseType: 'blob',
-                    onprogress: r => { if (Math.max(r.loaded || 0, r.total || 0) > 600) req.abort?.(); },
-                    onload: r => {
-                        try {
-                            const text = r.responseText || '';
-                            const m = text.match(/\x03.*\xe8/);
-                            if (m) {
-                                const i = text.indexOf(m[0]) + m[0].length;
-                                const s = text.substring(i, i + 4);
-                                const ms = Array.from(s)
-                                    .map(c => c.charCodeAt(0))
-                                    .map((v, idx, arr) => v * Math.pow(256, arr.length - idx - 1))
-                                    .reduce((a, b) => a + b, 0);
-                                localStorage.setItem(cacheKey, ms);
-                                STATE.videoDurations.set(url, ms);
-                                return resolve(ms);
-                            }
-                        } catch (e) {}
-                        resolve(0);
-                    },
-                    onerror: () => resolve(0),
-                    ontimeout: () => resolve(0)
-                });
-            } catch (e) { resolve(0); }
-        });
-    }
-
-    function decorateVideoDurations() {
-        document.querySelectorAll('.media-group video, .video-js video').forEach(video => {
-            const container = video.closest('.media-group') || video.closest('.video') || video.parentElement;
-            if (!container || container.querySelector('.eu-duration-badge')) return;
-
-            const src = video.querySelector('source')?.src || video.src || video.currentSrc;
-            if (!src) return;
-
-            detectVideoDuration(src).then(ms => {
-                if (ms > 0 && !container.querySelector('.eu-duration-badge')) {
-                    const badge = document.createElement('span');
-                    badge.className = 'eu-duration-badge';
-                    badge.textContent = formatDuration(ms);
-                    container.style.position = container.style.position || 'relative';
-                    container.appendChild(badge);
-                    video.dataset.length = Math.floor(ms / 1000);
-                    applyHiddenFilter();
-                }
-            });
-        });
-    }
-
-    /* ============================================================
-     *  ALBUM COUNT BADGES (on listing page)
-     * ============================================================ */
-    function decorateAlbumCounts() {
-        document.querySelectorAll('.album').forEach(album => {
-            if (album.querySelector('.eu-count-badge')) return;
-
-            const imgCount = parseInt(album.querySelector('.album-images')?.textContent?.match(/\d+/)?.[0] || '0');
-            const vidCount = parseInt(album.querySelector('.album-videos')?.textContent?.match(/\d+/)?.[0] || '0');
-            if (imgCount === 0 && vidCount === 0) return;
-
-            const badge = document.createElement('div');
-            badge.className = 'eu-count-badge';
-            const parts = [];
-            if (imgCount > 0) parts.push(`<span>🖼️ ${imgCount}</span>`);
-            if (vidCount > 0) parts.push(`<span>🎥 ${vidCount}</span>`);
-            badge.innerHTML = parts.join('');
-
-            const thumb = album.querySelector('.album-thumbnail-container');
-            if (thumb) {
-                thumb.style.position = thumb.style.position || 'relative';
-                thumb.appendChild(badge);
-            }
-        });
-    }
-
-
-    function decorateTrackingBadges() {
-        if (IS_ALBUM_PAGE) markSeenAlbum(location.href);
-
-        document.querySelectorAll('.album').forEach(album => {
-            const albumUrl = getAlbumUrlFromElement(album);
-            if (!albumUrl) return;
-
-            const thumb = album.querySelector('.album-thumbnail-container') || album;
-            thumb.style.position = thumb.style.position || 'relative';
-
-            const isSeen = TRACKING.seenAlbums.has(albumUrl);
-            const isDownloaded = TRACKING.downloadedAlbums.has(albumUrl);
-
-            if (SETTINGS.showSeenBadges && isSeen && !thumb.querySelector('.eu-tracking-badge.eu-seen')) {
-                const b = document.createElement('div');
-                b.className = 'eu-tracking-badge eu-seen';
-                b.textContent = 'Seen';
-                thumb.appendChild(b);
-            }
-            if (SETTINGS.showSeenBadges && isDownloaded && !thumb.querySelector('.eu-tracking-badge.eu-downloaded')) {
-                const b = document.createElement('div');
-                b.className = 'eu-tracking-badge eu-downloaded';
-                b.textContent = 'Downloaded';
-                thumb.appendChild(b);
-            }
-
-            album.classList.toggle('eu-track-filtered-out',
-                (SETTINGS.hideSeen && isSeen) ||
-                (SETTINGS.hideDownloaded && isDownloaded) ||
-                TRACKING.hiddenAlbums.has(albumUrl)
-            );
-
-            const link = album.querySelector('a.album-link, a[href*="/a/"]');
-            if (link && !link.dataset.euTrackSeen) {
-                link.dataset.euTrackSeen = '1';
-                link.addEventListener('click', () => markSeenAlbum(albumUrl), { capture: true });
-            }
-        });
-    }
-
-    function applyAlbumSearch() {
-        const q = (SETTINGS.albumSearch || '').trim().toLowerCase();
-        document.querySelectorAll('.album').forEach(album => {
-            if (!q) { album.classList.remove('eu-search-filtered-out'); return; }
-            const text = album.textContent.toLowerCase();
-            const href = getAlbumUrlFromElement(album).toLowerCase();
-            album.classList.toggle('eu-search-filtered-out', !(text.includes(q) || href.includes(q)));
-        });
-    }
-
-    function openAlbumSearch() {
-        const q = prompt('Search loaded albums by title, creator, or URL. Leave blank to clear.', SETTINGS.albumSearch || '');
-        if (q === null) return;
-        updateSetting('albumSearch', q.trim());
-        applyAlbumSearch();
-        toast(q.trim() ? `Search filter: ${q.trim()}` : 'Search filter cleared', 'info');
-    }
-
-    /* ============================================================
-     *  LIKE COUNTS ON ALBUMS (listing page)
-     * ============================================================ */
-    async function loadAlbumLikes() {
-        if (IS_ALBUM_PAGE || SETTINGS.performanceMode === 'lite') return;
-
-        // Unlimited: process every album currently loaded, not just the first 30.
-        // dataset.euLiked keeps this cheap on repeat calls; small pauses keep the UI responsive.
-        const albums = Array.from(document.querySelectorAll('.album-link'));
-        for (const a of albums) {
-            if (a.dataset.euLiked) continue;
-            a.dataset.euLiked = '1';
-            try {
-                const res = await fetch(a.href, { credentials: 'include' });
-                const text = await res.text();
-                const doc = new DOMParser().parseFromString(text, 'text/html');
-                const likeArea = doc.querySelector('#like_count') || doc.querySelector('.far.fa-heart.fa-lg');
-                const count = likeArea?.nextElementSibling?.firstChild?.textContent?.trim() || 0;
-                if (+count < 1) continue;
-                const viewSec = a.parentElement.querySelector('.album-bottom-right .album-images');
-                if (!viewSec || viewSec.querySelector('.eu-likes-badge')) continue;
-                viewSec.insertAdjacentHTML('afterbegin',
-                    `<span class="eu-likes-badge">${ICONS.heart} ${count}</span>`);
-            } catch (e) { /* silent */ }
-
-            // Avoid hammering the browser/site when many albums are loaded.
-            const likeDelay = SETTINGS.performanceMode === 'aggressive' ? 25 : 100;
-            await new Promise(r => setTimeout(r, likeDelay));
-        }
-    }
-
-    /* ============================================================
-     *  SORT ALBUMS BY VIEWS
-     * ============================================================ */
-    function parseViews(text) {
-        if (!text) return 0;
-        const hasK = /k/i.test(text);
-        const num = parseFloat(text.replace(/[^\d.,]/g, '').replace(',', '.'));
-        return (isNaN(num) ? 0 : num) * (hasK ? 1000 : 1);
-    }
-    function parseCount(text) {
-        if (!text) return 0;
-        const n = parseInt(text.replace(/[^\d]/g, ''));
-        return isNaN(n) ? 0 : n;
-    }
-    function getAlbumMetric(album, mode) {
-        switch (mode) {
-            case 'videos': return parseCount(album.querySelector('.album-videos')?.textContent);
-            case 'photos': return parseCount(album.querySelector('.album-images')?.textContent);
-            case 'views':
-            default: return parseViews(album.querySelector('.album-bottom-views')?.textContent);
-        }
-    }
-
-    function sortAlbums(mode) {
-        if (mode) STATE.sortMode = mode;
-        updateSetting('sortMode', STATE.sortMode);
-        updateSetting('sortAscending', STATE.sortAscending);
-        const container = document.querySelector('#albums') || document.querySelector('.page-content');
-        if (!container) return;
-        const albums = Array.from(container.querySelectorAll('.album'));
-        if (albums.length < 2) return;
-
-        albums.sort((a, b) => {
-            const va = getAlbumMetric(a, STATE.sortMode);
-            const vb = getAlbumMetric(b, STATE.sortMode);
-            return STATE.sortAscending ? va - vb : vb - va;
-        });
-        albums.forEach(a => container.appendChild(a));
-
-        const labels = { views: 'views', videos: 'video count', photos: 'photo count' };
-        toast(`Sorted by ${labels[STATE.sortMode]} (${STATE.sortAscending ? 'ascending' : 'descending'})`, 'info');
-    }
-    // Backward-compatible alias
-    function sortAlbumsByViews() { sortAlbums('views'); }
-
-    /* ============================================================
-     *  TOGGLES: photos / videos / downloads / NSFW / cinema / video-only
-     * ============================================================ */
-    function togglePhotos() {
-        STATE.showPhotos = !STATE.showPhotos;
-        document.querySelectorAll('.media-group img').forEach(el => {
-            el.style.display = STATE.showPhotos ? '' : 'none';
-        });
-        toast(STATE.showPhotos ? 'Photos visible' : 'Photos hidden', 'info');
-    }
-    function toggleVideos() {
-        STATE.showVideos = !STATE.showVideos;
-        document.querySelectorAll('.video-js, .media-group video').forEach(el => {
-            el.style.display = STATE.showVideos ? '' : 'none';
-        });
-        toast(STATE.showVideos ? 'Videos visible' : 'Videos hidden', 'info');
-    }
-    function toggleDownloadButtons() {
-        STATE.showDownloadButtons = !STATE.showDownloadButtons;
-        document.querySelectorAll('.eu-dl-btn').forEach(btn => {
-            btn.style.display = STATE.showDownloadButtons ? '' : 'none';
-        });
-        updateSetting('showDownloadButtons', STATE.showDownloadButtons);
-        toast(STATE.showDownloadButtons ? 'Download buttons visible' : 'Download buttons hidden', 'info');
-    }
-    function toggleNSFW() {
-        STATE.nsfwBlur = !STATE.nsfwBlur;
-        saveBool('eu_nsfw', STATE.nsfwBlur);
-        applyNSFW();
-        toast(STATE.nsfwBlur ? 'NSFW blur enabled' : 'NSFW blur disabled', 'info');
-    }
-    function applyNSFW() {
-        const targets = document.querySelectorAll(
-            '.album-thumbnail-container, .media-group img, .media-group video, .vjs-poster'
-        );
-        targets.forEach(el => el.classList.toggle('eu-blur', STATE.nsfwBlur));
-    }
-    function toggleCinema() {
-        STATE.cinemaMode = !STATE.cinemaMode;
-        document.body.classList.toggle('eu-cinema', STATE.cinemaMode);
-        if (STATE.cinemaMode && !document.querySelector('.eu-cinema-overlay')) {
-            const o = document.createElement('div');
-            o.className = 'eu-cinema-overlay';
-            document.body.appendChild(o);
-        }
-        toast(STATE.cinemaMode ? 'Cinema mode on' : 'Cinema mode off', 'info');
-    }
-    function toggleVideoOnly() {
-        STATE.videoOnlyMode = !STATE.videoOnlyMode;
-        saveBool('eu_video_only', STATE.videoOnlyMode);
-        applyVideoOnly();
-        toast(STATE.videoOnlyMode ? 'Showing video albums only' : 'Showing all albums', 'info');
-    }
-    function applyVideoOnly() {
-        // Use a CSS class so layout reflows cleanly (no orphan grid rows / gaps)
-        document.querySelectorAll('.album').forEach(a => {
-            const hasVideo = !!a.querySelector('.album-videos');
-            if (STATE.videoOnlyMode && !hasVideo) {
-                a.classList.add('eu-filtered-out');
-            } else {
-                a.classList.remove('eu-filtered-out');
-            }
-        });
-
-        // Also hide empty placeholder slots that some Erome templates leave behind
-        document.querySelectorAll('.album-placeholder, .album-empty, .albums .placeholder').forEach(el => {
-            if (STATE.videoOnlyMode) el.classList.add('eu-filtered-out');
-            else el.classList.remove('eu-filtered-out');
-        });
-
-        // Force the parent grid/flex container to reflow by toggling a class
-        const containers = document.querySelectorAll('.user-albums, .albums, .user-content, #albums');
-        containers.forEach(c => {
-            c.classList.toggle('eu-grid-compact', STATE.videoOnlyMode);
-        });
-    }
-
-    /* ============================================================
-     *  VIDEO LENGTH FILTERS
-     * ============================================================ */
-    function getMinVideoSeconds() {
-        return Math.max(0, Number(SETTINGS.minVideoSeconds || SETTINGS.hiddenSeconds || 0) || 0);
-    }
-
-    function getMaxVideoSeconds() {
-        return Math.max(0, Number(SETTINGS.maxVideoSeconds || 0) || 0);
-    }
-
-    function videoLengthAllowed(seconds) {
-        const s = Number(seconds) || 0;
-        if (!s || !isFinite(s)) return true; // unknown length is allowed until metadata loads
-        const min = getMinVideoSeconds();
-        const max = getMaxVideoSeconds();
-        if (min > 0 && s < min) return false;
-        if (max > 0 && s > max) return false;
-        return true;
-    }
-
-    function getLengthFilterLabel() {
-        const min = getMinVideoSeconds();
-        const max = getMaxVideoSeconds();
-        if (min > 0 && max > 0) return `Length ${min}-${max}s`;
-        if (min > 0) return `Length ${min}s+`;
-        if (max > 0) return `Length ≤${max}s`;
-        return 'Length Any';
-    }
-
-    function explainLengthFilter(seconds) {
-        const s = Number(seconds) || 0;
-        const min = getMinVideoSeconds();
-        const max = getMaxVideoSeconds();
-        if (min > 0 && s > 0 && s < min) return `under ${min}s`;
-        if (max > 0 && s > 0 && s > max) return `over ${max}s`;
-        return '';
-    }
-
-    function refreshFeedIndexes() {
-        document.querySelectorAll('#eu-tiktok-feed .eu-tiktok-item').forEach((card, idx) => {
-            card.dataset.idx = idx;
-        });
-    }
-
-    function filterOutFeedVideoByLength(item, card, seconds) {
-        if (!item || !card || videoLengthAllowed(seconds)) return false;
-        const reason = explainLengthFilter(seconds);
-        const oldIndex = Number(card.dataset.idx) || 0;
-        TT.items = TT.items.filter(x => x.url !== item.url);
-        card.remove();
-        refreshFeedIndexes();
-        STATE.tiktokIndex = Math.min(STATE.tiktokIndex, Math.max(0, TT.items.length - 1));
-        updateTikTokCounter();
-        updateFeedStatus();
-
-        const cards = document.querySelectorAll('#eu-tiktok-feed .eu-tiktok-item');
-        if (cards.length) {
-            cards[Math.min(oldIndex, cards.length - 1)]?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        }
-        if (TT.items.length < 5 || STATE.tiktokIndex >= TT.items.length - 3) {
-            setTimeout(() => preloadNextAlbum(), 160);
-        }
-        if (reason) console.log(`[EU] Length-filtered feed video (${reason}):`, item.url);
-        return true;
-    }
-
-    function pruneKnownFeedVideosByLength() {
-        const before = TT.items.length;
-        TT.items = TT.items.filter(item => item.kind !== 'video' || !item.duration || videoLengthAllowed(item.duration));
-        if (TT.items.length !== before) {
-            rebuildFeedFromItems(Math.min(STATE.tiktokIndex, Math.max(0, TT.items.length - 1)));
-            if (TT.items.length < 5) setTimeout(() => preloadNextAlbum(), 160);
-        }
-    }
-
-    function promptLengthFilter() {
-        const minNow = getMinVideoSeconds();
-        const maxNow = getMaxVideoSeconds();
-        const minRaw = prompt('Minimum video length in seconds. Use 0 for no minimum.', String(minNow));
-        if (minRaw === null) return;
-        const maxRaw = prompt('Maximum video length in seconds. Use 0 for no maximum.', String(maxNow));
-        if (maxRaw === null) return;
-        const min = Math.max(0, Math.floor(Number(minRaw) || 0));
-        const max = Math.max(0, Math.floor(Number(maxRaw) || 0));
-        if (min > 0 && max > 0 && min > max) {
-            toast('Min length cannot be higher than max length', 'error');
-            return;
-        }
-        updateSetting('minVideoSeconds', min);
-        updateSetting('hiddenSeconds', min); // keep the older bottom-left album filter in sync
-        updateSetting('maxVideoSeconds', max);
-        STATE.hiddenSeconds = min;
-        STATE.maxVideoSeconds = max;
-        applyHiddenFilter();
-        pruneKnownFeedVideosByLength();
-        updateFeedTools();
-        toast(`${getLengthFilterLabel()} filter saved`, 'success');
-    }
-
-    /* ============================================================
-     *  HIDDEN BY DURATION (bottom-left slider)
-     * ============================================================ */
-    function applyHiddenFilter() {
-        const minSeconds = getMinVideoSeconds();
-        const maxSeconds = getMaxVideoSeconds();
-        STATE.hiddenSeconds = minSeconds;
-        STATE.maxVideoSeconds = maxSeconds;
-        document.querySelectorAll('.video').forEach(vc => {
-            const video = vc.querySelector('.video-js video, video');
-            if (!video || !video.dataset.length) { vc.classList.remove('eu-hidden-video'); return; }
-            const len = parseInt(video.dataset.length, 10);
-            if ((minSeconds > 0 && len < minSeconds) || (maxSeconds > 0 && len > maxSeconds)) {
-                vc.classList.add('eu-hidden-video');
-                vc.title = `Hidden by length filter: ${getLengthFilterLabel()}`;
-            } else {
-                vc.classList.remove('eu-hidden-video');
-                if (vc.title && vc.title.startsWith('Hidden by length filter')) vc.title = '';
-            }
-        });
-    }
-
-    function createHiddenSlider() {
-        if (!IS_ALBUM_PAGE) return;
-        if (document.querySelector('.eu-hidden-slider')) return;
-
-        const btn = document.createElement('button');
-        btn.className = 'eu-hidden-slider';
-        btn.dataset.count = String(getMinVideoSeconds() || 0);
-        btn.innerHTML = ICONS.clock;
-        btn.title = 'Min video length: hide videos shorter than this many seconds';
-
-        btn.addEventListener('mouseenter', () => {
-            const n = parseInt(btn.dataset.count);
-            btn.innerHTML = n > 0 ? `${n}s` : 'OFF';
-        });
-        btn.addEventListener('mouseleave', () => { btn.innerHTML = ICONS.clock; });
-        btn.addEventListener('click', () => {
-            let n = parseInt(btn.dataset.count);
-            n = (n + 5) % 105;
-            if (n >= 100) n = 0;
-            btn.dataset.count = n;
-            STATE.hiddenSeconds = n;
-            updateSetting('minVideoSeconds', n);
-            updateSetting('hiddenSeconds', n);
-            btn.innerHTML = n > 0 ? `${n}s` : 'OFF';
-            applyHiddenFilter();
-            toast(n > 0 ? `Minimum video length: ${n}s` : 'Minimum length filter off', 'info');
-        });
-
-        document.body.appendChild(btn);
-    }
-
-    /* ============================================================
-     *  VIDEO.JS PLAYER CUSTOM CONTROLS
-     * ============================================================ */
-    const SPEEDS = [0.5, 1, 1.5, 2, 3, 5];
-
-    function enhancePlayers() {
-        if (typeof window.videojs === 'undefined') {
-            // Wait for video.js to load
-            setTimeout(enhancePlayers, 500);
-            return;
-        }
-
-        document.querySelectorAll('.video-js').forEach(el => {
-            if (el.dataset.euEnhanced) return;
-            el.dataset.euEnhanced = '1';
-
-            let player;
-            try { player = window.videojs(el); }
-            catch (e) { return; }
-
-            player.ready(() => {
-                const bar = player.controlBar?.el?.();
-                if (!bar) return;
-
-                // Speed
-                let speedIdx = 1;
-                const speedBtn = document.createElement('button');
-                speedBtn.className = 'eu-player-btn';
-                speedBtn.textContent = '1x';
-                speedBtn.title = 'Playback speed';
-                speedBtn.onclick = () => {
-                    speedIdx = (speedIdx + 1) % SPEEDS.length;
-                    player.playbackRate(SPEEDS[speedIdx]);
-                    speedBtn.textContent = SPEEDS[speedIdx] + 'x';
-                    toast(`Speed: ${SPEEDS[speedIdx]}x`, 'info', 1500);
-                };
-
-                // Download
-                const dlBtn = document.createElement('button');
-                dlBtn.className = 'eu-player-btn';
-                dlBtn.innerHTML = ICONS.download;
-                dlBtn.title = 'Download video';
-                dlBtn.onclick = () => {
-                    const src = player.currentSrc();
-                    if (src) downloadSingle(src, getFilename(src));
-                };
-
-                // Flip
-                let flipped = false;
-                const flipBtn = document.createElement('button');
-                flipBtn.className = 'eu-player-btn';
-                flipBtn.innerHTML = ICONS.flip;
-                flipBtn.title = 'Flip video';
-                flipBtn.onclick = () => {
-                    const v = el.querySelector('video');
-                    flipped = !flipped;
-                    if (v) v.style.transform = flipped ? 'scaleX(-1)' : '';
-                    toast('Video flipped', 'info', 1500);
-                };
-
-                // Cinema
-                const cineBtn = document.createElement('button');
-                cineBtn.className = 'eu-player-btn';
-                cineBtn.innerHTML = ICONS.cinema;
-                cineBtn.title = 'Cinema mode';
-                cineBtn.onclick = toggleCinema;
-
-                // PiP
-                const pipBtn = document.createElement('button');
-                pipBtn.className = 'eu-player-btn';
-                pipBtn.innerHTML = ICONS.pip;
-                pipBtn.title = 'Picture-in-Picture';
-                pipBtn.onclick = async () => {
-                    try {
-                        const v = el.querySelector('video');
-                        if (document.pictureInPictureElement) { await document.exitPictureInPicture(); toast('PiP off', 'info', 1500); }
-                        else if (v) { await v.requestPictureInPicture(); toast('PiP on', 'info', 1500); }
-                    } catch (e) { toast('PiP not supported', 'error'); }
-                };
-
-                bar.appendChild(speedBtn);
-                bar.appendChild(dlBtn);
-                bar.appendChild(flipBtn);
-                bar.appendChild(cineBtn);
-                bar.appendChild(pipBtn);
-            });
-        });
-    }
-
-    /* ============================================================
-     *  BULK DOWNLOAD MODAL
-     * ============================================================ */
-    function collectAllMediaUrls() {
-        const urls = new Set();
-
-        document.querySelectorAll('.media-group img, img.media, .album-image img').forEach(img => {
-            const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-original');
-            if (src && !src.includes('thumb') && !src.includes('logo') && !src.includes('avatar')) {
-                try { urls.add(new URL(src, location.href).href); } catch (e) {}
-            }
-        });
-
-        document.querySelectorAll('.media-group video, .video-js video, video, video source').forEach(v => {
-            const src = v.src || v.getAttribute('src') || v.currentSrc;
-            if (src) { try { urls.add(new URL(src, location.href).href); } catch (e) {} }
-        });
-
-        return Array.from(urls);
-    }
-
-    function isImageUrl(u) { return /\.(jpe?g|png|gif|webp|bmp)(\?|$)/i.test(u); }
-    function isVideoUrl(u) { return /\.(mp4|webm|mov|avi|m3u8)(\?|$)/i.test(u); }
-
-    function getPageTitle() {
-        const el = document.querySelector('h1, .album-title');
-        let title = el?.textContent?.trim() || document.title || 'Erome_Album';
-        return sanitize(title) || 'Erome_Album';
-    }
-
-    function generateZipName() {
-        const stamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').substring(0, 16);
-        return `Erome_${stamp}_${getPageTitle()}.zip`;
-    }
-
-    function buildBulkModal() {
-        if (document.getElementById('eu-bulk-modal')) return;
-
-        const overlay = document.createElement('div');
-        overlay.id = 'eu-bulk-modal';
-        overlay.className = 'eu-modal-overlay';
-        overlay.innerHTML = `
-          <div class="eu-modal">
-            <div class="eu-modal-header">
-              <h3>${ICONS.download}<span>Bulk Download</span></h3>
-              <button class="eu-modal-close">${ICONS.close}</button>
-            </div>
-            <div class="eu-modal-body">
-              <div class="eu-option-group">
-                <div class="eu-option-title">Media Type</div>
-                <label class="eu-option"><input type="radio" name="eu-type" value="all" checked><span class="eu-radio"></span>All files</label>
-                <label class="eu-option"><input type="radio" name="eu-type" value="images"><span class="eu-radio"></span>Images only</label>
-                <label class="eu-option"><input type="radio" name="eu-type" value="videos"><span class="eu-radio"></span>Videos only</label>
-              </div>
-              <div class="eu-option-group">
-                <div class="eu-option-title">Output</div>
-                <label class="eu-option"><input type="checkbox" id="eu-zip" checked><span class="eu-check"></span>Package as ZIP</label>
-                <label class="eu-option"><input type="checkbox" id="eu-zip-folders" ${SETTINGS.zipFolders ? 'checked' : ''}><span class="eu-check"></span>Folder ZIP by album/title</label>
-                <label class="eu-option"><input type="checkbox" id="eu-skip-downloaded" ${SETTINGS.skipDownloadedInDownloads ? 'checked' : ''}><span class="eu-check"></span>Skip already downloaded media</label>
-                <div class="eu-zip-preview" id="eu-zip-name"></div>
-              </div>
-              <div class="eu-option-group">
-                <div class="eu-option-title">Stats</div>
-                <div class="eu-zip-preview" id="eu-stats">Scanning…</div>
-              </div>
-              <button class="eu-btn-primary" id="eu-start-dl">${ICONS.download}<span>Start Download</span></button>
-              <button class="eu-btn-secondary" id="eu-open-dlx" style="margin-top:10px;">Open Smart Download Manager</button>
-              <div class="eu-progress-box">
-                <div class="eu-progress-bar"><div class="eu-progress-fill" id="eu-progress-fill"></div></div>
-                <div class="eu-progress-text" id="eu-progress-text">Ready</div>
-              </div>
-            </div>
-          </div>`;
-        document.body.appendChild(overlay);
-
-        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
-        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-
-        const refreshPreview = () => {
-            document.getElementById('eu-zip-name').textContent = generateZipName();
-            const urls = collectAllMediaUrls();
-            const imgs = urls.filter(isImageUrl).length;
-            const vids = urls.filter(isVideoUrl).length;
-            document.getElementById('eu-stats').textContent = `Found ${urls.length} items (${imgs} images, ${vids} videos)`;
-        };
-        overlay.querySelectorAll('input[name="eu-type"]').forEach(r => r.addEventListener('change', refreshPreview));
-        document.getElementById('eu-zip').addEventListener('change', refreshPreview);
-
-        document.getElementById('eu-start-dl').onclick = () => bulkDownload(overlay);
-        document.getElementById('eu-open-dlx').onclick = () => { overlay.classList.remove('open'); openDownloadManager(); };
-        document.getElementById('eu-zip-folders').addEventListener('change', e => updateSetting('zipFolders', e.target.checked));
-        document.getElementById('eu-skip-downloaded').addEventListener('change', e => updateSetting('skipDownloadedInDownloads', e.target.checked));
-
-        // Refresh preview whenever opened
-        overlay.dataset.refresh = '1';
-        overlay.addEventListener('transitionstart', refreshPreview);
-        overlay._refreshPreview = refreshPreview;
-    }
-
-    function openBulkModal() {
-        buildBulkModal();
-        const m = document.getElementById('eu-bulk-modal');
-        m.classList.add('open');
-        m._refreshPreview?.();
-    }
-
-    async function bulkDownload(overlay) {
-        if (STATE.downloadInProgress) { toast('A download is already running', 'warning'); return; }
-
-        const type = overlay.querySelector('input[name="eu-type"]:checked').value;
-        const asZip = overlay.querySelector('#eu-zip').checked;
-        const zipFolders = overlay.querySelector('#eu-zip-folders')?.checked ?? SETTINGS.zipFolders;
-        const skipDownloaded = overlay.querySelector('#eu-skip-downloaded')?.checked ?? SETTINGS.skipDownloadedInDownloads;
-        updateSetting('zipFolders', zipFolders);
-        updateSetting('skipDownloadedInDownloads', skipDownloaded);
-        const btn = overlay.querySelector('#eu-start-dl');
-        const fill = overlay.querySelector('#eu-progress-fill');
-        const text = overlay.querySelector('#eu-progress-text');
-
-        let urls = collectAllMediaUrls();
-        if (type === 'images') urls = urls.filter(isImageUrl);
-        if (type === 'videos') urls = urls.filter(isVideoUrl);
-        if (skipDownloaded) urls = urls.filter(u => !TRACKING.downloadedMedia.has(normalizeUrl(u)));
-
-        if (urls.length === 0) { toast('No media found', 'error'); return; }
-
-        STATE.downloadInProgress = true;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="eu-spinner"></span><span>Working…</span>`;
-        fill.style.width = '0%';
-        text.textContent = `0 / ${urls.length}`;
-
-        try {
-            if (asZip && typeof JSZip !== 'undefined') {
-                const zip = new JSZip();
-                let ok = 0;
-                for (let i = 0; i < urls.length; i++) {
-                    const url = urls[i];
-                    const baseName = `${String(i + 1).padStart(3, '0')}_${getFilename(url)}`;
-                    const name = zipFolders ? `${getPageTitle()}/${baseName}` : baseName;
-                    text.textContent = `Downloading ${i + 1}/${urls.length}: ${baseName.substring(0, 30)}`;
-                    fill.style.width = `${(i / urls.length) * 100}%`;
-                    try {
-                        const blob = await downloadBlobWithRetry(url, SETTINGS.retryDownloads ? 2 : 1);
-                        zip.file(name, await blob.arrayBuffer());
-                        markDownloadedMedia(url, currentAlbumUrl());
-                        ok++;
-                    } catch (e) {
-                        zip.file(`ERROR_${i + 1}.txt`, `URL: ${url}\nError: ${e}`);
-                    }
-                }
-                text.textContent = 'Generating ZIP…';
-                const zipBlob = await zip.generateAsync(
-                    { type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } },
-                    meta => { text.textContent = `Compressing: ${Math.round(meta.percent)}%`; fill.style.width = `${meta.percent}%`; }
-                );
-                if (typeof saveAs === 'function') saveAs(zipBlob, generateZipName());
-                else {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(zipBlob);
-                    a.download = generateZipName();
-                    a.click();
-                }
-                fill.style.width = '100%';
-                text.textContent = `Complete (${ok}/${urls.length})`;
-                toast(`ZIP saved: ${ok}/${urls.length} files`, 'success');
-            } else {
-                let ok = 0;
-                for (let i = 0; i < urls.length; i++) {
-                    const url = urls[i];
-                    const name = `${String(i + 1).padStart(3, '0')}_${getFilename(url)}`;
-                    text.textContent = `Downloading ${i + 1}/${urls.length}`;
-                    fill.style.width = `${(i / urls.length) * 100}%`;
-                    try {
-                        const blob = await downloadBlobWithRetry(url, SETTINGS.retryDownloads ? 2 : 1);
-                        const u = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = u; a.download = name; a.style.display = 'none';
-                        document.body.appendChild(a); a.click(); a.remove();
-                        setTimeout(() => URL.revokeObjectURL(u), 5000);
-                        markDownloadedMedia(url, currentAlbumUrl());
-                        ok++;
-                        await new Promise(r => setTimeout(r, SETTINGS.performanceMode === 'aggressive' ? 150 : 400));
-                    } catch (e) { console.error(e); }
-                }
-                fill.style.width = '100%';
-                text.textContent = `Complete (${ok}/${urls.length})`;
-                decorateTrackingBadges();
-                toast(`Downloaded ${ok}/${urls.length} files`, 'success');
-            }
-        } catch (err) {
-            console.error(err);
-            toast('Bulk download error', 'error');
-        } finally {
-            STATE.downloadInProgress = false;
-            btn.disabled = false;
-            btn.innerHTML = `${ICONS.download}<span>Start Download</span>`;
-        }
-    }
-
-    /* ============================================================
-     *  TIKTOK-STYLE VERTICAL SCROLL MODE — Phone-proportioned
-     * ============================================================ */
-    GM_addStyle(`
-    .eu-tiktok-overlay {
-        position: fixed; inset: 0;
-        background: radial-gradient(circle at 50% 30%, #1a1a2e 0%, #000 70%);
-        z-index: 99999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        animation: eu-fade-in .3s ease;
-    }
-    .eu-tiktok-overlay.open { display: flex; }
-
-    /* TikTok layout - simple phone centered */
-
-    /* Phone-shaped container (9:16 aspect ratio, like a real phone) */
-    .eu-phone {
-        position: relative;
-        width: min(420px, 92vw);
-        height: min(calc(420px * 16 / 9), 94vh);
-        aspect-ratio: 9 / 16;
-        background: #000;
-        border-radius: 28px;
-        overflow: hidden;
-        box-shadow:
-            0 0 0 8px #111,
-            0 0 0 9px #2a2a2a,
-            0 30px 80px rgba(138, 90, 204, .25),
-            0 60px 120px rgba(0, 0, 0, .7);
-        display: flex;
-        flex-direction: column;
-    }
-    /* Phone notch */
-    .eu-phone::before {
-        content: '';
-        position: absolute;
-        top: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 110px;
-        height: 22px;
-        background: #0a0a0a;
-        border-radius: 14px;
-        z-index: 100;
-    }
-    @media (max-width: 520px) {
-        .eu-phone {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0;
-            box-shadow: none;
-            aspect-ratio: auto;
-        }
-        .eu-phone::before { display: none; }
-    }
-
-    /* Desktop Feed layout: same one-card scroll as mobile, but wide/fullscreen. */
-    .eu-tiktok-overlay.eu-desktop-mode {
-        align-items: stretch;
-        justify-content: center;
-        padding: 16px;
-        background: radial-gradient(circle at 50% 20%, #24213a 0%, #090910 72%);
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-phone {
-        width: min(1280px, calc(100vw - 32px));
-        height: calc(100vh - 32px);
-        aspect-ratio: auto;
-        border-radius: 18px;
-        box-shadow:
-            0 0 0 1px rgba(138,90,204,.35),
-            0 24px 90px rgba(0,0,0,.75),
-            0 0 70px rgba(138,90,204,.22);
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-phone::before { display: none; }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-topbar {
-        height: 74px;
-        padding-top: 18px;
-        padding-left: 24px;
-        padding-right: 24px;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-title { font-size: 16px; }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-counter {
-        top: 82px;
-        left: 24px;
-        font-size: 12px;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-item,
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-feed {
-        height: 100%;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-media,
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-item video,
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-item img {
-        object-fit: contain;
-        background: #000;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-sidebar {
-        right: 24px;
-        bottom: 34px;
-        gap: 12px;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-caption {
-        left: 24px;
-        right: 120px;
-        bottom: 30px;
-        margin-left: -24px;
-        margin-right: -120px;
-        padding-left: 24px;
-        padding-right: 120px;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-caption .eu-tiktok-desc {
-        font-size: 13px;
-        max-width: 760px;
-    }
-    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-duration-live {
-        left: 24px;
-        bottom: 96px;
-    }
-    .eu-tiktok-layout-toggle {
-        background: rgba(138,90,204,.45);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,.18);
-        padding: 5px 10px;
-        border-radius: 14px;
-        font-size: 11px;
-        font-weight: 700;
-        cursor: pointer;
-        backdrop-filter: blur(6px);
-        transition: all .2s ease;
-    }
-    .eu-tiktok-layout-toggle:hover { background: rgba(138,90,204,.75); }
-
-    .eu-tiktok-topbar {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        padding-top: 36px;
-        height: 86px;
-        background: linear-gradient(180deg, rgba(0,0,0,.9), transparent);
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        padding-left: 14px;
-        padding-right: 14px;
-        z-index: 20;
-        pointer-events: none;
-    }
-    .eu-tiktok-topbar > * { pointer-events: auto; }
-    .eu-tiktok-title {
-        color: #fff;
-        font-weight: 700;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .eu-tiktok-title span {
-        border-bottom: 2px solid ${CONFIG.accent};
-        padding-bottom: 2px;
-    }
-    .eu-tiktok-title svg { width: 16px; height: 16px; fill: #fff; }
-    .eu-tiktok-brand-logo {
-        height: 22px; width: auto;
-        filter: drop-shadow(0 0 6px rgba(138,90,204,0.7));
-        border-radius: 4px;
-    }
-
-    /* === Splash screen (shown when TikTok mode opens) === */
-    .eu-tiktok-splash {
-        position: absolute; inset: 0;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        background: linear-gradient(135deg, #0e0f17 0%, #14151f 50%, #2a1f3d 100%);
-        z-index: 100;
-        gap: 18px;
-        animation: eu-splash-fade 1.8s ease forwards;
-        animation-delay: 0.8s;
-        pointer-events: none;
-    }
-    .eu-tiktok-splash-logo {
-        max-width: 76%; width: 360px; height: auto;
-        filter: drop-shadow(0 0 40px rgba(138,90,204,0.7));
-        animation: eu-splash-pop .7s cubic-bezier(.2,.9,.3,1.2);
-    }
-    .eu-tiktok-splash-tag {
-        color: #b39ad6; font-size: 13px; font-weight: 700;
-        letter-spacing: 4px; text-transform: uppercase;
-        animation: eu-splash-pop .9s cubic-bezier(.2,.9,.3,1.2);
-    }
-    .eu-tiktok-splash-dots {
-        display: flex; gap: 8px;
-    }
-    .eu-tiktok-splash-dots span {
-        width: 8px; height: 8px; border-radius: 50%;
-        background: #8a5acc;
-        animation: eu-splash-dot 1.2s ease-in-out infinite;
-    }
-    .eu-tiktok-splash-dots span:nth-child(2) { animation-delay: .2s; }
-    .eu-tiktok-splash-dots span:nth-child(3) { animation-delay: .4s; }
-    @keyframes eu-splash-pop {
-        0% { opacity: 0; transform: scale(.6); }
-        100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes eu-splash-dot {
-        0%, 100% { opacity: 0.3; transform: translateY(0); }
-        50%      { opacity: 1;   transform: translateY(-6px); }
-    }
-    @keyframes eu-splash-fade {
-        0%   { opacity: 1; }
-        85%  { opacity: 1; }
-        100% { opacity: 0; visibility: hidden; pointer-events: none; }
-    }
-    .eu-tiktok-controls {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-    .eu-tiktok-tab {
-        background: rgba(255,255,255,.12);
-        color: #fff;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 14px;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all .2s ease;
-        backdrop-filter: blur(6px);
-    }
-    .eu-tiktok-tab:hover { background: rgba(255,255,255,.22); }
-    .eu-tiktok-tab.active {
-        background: ${CONFIG.accent};
-        box-shadow: 0 0 12px rgba(138,90,204,.6);
-    }
-    .eu-tiktok-close {
-        background: rgba(0,0,0,.65);
-        color: #fff;
-        border: none;
-        width: 32px; height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background .2s ease;
-        backdrop-filter: blur(6px);
-    }
-    .eu-tiktok-close:hover { background: rgba(255,255,255,.2); }
-    .eu-tiktok-close svg { width: 16px; height: 16px; fill: #fff; }
-
-    .eu-tiktok-feed {
-        flex: 1;
-        overflow-y: scroll;
-        scroll-snap-type: y mandatory;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
-    .eu-tiktok-feed::-webkit-scrollbar { display: none; }
-
-    .eu-tiktok-item {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        min-height: 100%;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #000;
-        overflow: hidden;
-    }
-    .eu-tiktok-media,
-    .eu-tiktok-item video,
-    .eu-tiktok-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        max-width: 100%;
-        max-height: 100%;
-        background: #000;
-        display: block;
-    }
-    .eu-tiktok-item::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        box-shadow: inset 0 -140px 160px -40px rgba(0,0,0,.55), inset 0 70px 80px -40px rgba(0,0,0,.35);
-    }
-
-    /* Right sidebar — TikTok style */
-    .eu-tiktok-sidebar {
-        position: absolute;
-        right: 10px;
-        bottom: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        z-index: 5;
-        max-height: calc(100% - 48px);
-    }
-    .eu-tiktok-user-link {
-        color: #fff !important;
-        text-decoration: none;
-    }
-    .eu-tiktok-action {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        color: #fff;
-        cursor: pointer;
-        transition: transform .15s ease;
-    }
-    .eu-tiktok-action:hover { transform: scale(1.12); }
-    .eu-tiktok-action:active { transform: scale(.92); }
-    .eu-tiktok-action .eu-tiktok-icon {
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        background: rgba(0,0,0,.55);
-        backdrop-filter: blur(8px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,.12);
-        transition: all .2s ease;
-    }
-    .eu-tiktok-action .eu-tiktok-icon svg { width: 20px; height: 20px; fill: #fff; }
-    .eu-tiktok-action.liked .eu-tiktok-icon { background: #ef4444; animation: eu-pulse .35s ease; }
-    .eu-tiktok-action .eu-tiktok-lbl {
-        font-size: 10px;
-        font-weight: 700;
-        text-shadow: 0 0 6px rgba(0,0,0,.95);
-    }
-
-    /* Bottom caption */
-    .eu-tiktok-caption {
-        position: absolute;
-        left: 14px;
-        right: 80px;
-        bottom: 22px;
-        color: #fff;
-        z-index: 4;
-        padding-bottom: 12px;
-        background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
-        padding-top: 40px; padding-left: 0; padding-right: 0;
-        margin-left: -14px; margin-right: -80px;
-        padding-left: 14px; padding-right: 80px;
-    }
-    .eu-tiktok-caption .eu-tiktok-user {
-        font-weight: 700;
-        font-size: 14px;
-        margin-bottom: 4px;
-        text-shadow: 0 0 8px rgba(0,0,0,.95);
-    }
-    .eu-tiktok-caption .eu-tiktok-desc {
-        font-size: 12px;
-        line-height: 1.35;
-        opacity: .92;
-        text-shadow: 0 0 8px rgba(0,0,0,.95);
-        max-height: 54px;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-    }
-    .eu-tiktok-caption .eu-tiktok-album {
-        display: inline-block;
-        margin-top: 6px;
-        font-size: 11px;
-        padding: 3px 8px;
-        background: rgba(138,90,204,.4);
-        border-radius: 8px;
-        backdrop-filter: blur(6px);
-        color: #fff;
-    }
-
-    .eu-tiktok-counter {
-        position: absolute;
-        top: 95px;
-        left: 14px;
-        background: rgba(0,0,0,.55);
-        color: #fff;
-        padding: 4px 10px;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: 700;
-        z-index: 5;
-        backdrop-filter: blur(6px);
-    }
-
-    .eu-tiktok-play-hint {
-        position: absolute;
-        width: 64px; height: 64px;
-        background: rgba(0,0,0,.65);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity .2s ease;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-    }
-    .eu-tiktok-play-hint.show { opacity: 1; }
-    .eu-tiktok-play-hint svg { width: 32px; height: 32px; fill: #fff; }
-
-    /* Video progress bar (at top of item) */
-    .eu-tiktok-progress {
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 3px;
-        background: rgba(255,255,255,.12);
-        z-index: 6;
-    }
-    .eu-tiktok-progress-fill {
-        height: 100%;
-        background: #fff;
-        width: 0;
-        transition: width .1s linear;
-    }
-
-    /* === Erome-native buttons === */
-    .eu-tiktok-top {
-        position: absolute; top: 14px; left: 14px; right: 70px;
-        display: flex; align-items: center; gap: 8px;
-        z-index: 10; pointer-events: none;
-    }
-    .eu-tiktok-views, .eu-tiktok-kind-pill {
-        display: inline-flex; align-items: center; gap: 6px;
-        background: rgba(0,0,0,0.55); backdrop-filter: blur(8px);
-        color: #fff; font-size: 11px; font-weight: 600;
-        padding: 5px 10px; border-radius: 20px;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    .eu-tiktok-views svg, .eu-tiktok-kind-pill svg { width: 12px; height: 12px; fill: #fff; }
-    .eu-tiktok-duration-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: rgba(255, 0, 80, 0.85);
-        color: #fff;
-        font-size: 12px;
-        font-weight: 700;
-        padding: 5px 10px;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(6px);
-        font-family: 'Courier New', monospace;
-    }
-    .eu-tiktok-duration-live {
-        position: absolute;
-        bottom: 80px;
-        left: 14px;
-        background: rgba(0, 0, 0, 0.85);
-        color: #fff;
-        padding: 5px 11px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 700;
-        font-family: 'Courier New', monospace;
-        z-index: 6;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        pointer-events: none;
-    }
-
-    /* Avatar button (profile + follow plus sign) */
-    .eu-tiktok-avatar {
-        position: relative; width: 52px; height: 52px;
-        border-radius: 50%; overflow: visible;
-        border: 2px solid #fff; margin-bottom: 6px;
-        display: block; flex-shrink: 0;
-        transition: transform .2s ease;
-    }
-    .eu-tiktok-avatar:hover { transform: scale(1.08); }
-    .eu-tiktok-avatar img {
-        width: 100%; height: 100%; border-radius: 50%;
-        object-fit: cover; background: #8a5acc;
-        display: block;
-    }
-    .eu-tiktok-avatar-plus {
-        position: absolute; bottom: -7px; left: 50%;
-        transform: translateX(-50%);
-        width: 20px; height: 20px; border-radius: 50%;
-        background: #ff0050; color: #fff;
-        font-size: 14px; font-weight: 700;
-        display: flex; align-items: center; justify-content: center;
-        line-height: 1; border: 2px solid transparent;
-    }
-
-    /* Action button tweaks for Erome-native look */
-    .eu-tiktok-action.faved .eu-tiktok-icon { background: #f59e0b; animation: eu-pulse .35s ease; }
-    .eu-tiktok-action.faved .eu-tiktok-icon svg { fill: #fff; }
-    .eu-tiktok-action-mini .eu-tiktok-icon {
-        width: 36px !important; height: 36px !important;
-        background: rgba(0,0,0,.55) !important;
-    }
-    .eu-tiktok-action-mini .eu-tiktok-icon svg { width: 16px !important; height: 16px !important; }
-    .eu-tiktok-count {
-        font-variant-numeric: tabular-nums;
-        min-width: 20px; text-align: center;
-    }
-
-    /* Spinning music disc (TikTok-style) */
-    .eu-tiktok-disc {
-        width: 48px; height: 48px; border-radius: 50%;
-        overflow: hidden; border: 6px solid #111;
-        background: #000; flex-shrink: 0;
-        animation: eu-spin 6s linear infinite;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.6);
-        margin-top: 4px;
-    }
-    .eu-tiktok-disc img { width: 100%; height: 100%; object-fit: cover; }
-    @keyframes eu-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    /* Bottom-left scrolling ticker (music row) */
-    .eu-tiktok-ticker {
-        display: flex; align-items: center; gap: 6px;
-        color: #fff; font-size: 12px; opacity: .85;
-        margin-top: 6px;
-        white-space: nowrap; overflow: hidden;
-    }
-    .eu-tiktok-ticker svg { width: 13px; height: 13px; fill: #fff; flex-shrink: 0; }
-    .eu-tiktok-ticker span {
-        display: inline-block; animation: eu-ticker 12s linear infinite;
-        padding-left: 0;
-    }
-    @keyframes eu-ticker {
-        0%   { transform: translateX(0); }
-        50%  { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-    }
-
-    /* "View Album on Erome" button — more prominent */
-    .eu-tiktok-caption .eu-tiktok-album {
-        display: inline-flex !important; align-items: center; gap: 6px;
-        margin-top: 6px;
-        background: rgba(138, 90, 204, 0.25);
-        border: 1px solid rgba(138, 90, 204, 0.5);
-        padding: 6px 12px; border-radius: 20px;
-        font-size: 12px; font-weight: 600;
-        text-decoration: none; color: #fff !important;
-        transition: all .2s ease;
-    }
-    .eu-tiktok-caption .eu-tiktok-album:hover {
-        background: rgba(138, 90, 204, 0.5);
-        transform: translateY(-1px);
-    }
-    .eu-tiktok-caption .eu-tiktok-album svg { width: 12px; height: 12px; fill: #fff; }
-
-    /* Loading spinner */
-    .eu-tiktok-loading {
-        color: #fff;
-        text-align: center;
-        padding: 24px;
-        font-size: 13px;
-        opacity: .7;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-    .eu-tiktok-empty {
-        color: #aaa;
-        font-size: 13px;
-        text-align: center;
-        padding: 40px 20px;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Phone hint */
-    .eu-tiktok-hint {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: rgba(255,255,255,.5);
-        font-size: 11px;
-        text-align: center;
-        z-index: 2;
-        pointer-events: none;
-        animation: eu-hint-bounce 2s ease infinite;
-    }
-    @keyframes eu-hint-bounce {
-        0%, 100% { transform: translate(-50%, 0); opacity: .5; }
-        50% { transform: translate(-50%, -6px); opacity: 1; }
-    }
-
-    /* Double-tap heart animation */
-    .eu-tiktok-heart-pop {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%) scale(0);
-        font-size: 120px;
-        pointer-events: none;
-        opacity: 0;
-        z-index: 50;
-    }
-    .eu-tiktok-heart-pop.animate {
-        animation: eu-heart-pop .8s ease;
-    }
-    @keyframes eu-heart-pop {
-        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-        30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-        70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    }
-    `);
-
-
-    GM_addStyle(`
-    /* ---------- Smart Premium v7.3 additions ---------- */
-    .eu-tracking-badge {
-        position: absolute;
-        right: 8px;
-        bottom: 8px;
-        padding: 4px 8px;
-        border-radius: 999px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: .2px;
-        background: rgba(0,0,0,.84);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,.12);
-        z-index: 18;
-        backdrop-filter: blur(8px);
-        pointer-events: none;
-    }
-    .eu-tracking-badge.eu-downloaded { bottom: 34px; color: #d1fae5; border-color: rgba(74,222,128,.45); }
-    .eu-track-filtered-out, .eu-search-filtered-out { display: none !important; }
-    .eu-smart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .eu-smart-row.full { grid-template-columns: 1fr; }
-    .eu-smart-field label { display: block; color: ${CONFIG.accentSoft}; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
-    .eu-smart-field select, .eu-smart-field input[type="number"], .eu-smart-field input[type="text"] {
-        width: 100%; padding: 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,.1);
-        background: ${CONFIG.darker}; color: #fff; outline: none;
-    }
-    .eu-smart-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-top: 6px; }
-    .eu-smart-check { display: flex; align-items: center; gap: 8px; color: #eee; font-size: 13px; cursor: pointer; user-select: none; }
-    .eu-smart-check input { accent-color: ${CONFIG.accent}; }
-    .eu-smart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-    .eu-btn-secondary {
-        width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12);
-        background: ${CONFIG.darker}; color: #fff; cursor: pointer; font-weight: 800;
-    }
-    .eu-btn-secondary:hover { border-color: ${CONFIG.accent}; box-shadow: 0 0 15px rgba(138,90,204,.25); }
-    .eu-status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .eu-status-card { background: ${CONFIG.darker}; border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,.08); }
-    .eu-status-card b { display: block; font-size: 20px; color: #fff; margin-bottom: 2px; }
-    .eu-status-card span { color: ${CONFIG.accentSoft}; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .eu-feed-tools {
-        position: absolute; top: 58px; left: 50%; transform: translateX(-50%);
-        display: flex; gap: 7px; z-index: 35; flex-wrap: wrap; justify-content: center;
-        width: min(760px, calc(100vw - 24px)); pointer-events: none;
-        opacity: 1; visibility: visible;
-        transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
-    }
-    .eu-feed-tools button, .eu-feed-tools .eu-feed-chip {
-        pointer-events: auto; border: 1px solid rgba(255,255,255,.12); color: #fff;
-        background: rgba(20,21,31,.72); backdrop-filter: blur(10px); border-radius: 999px;
-        font-size: 11px; font-weight: 800; padding: 7px 10px; cursor: pointer;
-        box-shadow: 0 4px 16px rgba(0,0,0,.28);
-    }
-    .eu-feed-tools button:hover { border-color: ${CONFIG.accent}; background: rgba(138,90,204,.35); }
-    .eu-feed-tools button.eu-active { border-color: ${CONFIG.accent}; background: rgba(138,90,204,.42); box-shadow: 0 0 18px rgba(138,90,204,.32); }
-    .eu-feed-status {
-        position: absolute; top: 98px; left: 50%; transform: translateX(-50%);
-        color: ${CONFIG.accentSoft}; font-size: 11px; font-weight: 800; z-index: 34;
-        background: rgba(0,0,0,.48); border: 1px solid rgba(255,255,255,.08); border-radius: 999px;
-        padding: 5px 10px; backdrop-filter: blur(10px); pointer-events: none;
-        opacity: 1; visibility: visible;
-        transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
-    }
-    .eu-tiktok-topbar,
-    .eu-tiktok-tab,
-    .eu-tiktok-layout-toggle,
-    .eu-tiktok-title span,
-    .eu-tiktok-close {
-        transition: opacity .22s ease, transform .22s ease, background .22s ease, visibility .22s ease;
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-feed-tools,
-    .eu-phone.eu-feed-controls-hidden .eu-feed-status {
-        opacity: 0; visibility: hidden; pointer-events: none;
-        transform: translate(-50%, -12px);
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-tab,
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-layout-toggle {
-        opacity: 0; visibility: hidden; pointer-events: none;
-        transform: translateY(-10px);
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-title span {
-        opacity: 0; visibility: hidden; transform: translateY(-6px);
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-brand-logo {
-        opacity: .95;
-        box-shadow: 0 0 16px rgba(138,90,204,.45);
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-topbar {
-        background: linear-gradient(180deg, rgba(0,0,0,.24), transparent);
-        pointer-events: none;
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-close,
-    .eu-phone.eu-feed-controls-hidden .eu-feed-tools-toggle {
-        visibility: visible; pointer-events: auto;
-    }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-close { opacity: .72; }
-    .eu-phone.eu-feed-controls-hidden .eu-tiktok-close:hover { opacity: 1; }
-    .eu-feed-tools-toggle {
-        position: absolute; top: 104px; right: 14px; z-index: 36;
-        display: inline-flex; align-items: center; gap: 7px;
-        height: 34px; padding: 5px 10px 5px 6px;
-        border-radius: 999px; border: 1px solid rgba(255,255,255,.14);
-        color: #fff; background: rgba(20,21,31,.72); backdrop-filter: blur(12px);
-        box-shadow: 0 8px 26px rgba(0,0,0,.32), 0 0 20px rgba(138,90,204,.18);
-        font-size: 11px; font-weight: 900; cursor: pointer;
-        opacity: .72; transition: opacity .2s ease, transform .2s ease, background .2s ease;
-    }
-    .eu-feed-tools-toggle:hover { opacity: 1; transform: scale(1.04); background: rgba(138,90,204,.36); }
-    .eu-feed-tools-toggle img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(138,90,204,.55); }
-    .eu-feed-tools-toggle span { max-width: 48px; overflow: hidden; transition: max-width .18s ease, opacity .18s ease; }
-    .eu-phone.eu-feed-controls-hidden .eu-feed-tools-toggle span { max-width: 0; opacity: 0; }
-    .eu-phone.eu-feed-controls-hidden .eu-feed-tools-toggle:hover span { max-width: 48px; opacity: 1; }
-    .eu-phone:not(.eu-feed-controls-hidden) .eu-feed-tools-toggle { opacity: .46; }
-    .eu-desktop-mode .eu-feed-tools { top: 68px; }
-    .eu-desktop-mode .eu-feed-status { top: 108px; }
-    .eu-desktop-mode .eu-feed-tools-toggle { top: 118px; right: 24px; }
-    .eu-fit-contain .eu-tiktok-media { object-fit: contain !important; }
-    .eu-fit-cover .eu-tiktok-media { object-fit: cover !important; }
-    .eu-fit-natural .eu-tiktok-media { object-fit: scale-down !important; max-width: 100%; max-height: 100%; }
-    .eu-feed-badge {
-        position: absolute; left: 18px; top: 88px; z-index: 12; border-radius: 999px;
-        background: rgba(0,0,0,.58); color: #fff; border: 1px solid rgba(255,255,255,.12);
-        padding: 5px 9px; font-size: 11px; font-weight: 900; backdrop-filter: blur(8px);
-    }
-    .eu-feed-badge.eu-feed-downloaded { top: 118px; color: #d1fae5; border-color: rgba(74,222,128,.45); }
-    .eu-dlx-log {
-        max-height: 160px; overflow: auto; margin-top: 12px; padding: 10px; background: ${CONFIG.darker};
-        color: #ddd; border-radius: 10px; font: 11px/1.45 monospace; white-space: pre-wrap;
-    }
-    `);
-
-    /* --- TikTok State --- */
-    const TT = {
-        items: [],          // All collected media items (flattened)
-        seenUrls: new Set(), // Dedupe set
-        albumQueue: [],     // Album URLs queued for preload
-        albumSeen: new Set(), // Already preloaded album URLs
-        loadingMore: false,
-        listingNextPage: 2,  // Listing pages queued in the background for desktop feed
-        listingLoading: false,
-        listingStopped: false,
-        listingEmptyHits: 0,
-        listingSeenPages: new Set(),
-        feedScopeMode: 'album',
-        feedScopeLabel: '',
-        feedScopeUrl: '',
-        feedScopeTerms: [],
-        io: null,           // IntersectionObserver
-        currentAlbum: null
-    };
-
-    function extractMediaFromDoc(doc, type, albumMeta = {}) {
-        const results = [];
-        const add = (kind, url) => {
-            if (!url || TT.seenUrls.has(url)) return;
-            if (url.includes('thumb') || url.includes('avatar') || url.includes('logo')) return;
-            TT.seenUrls.add(url);
-            results.push({ kind, url, ...albumMeta });
-        };
-
-        if (type === 'videos' || type === 'all') {
-            const addVideoSrc = (src) => {
-                if (!src) return;
-                src = String(src).trim().replace(/\\\//g, '/');
-                if (src.startsWith('//')) src = 'https:' + src;
-                if (/\.(mp4|webm|m3u8)(?:[?#]|$)/i.test(src)) add('video', src);
-            };
-            doc.querySelectorAll('.media-group video, .video-js video, video').forEach(v => {
-                addVideoSrc(v.currentSrc || v.querySelector('source')?.src || v.src || v.getAttribute('src') || v.getAttribute('data-src') || v.dataset?.src);
-            });
-            doc.querySelectorAll('.media-group source, video source, source').forEach(s => {
-                addVideoSrc(s.src || s.getAttribute('src') || s.getAttribute('data-src') || s.dataset?.src);
-            });
-            doc.querySelectorAll('a[href]').forEach(a => addVideoSrc(a.getAttribute('href')));
-            const html = doc.documentElement?.innerHTML || '';
-            html.match(/https?:\/\/[^"'<>\\\s]+?\.(?:mp4|webm|m3u8)(?:\?[^"'<>\\\s]*)?/gi)?.forEach(addVideoSrc);
-        }
-
-        if (type === 'photos' || type === 'all') {
-            doc.querySelectorAll('.media-group img, .album-image img, img.img-front').forEach(img => {
-                const src = img.src || img.getAttribute('data-src') || img.getAttribute('src');
-                if (src) add('image', src.startsWith('//') ? 'https:' + src : src);
-            });
-        }
-
-        return results;
-    }
-
-    function getAlbumMetaFromDoc(doc, fallbackUrl) {
-        const userEl = doc.getElementById('user_name') || doc.querySelector('.username');
-        const titleEl = doc.querySelector('.page-content h1, h1');
-
-        // Try to pull like/favorite/view counts from Erome's native DOM
-        const grabCount = (selector) => {
-            const el = doc.querySelector(selector);
-            if (!el) return '';
-            const m = (el.textContent || '').match(/[\d,.]+[kKmM]?/);
-            return m ? m[0] : '';
-        };
-
-        return {
-            username: userEl?.textContent?.replace(/\s+/g, ' ').trim() || 'Erome',
-            title: titleEl?.textContent?.trim() || 'Album',
-            albumUrl: fallbackUrl || location.href,
-            likeCount: grabCount('#like_count') || grabCount('.likes-count') || grabCount('.fa-heart + span') || '',
-            favCount: grabCount('#favorites_count') || grabCount('.favorites-count') || grabCount('.fa-star + span') || '',
-            viewCount: grabCount('#views_count') || grabCount('.views-count') || grabCount('.fa-eye + span') || ''
-        };
-    }
-
-    function collectCurrentPageItems(type) {
-        TT.seenUrls = new Set();
-        // Listing/profile/search pages mostly contain thumbnails. For feed mode we fetch
-        // the real album pages in the background instead of showing low-res thumbs.
-        if (!IS_ALBUM_PAGE) {
-            TT.currentAlbum = null;
-            return [];
-        }
-        const meta = getAlbumMetaFromDoc(document, location.href);
-        TT.currentAlbum = meta;
-        return extractMediaFromDoc(document, type, meta);
-    }
-
-    function euCleanFeedUrl(href, baseUrl = location.href) {
-        try {
-            const u = new URL(href, baseUrl);
-            u.hash = '';
-            return u.href;
-        } catch (e) { return ''; }
-    }
-
-    function normalizeFeedTerms(value) {
-        return String(value || '')
-            .toLowerCase()
-            .replace(/https?:\/\/\S+/g, ' ')
-            .replace(/[^a-z0-9]+/g, ' ')
-            .split(/\s+/)
-            .filter(w => w.length >= 3 && !['www', 'com', 'the', 'and', 'for', 'with', 'from', 'erome', 'page', 'search'].includes(w))
-            .slice(0, 8);
-    }
-
-    function getFeedSearchPhrase() {
-        try {
-            const url = new URL(location.href);
-            for (const key of ['q', 'query', 'search', 'term', 'keyword', 'keywords', 's']) {
-                const val = url.searchParams.get(key);
-                if (val && val.trim()) return val.trim();
-            }
-        } catch (e) {}
-
-        const searchInput = document.querySelector('input[type="search"], input[name="q"], input[name="search"], input[name="query"]');
-        if (searchInput?.value?.trim()) return searchInput.value.trim();
-
-        const heading = document.querySelector('.page-content h1, h1, .search-title, .page-title');
-        const h = heading?.textContent?.replace(/\s+/g, ' ').trim() || '';
-        const m = h.match(/(?:search|results?)\s*(?:for)?\s*[:\-]?\s*(.+)$/i);
-        return (m?.[1] || '').trim();
-    }
-
-    function resetFeedScope() {
-        TT.feedScopeUrl = normalizeUrl(location.href);
-        TT.feedScopeMode = IS_ALBUM_PAGE ? 'album' : 'listing';
-        TT.feedScopeTerms = normalizeFeedTerms(getFeedSearchPhrase());
-        if (IS_ALBUM_PAGE) {
-            TT.feedScopeLabel = SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album + related' : 'Current album only';
-        } else if (TT.feedScopeTerms.length) {
-            TT.feedScopeLabel = `Search lock: ${TT.feedScopeTerms.join(' ')}`;
-        } else {
-            TT.feedScopeLabel = SETTINGS.lockFeedToSearch !== false ? 'Search/listing lock' : 'Related expansion on';
-        }
-    }
-
-    function albumCardMatchesFeedScope(album, href) {
-        if (!album) return true;
-        const text = `${album.textContent || ''} ${href || ''}`.toLowerCase();
-        const q = (SETTINGS.albumSearch || '').trim().toLowerCase();
-        if (q && !text.includes(q)) return false;
-        if (SETTINGS.strictSearchTitleMatch && TT.feedScopeTerms?.length) {
-            return TT.feedScopeTerms.some(term => text.includes(term));
-        }
-        if (album.classList?.contains('eu-search-filtered-out') || album.classList?.contains('eu-track-filtered-out')) return false;
-        return true;
-    }
-
-    function collectAlbumLinksFromResultDoc(doc = document, baseUrl = location.href, source = 'listing') {
-        const out = [];
-        const localSeen = new Set();
-
-        // For searches/listings, only trust actual album result cards. This prevents the
-        // feed from drifting into related/suggested album links found inside fetched albums.
-        let albumCards = Array.from(doc.querySelectorAll('#albums .album'));
-        if (!albumCards.length) {
-            albumCards = Array.from(doc.querySelectorAll('.page-content .album, .albums .album, .user-albums .album'));
-        }
-
-        if (albumCards.length) {
-            albumCards.forEach(album => {
-                const a = album.querySelector('a.album-link[href*="/a/"], a[href*="/a/"]');
-                const href = a?.getAttribute('href');
-                if (!href || !/\/a\//.test(href)) return;
-                const abs = euCleanFeedUrl(href, baseUrl);
-                if (!abs || localSeen.has(abs)) return;
-                if (!albumCardMatchesFeedScope(album, abs)) return;
-                localSeen.add(abs);
-                out.push(abs);
-            });
-            // Listing/search pages should only use result cards. Album pages can still
-            // fall back to older related-album links if the related section is not
-            // built from .album cards.
-            if (out.length || source !== 'album') return out;
-        }
-
-        // Album-page fallback: restore the old next-album behavior. This is never
-        // used for locked search/listing feeds because buildNextAlbumQueue() blocks
-        // source='album' there.
-        if (source === 'album' && (SETTINGS.allowRelatedAlbumExpansion !== false || SETTINGS.lockFeedToSearch === false)) {
-            doc.querySelectorAll('a.album-link[href*="/a/"], .album a[href*="/a/"], a[href*="/a/"]').forEach(a => {
-                const abs = euCleanFeedUrl(a.getAttribute('href'), baseUrl);
-                if (abs && !localSeen.has(abs)) { localSeen.add(abs); out.push(abs); }
-            });
-        }
-        return out;
-    }
-
-    function buildNextAlbumQueue(doc = document, baseUrl = location.href, source = 'listing') {
-        const lockedListing = !IS_ALBUM_PAGE && SETTINGS.lockFeedToSearch !== false;
-        const albumRelatedDisabled = IS_ALBUM_PAGE && SETTINGS.allowRelatedAlbumExpansion === false;
-
-        if (lockedListing && source === 'album') {
-            console.log('[EU] Feed search lock: skipped related album links from fetched album');
-            return 0;
-        }
-        if (albumRelatedDisabled && source === 'album') {
-            console.log('[EU] Feed scope: album page related expansion is disabled');
-            return 0;
-        }
-
-        const links = new Set(TT.albumQueue);
-        const before = links.size;
-        const currentAbs = euCleanFeedUrl(location.href, location.href);
-
-        collectAlbumLinksFromResultDoc(doc, baseUrl, source).forEach(abs => {
-            if (abs === currentAbs) return;
-            if (TT.albumSeen.has(abs)) return;
-            links.add(abs);
-        });
-
-        TT.albumQueue = Array.from(links);
-        const added = Math.max(0, TT.albumQueue.length - before);
-        const mode = lockedListing ? 'search/listing result' : 'related/expanded';
-        console.log(`[EU] Feed queue: ${TT.albumQueue.length} ${mode} albums ready (${added} new)`);
-        updateFeedStatus();
-        return added;
-    }
-
-    function resetListingFeedPager() {
-        const url = new URL(window.location.href);
-        const currentPage = parseInt(url.searchParams.get('page'), 10) || 1;
-        TT.listingNextPage = currentPage + 1;
-        TT.listingLoading = false;
-        TT.listingStopped = false;
-        TT.listingEmptyHits = 0;
-        TT.listingSeenPages = new Set();
-    }
-
-    async function loadNextListingPageIntoQueue() {
-        if (IS_ALBUM_PAGE || TT.listingLoading || TT.listingStopped) return 0;
-
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', TT.listingNextPage);
-        const pageUrl = url.href;
-        if (TT.listingSeenPages?.has(pageUrl)) {
-            TT.listingNextPage++;
-            return 0;
-        }
-
-        TT.listingLoading = true;
-        TT.listingSeenPages?.add(pageUrl);
-
-        try {
-            const res = await fetch(pageUrl, { credentials: 'include' });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-            const html = await res.text();
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const before = TT.albumQueue.length;
-            buildNextAlbumQueue(doc, pageUrl, 'listing');
-            TT.listingNextPage++;
-
-            const added = Math.max(0, TT.albumQueue.length - before);
-            if (added === 0) TT.listingEmptyHits++;
-            else TT.listingEmptyHits = 0;
-
-            if (TT.listingEmptyHits >= 2) TT.listingStopped = true;
-            console.log(`[EU] Desktop feed queued ${added} albums from listing page ${TT.listingNextPage - 1}`);
-            return added;
-        } catch (e) {
-            TT.listingStopped = true;
-            console.warn('[EU] Desktop feed listing queue stopped:', e);
-            return 0;
-        } finally {
-            TT.listingLoading = false;
-        }
-    }
-
-    async function fetchAlbumPage(url) {
-        try {
-            const res = await fetch(url, { credentials: 'include' });
-            const html = await res.text();
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            return doc;
-        } catch (e) {
-            console.warn('[EU] Failed to preload album:', url, e);
-            return null;
-        }
-    }
-
-    async function preloadNextAlbum() {
-        if (TT.loadingMore) return 0;
-        if (TT.albumQueue.length === 0) {
-            buildNextAlbumQueue(document, location.href, IS_ALBUM_PAGE ? 'album' : 'listing');
-            if (TT.albumQueue.length === 0 && !IS_ALBUM_PAGE) {
-                await loadNextListingPageIntoQueue();
-            }
-            if (TT.albumQueue.length === 0) return 0;
-        }
-
-        TT.loadingMore = true;
-        showLoadingCard(true);
-
-        const url = TT.albumQueue.shift();
-        TT.albumSeen.add(url);
-        const doc = await fetchAlbumPage(url);
-        let added = 0;
-
-        if (doc) {
-            // Search/listing feeds stay locked to the original result pages. We only
-            // discover related albums from fetched albums when the user disables the lock.
-            if (IS_ALBUM_PAGE || SETTINGS.lockFeedToSearch === false) {
-                buildNextAlbumQueue(doc, url, 'album');
-            }
-
-            const meta = getAlbumMetaFromDoc(doc, url);
-            const newItems = extractMediaFromDoc(doc, STATE.tiktokType, meta);
-            added = newItems.length;
-            if (added > 0) {
-                TT.items.push(...newItems);
-                newItems.forEach((item, i) => appendTikTokCard(item, TT.items.length - added + i));
-                updateTikTokCounter();
-                updateFeedStatus();
-                console.log(`[EU] Preloaded ${added} items from: ${meta.title}`);
-            }
-        }
-
-        showLoadingCard(false);
-        TT.loadingMore = false;
-        updateFeedStatus();
-
-        // If this album produced nothing useful, keep moving through the queue.
-        // On listing/profile/search pages, silently pull the next result page too.
-        if (added === 0) {
-            if (TT.albumQueue.length > 0) return preloadNextAlbum();
-            if (!IS_ALBUM_PAGE && !TT.listingStopped) {
-                const queued = await loadNextListingPageIntoQueue();
-                if (queued > 0) return preloadNextAlbum();
-            }
-        }
-
-        return added;
-    }
-
-    function showLoadingCard(show) {
-        const feed = document.getElementById('eu-tiktok-feed');
-        if (!feed) return;
-        let card = feed.querySelector('.eu-tiktok-loading');
-        if (show) {
-            if (!card) {
-                card = document.createElement('div');
-                card.className = 'eu-tiktok-loading';
-                const label = STATE.tiktokLayout === 'desktop'
-                    ? 'Loading more albums without changing page…'
-                    : 'Loading next album…';
-                card.innerHTML = `<span class="eu-spinner"></span><span>${label}</span>`;
-                feed.appendChild(card);
-            }
-        } else if (card) {
-            card.remove();
-        }
-    }
-
-    function updateTikTokCounter() {
-        const el = document.getElementById('eu-tiktok-counter');
-        if (!el) return;
-        const idx = Math.min(STATE.tiktokIndex + 1, TT.items.length);
-        el.textContent = `${idx} / ${TT.items.length}`;
-        updateFeedStatus();
-    }
-
-    function appendTikTokCard(item, idx) {
-        const feed = document.getElementById('eu-tiktok-feed');
-        if (!feed) return;
-        feed.querySelector('.eu-tiktok-empty')?.remove();
-
-        const el = document.createElement('div');
-        el.className = 'eu-tiktok-item';
-        el.dataset.idx = idx;
-        el._euData = item;
-
-        let mediaHTML;
-        if (item.kind === 'video') {
-            mediaHTML = `<video class="eu-tiktok-media" src="${item.url}" playsinline preload="metadata" ${SETTINGS.loopVideos !== false ? 'loop' : ''} ${SETTINGS.muteVideos ? 'muted' : ''}></video>`;
-        } else {
-            mediaHTML = `<img class="eu-tiktok-media" src="${item.url}" alt="" loading="lazy">`;
-        }
-
-        const descText = (item.title || '').replace(/[<>]/g, '');
-        const kindEmoji = item.kind === 'video' ? '🎥' : '🖼️';
-
-        const username = (item.username || 'Erome').replace(/[<>]/g, '');
-        const avatarSeed = encodeURIComponent(username);
-        const likeCount = item.likeCount || '';
-        const favCount = item.favCount || '';
-        const viewCount = item.viewCount || '';
-        const albumHref = item.albumUrl || '#';
-
-        el.innerHTML = `
-            ${mediaHTML}
-            <div class="eu-tiktok-play-hint">${ICONS.video}</div>
-            <div class="eu-tiktok-heart-pop">❤️</div>
-            ${TRACKING.seenAlbums.has(normalizeUrl(item.albumUrl || '')) ? '<div class="eu-feed-badge">Seen</div>' : ''}
-            ${TRACKING.downloadedMedia.has(normalizeUrl(item.url)) ? '<div class="eu-feed-badge eu-feed-downloaded">Downloaded</div>' : ''}
-
-            <div class="eu-tiktok-top">
-                ${viewCount ? `<span class="eu-tiktok-views">${ICONS.eye}<span>${viewCount}</span></span>` : ''}
-                <span class="eu-tiktok-kind-pill">${kindEmoji} ${item.kind === 'video' ? 'Video' : 'Photo'}</span>
-                ${item.kind === 'video' ? `<span class="eu-tiktok-duration-pill" data-duration>⏱ <span class="eu-tt-dur-val">--:--</span></span>` : ''}
-            </div>
-
-            <div class="eu-tiktok-caption">
-                <a class="eu-tiktok-user" href="${albumHref}" target="_blank" rel="noopener">@${username}</a>
-                <div class="eu-tiktok-desc">${descText || `${kindEmoji} Media`}</div>
-                ${item.albumUrl ? `<a class="eu-tiktok-album" href="${item.albumUrl}" target="_blank" rel="noopener">${ICONS.eye}<span>View Album on Erome</span></a>` : ''}
-                <div class="eu-tiktok-ticker">
-                    ${ICONS.music}<span>Erome · @${username}</span>
-                </div>
-            </div>
-
-            <div class="eu-tiktok-sidebar">
-                <a class="eu-tiktok-avatar" href="${albumHref}" target="_blank" rel="noopener" title="Visit @${username}">
-                    <img src="https://api.dicebear.com/7.x/initials/svg?seed=${avatarSeed}&backgroundColor=8a5acc" alt="${username}">
-                    <span class="eu-tiktok-avatar-plus">+</span>
-                </a>
-
-                <div class="eu-tiktok-action" data-act="like" title="Like">
-                    <div class="eu-tiktok-icon">${ICONS.heart}</div>
-                    <div class="eu-tiktok-lbl eu-tiktok-count">${likeCount || 'Like'}</div>
-                </div>
-
-                <div class="eu-tiktok-action" data-act="favorite" title="Add to Favorites">
-                    <div class="eu-tiktok-icon">${ICONS.star}</div>
-                    <div class="eu-tiktok-lbl eu-tiktok-count">${favCount || 'Favorite'}</div>
-                </div>
-
-                <div class="eu-tiktok-action" data-act="comment" title="Comments">
-                    <div class="eu-tiktok-icon">${ICONS.comment}</div>
-                    <div class="eu-tiktok-lbl">Comments</div>
-                </div>
-
-                <div class="eu-tiktok-action" data-act="share" title="Share">
-                    <div class="eu-tiktok-icon">${ICONS.share}</div>
-                    <div class="eu-tiktok-lbl">Share</div>
-                </div>
-
-                <div class="eu-tiktok-action" data-act="download" title="Save">
-                    <div class="eu-tiktok-icon">${ICONS.download}</div>
-                    <div class="eu-tiktok-lbl">Save</div>
-                </div>
-
-                <div class="eu-tiktok-action" data-act="copy" title="Copy URL">
-                    <div class="eu-tiktok-icon">${ICONS.copy}</div>
-                    <div class="eu-tiktok-lbl">Copy</div>
-                </div>
-
-                <div class="eu-tiktok-action eu-tiktok-action-mini" data-act="report" title="Report">
-                    <div class="eu-tiktok-icon">${ICONS.flag}</div>
-                </div>
-
-                <div class="eu-tiktok-disc">
-                    <img src="https://api.dicebear.com/7.x/initials/svg?seed=${avatarSeed}&backgroundColor=14151f" alt="">
-                </div>
-            </div>
-
-            ${item.kind === 'video' ? '<div class="eu-tiktok-progress"><div class="eu-tiktok-progress-fill"></div></div>' : ''}
-        `;
-
-        // Actions — Erome-native buttons
-        el.querySelectorAll('.eu-tiktok-action').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            const btn = document.createElement('button');
+            btn.className = 'eu-dl-btn';
+            btn.type = 'button';
+            btn.title = 'Download media';
+            btn.innerHTML = `${ICON.download}<span>Save</span>`;
+            btn.addEventListener('click', e => {
+                e.preventDefault();
                 e.stopPropagation();
-                const act = btn.dataset.act;
-                if (act === 'download') downloadSingle(item.url, getFilename(item.url), null, item.albumUrl);
-                if (act === 'copy') {
-                    navigator.clipboard?.writeText(item.url)
-                        .then(() => toast('URL copied!', 'success', 1400))
-                        .catch(() => toast('Copy failed', 'error'));
-                }
-                if (act === 'like') {
-                    btn.classList.toggle('liked');
-                    if (btn.classList.contains('liked')) {
-                        showHeartPop(el);
-                        toast('Liked \u2665', 'success', 1200);
-                    }
-                }
-                if (act === 'favorite') {
-                    btn.classList.toggle('faved');
-                    if (btn.classList.contains('faved')) saveFavoriteItem(item);
-                    toast(btn.classList.contains('faved') ? 'Added to local favorites \u2b50' : 'Removed from favorites', 'success', 1400);
-                }
-                if (act === 'comment') {
-                    if (item.albumUrl) window.open(item.albumUrl + '#comments', '_blank');
-                    else toast('Comments available on the full album page', 'info');
-                }
-                if (act === 'share') {
-                    const shareUrl = item.albumUrl || item.url;
-                    if (navigator.share) {
-                        navigator.share({ title: `Erome \u00b7 @${username}`, url: shareUrl }).catch(() => {});
-                    } else {
-                        navigator.clipboard?.writeText(shareUrl)
-                            .then(() => toast('Share link copied \ud83d\udce4', 'success', 1400))
-                            .catch(() => toast('Copy failed', 'error'));
-                    }
-                }
-                if (act === 'report') {
-                    if (confirm('Open the full album page to report this content?') && item.albumUrl) {
-                        window.open(item.albumUrl, '_blank');
-                    }
-                }
+                downloadSingle(normalizeUrl(src), filenameFromUrl(src), btn);
             });
+            parent.appendChild(btn);
         });
+    }
 
-        // Double-tap to like (mobile gesture)
-        let lastTap = 0;
-        el.addEventListener('click', (e) => {
-            if (e.target.closest('.eu-tiktok-sidebar') || e.target.closest('.eu-tiktok-album')) return;
+    function albumUrl(album, base = location.href) {
+        const a = $('a.album-link[href*="/a/"], a[href*="/a/"]', album);
+        return normalizeUrl(a?.getAttribute('href') || a?.href || '', base);
+    }
 
-            const now = Date.now();
-            if (now - lastTap < 350) {
-                // Double tap
-                const likeBtn = el.querySelector('.eu-tiktok-action[data-act="like"]');
-                if (likeBtn && !likeBtn.classList.contains('liked')) {
-                    likeBtn.classList.add('liked');
-                }
-                showHeartPop(el);
-            } else {
-                // Single tap = play/pause for videos
-                if (item.kind === 'video') {
-                    const video = el.querySelector('video');
-                    const hint = el.querySelector('.eu-tiktok-play-hint');
-                    if (video) {
-                        if (video.paused) { video.play().catch(() => {}); hint.classList.remove('show'); }
-                        else { video.pause(); hint.classList.add('show'); }
-                    }
+    function decorateAlbums() {
+        if (isAlbumPage) markSeen(location.href);
+        $$('.album').forEach(album => {
+            const thumb = $('.album-thumbnail-container', album) || album;
+            const url = albumUrl(album);
+            if (!$('.eu-chip-count', thumb)) {
+                const images = ($('.album-images', album)?.textContent || '').match(/\d+/)?.[0];
+                const videos = ($('.album-videos', album)?.textContent || '').match(/\d+/)?.[0];
+                if (images || videos) {
+                    const chip = document.createElement('div');
+                    chip.className = 'eu-chip eu-chip-count';
+                    chip.innerHTML = `${images ? `<span>${images} img</span>` : ''}${videos ? `<span>${videos} vid</span>` : ''}`;
+                    thumb.appendChild(chip);
                 }
             }
-            lastTap = now;
+            if (url && settings.showBadges) {
+                if (tracking.seenAlbums.has(url) && !$('.eu-chip-track.eu-seen', thumb)) {
+                    thumb.insertAdjacentHTML('beforeend', '<div class="eu-chip eu-chip-track eu-seen">Seen</div>');
+                }
+                if (tracking.downloadedAlbums.has(url) && !$('.eu-chip-track.eu-downloaded', thumb)) {
+                    thumb.insertAdjacentHTML('beforeend', '<div class="eu-chip eu-chip-track eu-downloaded">Saved</div>');
+                }
+            }
         });
+    }
 
-        // Observe for autoplay
-        if (TT.io) TT.io.observe(el);
+    function applyFilters() {
+        const q = settings.search.trim().toLowerCase();
+        $$('.album').forEach(album => {
+            const url = albumUrl(album);
+            const isSeen = url && tracking.seenAlbums.has(url);
+            const isDownloaded = url && tracking.downloadedAlbums.has(url);
+            const searchMiss = q && !(`${album.textContent} ${url}`.toLowerCase().includes(q));
+            album.classList.toggle('eu-filtered', !!searchMiss || (settings.hideSeen && isSeen) || (settings.hideDownloaded && isDownloaded));
+        });
+        $$('.video, .media-group').forEach(group => {
+            const video = $('video', group);
+            if (!video || !video.dataset.euSeconds) return;
+            const seconds = Number(video.dataset.euSeconds);
+            group.classList.toggle('eu-filtered', !lengthAllowed(seconds));
+        });
+    }
 
-        // Insert before loading card if present
-        const loadingCard = feed.querySelector('.eu-tiktok-loading');
-        if (loadingCard) feed.insertBefore(el, loadingCard);
-        else feed.appendChild(el);
+    function lengthAllowed(seconds) {
+        if (!seconds || !Number.isFinite(seconds)) return true;
+        if (settings.minSeconds > 0 && seconds < settings.minSeconds) return false;
+        if (settings.maxSeconds > 0 && seconds > settings.maxSeconds) return false;
+        return true;
+    }
+    function lengthLabel() {
+        const min = Number(settings.minSeconds) || 0;
+        const max = Number(settings.maxSeconds) || 0;
+        if (min && max) return `${min}-${max}s`;
+        if (min) return `${min}s+`;
+        if (max) return `<=${max}s`;
+        return 'Any length';
+    }
 
-        // Video progress bar + duration display
-        if (item.kind === 'video') {
-            const video = el.querySelector('video');
-            applyVideoPrefs(video);
-            const fill = el.querySelector('.eu-tiktok-progress-fill');
-            const durPill = el.querySelector('.eu-tt-dur-val');
-
-            // Live elapsed/total time badge (bottom-left)
-            const liveTime = document.createElement('div');
-            liveTime.className = 'eu-tiktok-duration-live';
-            liveTime.textContent = '00:00 / --:--';
-            el.appendChild(liveTime);
-
-            const fmtTime = (s) => {
-                if (!isFinite(s) || s < 0) return '--:--';
-                const m = Math.floor(s / 60);
-                const sec = Math.floor(s % 60).toString().padStart(2, '0');
-                return `${m}:${sec}`;
+    function decorateMediaDurations() {
+        $$('.media-group video, .video-js video, video').forEach(video => {
+            if (video.dataset.euDurationAttached) return;
+            video.dataset.euDurationAttached = '1';
+            const set = () => {
+                if (!Number.isFinite(video.duration) || !video.duration) return;
+                video.dataset.euSeconds = String(Math.floor(video.duration));
+                const parent = video.closest('.media-group, .video') || video.parentElement;
+                if (parent && !$('.eu-duration', parent)) {
+                    parent.insertAdjacentHTML('beforeend', `<div class="eu-chip eu-duration" style="left:8px;right:auto;bottom:8px">${formatTime(video.duration)}</div>`);
+                }
+                applyFilters();
             };
-
-            video?.addEventListener('loadedmetadata', () => {
-                if (video.duration && isFinite(video.duration)) {
-                    const seconds = Math.floor(video.duration);
-                    item.duration = seconds;
-                    if (filterOutFeedVideoByLength(item, el, seconds)) return;
-                    if (durPill) durPill.textContent = fmtTime(video.duration);
-                    liveTime.textContent = `00:00 / ${fmtTime(video.duration)}`;
-                }
-            });
-
-            video?.addEventListener('timeupdate', () => {
-                if (video.duration) {
-                    fill.style.width = `${(video.currentTime / video.duration) * 100}%`;
-                    liveTime.textContent = `${fmtTime(video.currentTime)} / ${fmtTime(video.duration)}`;
-                }
-            });
-        }
+            video.addEventListener('loadedmetadata', set, { once: true });
+            set();
+        });
     }
 
-    function showHeartPop(cardEl) {
-        const pop = cardEl.querySelector('.eu-tiktok-heart-pop');
-        if (!pop) return;
-        pop.classList.remove('animate');
-        void pop.offsetWidth;
-        pop.classList.add('animate');
+    function markSeen(url) {
+        const clean = normalizeUrl(url);
+        if (!clean) return;
+        tracking.seenAlbums.add(clean);
+        saveSet('seenAlbums', tracking.seenAlbums, 5000);
+    }
+    function markDownloaded(mediaUrl, album = location.href) {
+        const media = normalizeUrl(mediaUrl);
+        const alb = normalizeUrl(album);
+        if (media) tracking.downloadedMedia.add(media);
+        if (alb && /^https?:\/\/[^/]+\/a\//.test(alb)) tracking.downloadedAlbums.add(alb);
+        saveSet('downloadedMedia', tracking.downloadedMedia, 10000);
+        saveSet('downloadedAlbums', tracking.downloadedAlbums, 5000);
     }
 
-    /* ---------- Right Panel (2-column grid) - REMOVED ---------- */
-
-    function setTikTokLayout(layout) {
-        STATE.tiktokLayout = layout === 'desktop' ? 'desktop' : 'phone';
-        updateSetting('defaultFeedLayout', STATE.tiktokLayout);
-        const overlay = document.getElementById('eu-tiktok');
-        if (!overlay) return;
-
-        const isDesktop = STATE.tiktokLayout === 'desktop';
-        overlay.classList.toggle('eu-desktop-mode', isDesktop);
-
-        const btn = overlay.querySelector('.eu-tiktok-layout-toggle');
+    async function downloadSingle(url, name = filenameFromUrl(url), btn = null, album = location.href) {
+        const old = btn?.innerHTML;
         if (btn) {
-            btn.textContent = isDesktop ? 'Phone' : 'Desktop';
-            btn.title = isDesktop ? 'Switch to phone layout' : 'Switch to desktop layout';
+            btn.disabled = true;
+            btn.innerHTML = '<span>Saving...</span>';
         }
-
-        const title = overlay.querySelector('.eu-tiktok-title span');
-        if (title) title.textContent = isDesktop ? 'Desktop Feed' : 'For You';
-        applyFeedFitMode();
-    }
-
-
-    function applyVideoPrefs(video) {
-        if (!video) return;
-        video.loop = SETTINGS.loopVideos !== false;
-        video.muted = !!SETTINGS.muteVideos;
-        video.setAttribute('playsinline', '');
-    }
-
-    function applyFeedFitMode() {
-        const overlay = document.getElementById('eu-tiktok');
-        if (!overlay) return;
-        overlay.classList.remove('eu-fit-contain', 'eu-fit-cover', 'eu-fit-natural');
-        overlay.classList.add('eu-fit-' + (SETTINGS.fitMode || 'contain'));
-        document.querySelectorAll('#eu-tiktok video').forEach(applyVideoPrefs);
-        updateFeedTools();
-    }
-
-    function markCurrentFeedPosition() {
-        if (!SETTINGS.autoResume || !STATE.tiktokMode) return;
-        SETTINGS.lastFeed = {
-            page: normalizeUrl(location.href),
-            type: STATE.tiktokType,
-            layout: STATE.tiktokLayout,
-            index: STATE.tiktokIndex,
-            savedAt: new Date().toISOString()
-        };
-        saveSettings();
-    }
-
-    function resumeFeedPosition() {
-        if (!SETTINGS.autoResume || !SETTINGS.lastFeed) return;
-        const last = SETTINGS.lastFeed;
-        if (last.page !== normalizeUrl(location.href)) return;
-        if (last.type !== STATE.tiktokType || last.layout !== STATE.tiktokLayout) return;
-        const feed = document.getElementById('eu-tiktok-feed');
-        const cards = feed?.querySelectorAll('.eu-tiktok-item');
-        if (!cards || !cards.length) return;
-        const idx = Math.min(Math.max(0, Number(last.index) || 0), cards.length - 1);
-        if (idx > 0) {
-            STATE.tiktokIndex = idx;
-            setTimeout(() => cards[idx]?.scrollIntoView({ behavior: 'auto', block: 'start' }), 150);
+        try {
+            const blob = await getBlobRetry(url, settings.performanceMode === 'max' ? 3 : 2);
+            const tmp = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = tmp;
+            a.download = sanitize(name);
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(tmp), 5000);
+            markDownloaded(url, album);
+            toast(`Saved ${name}`, 'success');
+            scheduleRefresh('download');
+        } catch (err) {
+            console.error('[EU] Download failed', err);
+            toast(`Download failed: ${err.message || err}`, 'error', 3500);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = old;
+            }
         }
     }
 
-    function getFeedScopeButtonLabel() {
-        if (IS_ALBUM_PAGE) return SETTINGS.allowRelatedAlbumExpansion !== false ? 'Related On' : 'Current Only';
-        return SETTINGS.lockFeedToSearch !== false ? 'Search Lock' : 'Related On';
+    function buildFab() {
+        if ($('#eu-feed-fab')) return;
+        const feedBtn = document.createElement('button');
+        feedBtn.id = 'eu-feed-fab';
+        feedBtn.className = 'eu-fab eu-shell';
+        feedBtn.title = 'Open premium feed';
+        feedBtn.innerHTML = ICON.logo;
+        feedBtn.addEventListener('click', () => openFeed(settings.feedType, settings.feedLayout));
+        document.body.appendChild(feedBtn);
+
+        const dl = document.createElement('button');
+        dl.id = 'eu-download-fab';
+        dl.className = 'eu-fab eu-shell';
+        dl.title = 'Downloads and settings';
+        dl.innerHTML = `${ICON.download}<span class="eu-badge-count" id="eu-fab-count">0</span>`;
+        dl.addEventListener('click', openDownloadModal);
+        document.body.appendChild(dl);
     }
 
-    function updateFeedTools() {
-        const panel = document.getElementById('eu-feed-tools');
-        if (!panel) return;
-        const auto = panel.querySelector('[data-act="autoplay"] span');
-        const mute = panel.querySelector('[data-act="mute"] span');
-        const fit = panel.querySelector('[data-act="fit"] span');
-        const scope = panel.querySelector('[data-act="scope"] span');
-        const length = panel.querySelector('[data-act="length"] span');
-        const pin = panel.querySelector('[data-act="pin"] span');
-        const pinBtn = panel.querySelector('[data-act="pin"]');
-        if (auto) auto.textContent = SETTINGS.autoplay ? 'Auto On' : 'Auto Off';
-        if (mute) mute.textContent = SETTINGS.muteVideos ? 'Muted' : 'Sound';
-        if (fit) fit.textContent = `Fit ${SETTINGS.fitMode || 'contain'}`;
-        if (scope) scope.textContent = getFeedScopeButtonLabel();
-        if (length) {
-            length.textContent = getLengthFilterLabel();
-            length.closest('button')?.classList.toggle('eu-active', getMinVideoSeconds() > 0 || getMaxVideoSeconds() > 0);
-        }
-        if (pin) pin.textContent = SETTINGS.feedControlsPinned ? 'Pinned' : (SETTINGS.feedControlsAutoHide === false ? 'Always On' : 'Auto Hide');
-        if (pinBtn) pinBtn.classList.toggle('eu-active', SETTINGS.feedControlsPinned === true || SETTINGS.feedControlsAutoHide === false);
-        updateFeedStatus();
-    }
-
-    function updateFeedStatus() {
-        const el = document.getElementById('eu-feed-status');
+    function updateFabCount() {
+        const el = $('#eu-fab-count');
         if (!el) return;
-        const scope = TT.feedScopeLabel || (SETTINGS.lockFeedToSearch !== false ? 'Search/listing lock' : 'Related expansion');
-        el.textContent = `Items ${TT.items.length} · Queue ${TT.albumQueue.length} · Page ${TT.listingNextPage || '-'} · ${scope} · ${getLengthFilterLabel()} · ${SETTINGS.performanceMode}`;
+        const count = collectMediaUrls().length;
+        el.textContent = String(count);
+        el.style.display = count ? 'grid' : 'none';
     }
 
-    function rebuildFeedFromItems(scrollIndex = 0) {
-        const feed = document.getElementById('eu-tiktok-feed');
-        if (!feed) return;
-        if (TT.io) TT.io.disconnect();
-        feed.innerHTML = '';
-        TT.items.forEach((item, idx) => appendTikTokCard(item, idx));
-        STATE.tiktokIndex = Math.min(scrollIndex, Math.max(0, TT.items.length - 1));
-        updateTikTokCounter();
-        applyFeedFitMode();
-        updateFeedStatus();
-        setTimeout(() => getCurrentCard()?.scrollIntoView({ behavior: 'auto', block: 'start' }), 80);
-    }
-
-    function skipCurrentAlbumInFeed() {
-        const item = getCurrentItem();
-        const album = item?.albumUrl;
-        if (!album) { toast('No album to skip', 'warning'); return; }
-        const before = TT.items.length;
-        TT.items = TT.items.filter(x => x.albumUrl !== album);
-        const removed = before - TT.items.length;
-        rebuildFeedFromItems(Math.min(STATE.tiktokIndex, Math.max(0, TT.items.length - 1)));
-        toast(`Skipped ${removed} item${removed === 1 ? '' : 's'} from album`, 'info');
-        if (TT.items.length < 4) preloadNextAlbum();
-    }
-
-    function shuffleFeed() {
-        for (let i = TT.items.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [TT.items[i], TT.items[j]] = [TT.items[j], TT.items[i]];
-        }
-        rebuildFeedFromItems(0);
-        toast('Feed shuffled', 'success');
-    }
-
-    function cycleFitMode() {
-        const modes = ['contain', 'cover', 'natural'];
-        const next = modes[(modes.indexOf(SETTINGS.fitMode) + 1) % modes.length] || 'contain';
-        updateSetting('fitMode', next);
-        applyFeedFitMode();
-        toast(`Fit mode: ${next}`, 'info');
-    }
-
-    let feedControlsTimer = null;
-
-    function feedToolsShouldAutoHide() {
-        return SETTINGS.feedControlsAutoHide !== false && SETTINGS.feedControlsPinned !== true;
-    }
-
-    function setFeedControlsVisible(visible, temporary = true, forceHide = false) {
-        const overlay = document.getElementById('eu-tiktok');
-        const phone = overlay?.querySelector('.eu-phone');
-        if (!phone) return;
-        const shouldHide = !visible && (forceHide || feedToolsShouldAutoHide());
-        phone.classList.toggle('eu-feed-controls-hidden', shouldHide);
-        const toggle = document.getElementById('eu-feed-tools-toggle');
-        if (toggle) {
-            toggle.title = shouldHide ? 'Show feed tools' : 'Hide feed tools';
-            const label = toggle.querySelector('span');
-            if (label) label.textContent = shouldHide ? 'Tools' : 'Hide';
-        }
-        if (visible && temporary && feedToolsShouldAutoHide()) scheduleFeedControlsHide();
-    }
-
-    function scheduleFeedControlsHide(delay = 2800) {
-        clearTimeout(feedControlsTimer);
-        const phone = document.querySelector('#eu-tiktok .eu-phone');
-        if (!phone) return;
-        if (!feedToolsShouldAutoHide()) {
-            phone.classList.remove('eu-feed-controls-hidden');
-            return;
-        }
-        feedControlsTimer = setTimeout(() => setFeedControlsVisible(false, false), delay);
-    }
-
-    function showFeedControlsTemp(delay = 2800) {
-        setFeedControlsVisible(true, false);
-        if (feedToolsShouldAutoHide()) scheduleFeedControlsHide(delay);
-    }
-
-    function installFeedControlsAutoHide(phone, panel) {
-        if (!phone || phone.dataset.euFeedAutohide === '1') return;
-        phone.dataset.euFeedAutohide = '1';
-
-        panel?.addEventListener('mouseenter', () => clearTimeout(feedControlsTimer));
-        panel?.addEventListener('mouseleave', () => scheduleFeedControlsHide(1400));
-        panel?.addEventListener('click', () => scheduleFeedControlsHide(1800));
-
-        const hideSoon = () => scheduleFeedControlsHide(650);
-        const showFromTop = (e) => {
-            const y = e.touches?.[0]?.clientY ?? e.clientY ?? 9999;
-            const rect = phone.getBoundingClientRect();
-            // Reveal only when the mouse rolls over the top control zone,
-            // so the video stays clean during normal scrolling/watching.
-            if (y - rect.top <= 155) showFeedControlsTemp(2400);
-        };
-
-        phone.addEventListener('wheel', hideSoon, { passive: true });
-        phone.addEventListener('touchmove', hideSoon, { passive: true });
-        phone.addEventListener('mousemove', showFromTop, { passive: true });
-
-        const feed = phone.querySelector('#eu-tiktok-feed');
-        feed?.addEventListener('scroll', () => scheduleFeedControlsHide(650), { passive: true });
-
-        setTimeout(() => {
-            if (feedToolsShouldAutoHide()) setFeedControlsVisible(false, false);
-            else setFeedControlsVisible(true, false);
-        }, 2600);
-    }
-
-    function enhanceFeedControls() {
-        const overlay = document.getElementById('eu-tiktok');
-        const phone = overlay?.querySelector('.eu-phone');
-        if (!phone) return;
-        if (!document.getElementById('eu-feed-tools')) {
-            const panel = document.createElement('div');
-            panel.id = 'eu-feed-tools';
-            panel.className = 'eu-feed-tools';
-            panel.innerHTML = `
-                <button data-act="skip"><span>Skip Album</span></button>
-                <button data-act="shuffle"><span>Shuffle</span></button>
-                <button data-act="fit"><span>Fit ${SETTINGS.fitMode}</span></button>
-                <button data-act="scope"><span>${getFeedScopeButtonLabel()}</span></button>
-                <button data-act="length"><span>${getLengthFilterLabel()}</span></button>
-                <button data-act="mute"><span>${SETTINGS.muteVideos ? 'Muted' : 'Sound'}</span></button>
-                <button data-act="autoplay"><span>${SETTINGS.autoplay ? 'Auto On' : 'Auto Off'}</span></button>
-                <button data-act="manager"><span>Downloads</span></button>
-                <button data-act="status"><span>Status</span></button>
-                <button data-act="pin"><span>${SETTINGS.feedControlsPinned ? 'Pinned' : (SETTINGS.feedControlsAutoHide === false ? 'Always On' : 'Auto Hide')}</span></button>
-                <button data-act="hide"><span>Hide</span></button>`;
-            phone.appendChild(panel);
-
-            panel.addEventListener('click', e => {
-                const btn = e.target.closest('button[data-act]');
-                if (!btn) return;
-                const act = btn.dataset.act;
-                if (act === 'skip') skipCurrentAlbumInFeed();
-                if (act === 'shuffle') shuffleFeed();
-                if (act === 'fit') cycleFitMode();
-                if (act === 'scope') {
-                    if (IS_ALBUM_PAGE) {
-                        updateSetting('allowRelatedAlbumExpansion', !(SETTINGS.allowRelatedAlbumExpansion !== false));
-                        toast(SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album feed will load next/related albums' : 'Album feed limited to current album', 'info');
-                    } else {
-                        updateSetting('lockFeedToSearch', !(SETTINGS.lockFeedToSearch !== false));
-                        toast(SETTINGS.lockFeedToSearch !== false ? 'Feed locked to current search/listing' : 'Related album expansion enabled', 'info');
-                    }
-                    resetAndRenderFeed();
-                }
-                if (act === 'length') promptLengthFilter();
-                if (act === 'mute') { updateSetting('muteVideos', !SETTINGS.muteVideos); document.querySelectorAll('#eu-tiktok video').forEach(applyVideoPrefs); updateFeedTools(); }
-                if (act === 'autoplay') { updateSetting('autoplay', !SETTINGS.autoplay); updateFeedTools(); }
-                if (act === 'manager') openDownloadManager();
-                if (act === 'status') openStatusPanel();
-                if (act === 'pin') {
-                    updateSetting('feedControlsPinned', !SETTINGS.feedControlsPinned);
-                    if (SETTINGS.feedControlsPinned) setFeedControlsVisible(true, false);
-                    else scheduleFeedControlsHide(900);
-                    updateFeedTools();
-                    toast(SETTINGS.feedControlsPinned ? 'Feed tools pinned' : 'Feed tools will auto-hide', 'info');
-                }
-                if (act === 'hide') setFeedControlsVisible(false, false, true);
-            });
-        }
-        if (!document.getElementById('eu-feed-tools-toggle')) {
-            const toggle = document.createElement('button');
-            toggle.id = 'eu-feed-tools-toggle';
-            toggle.className = 'eu-feed-tools-toggle';
-            toggle.innerHTML = `<img src="${LOGO_ICON}" alt=""><span>Tools</span>`;
-            toggle.title = 'Show feed tools';
-            toggle.addEventListener('click', e => {
-                e.stopPropagation();
-                const isHidden = phone.classList.contains('eu-feed-controls-hidden');
-                if (isHidden) showFeedControlsTemp(4200);
-                else setFeedControlsVisible(false, false, true);
-            });
-            phone.appendChild(toggle);
-        }
-        if (!document.getElementById('eu-feed-status')) {
-            const status = document.createElement('div');
-            status.id = 'eu-feed-status';
-            status.className = 'eu-feed-status';
-            phone.appendChild(status);
-        }
-        installFeedControlsAutoHide(phone, document.getElementById('eu-feed-tools'));
-        applyFeedFitMode();
-        updateFeedStatus();
-        if (feedToolsShouldAutoHide()) scheduleFeedControlsHide(2600);
-        else setFeedControlsVisible(true, false);
-    }
-
-    function buildTikTokOverlay() {
-        if (document.getElementById('eu-tiktok')) return;
-
-        const overlay = document.createElement('div');
-        overlay.id = 'eu-tiktok';
-        overlay.className = 'eu-tiktok-overlay';
-        overlay.innerHTML = `
-          <div class="eu-phone">
-            <div class="eu-tiktok-splash" id="eu-tiktok-splash">
-              <img src="${LOGO_SPLASH}" alt="Erome" class="eu-tiktok-splash-logo">
-              <div class="eu-tiktok-splash-tag">Ultimate Premium</div>
-              <div class="eu-tiktok-splash-dots"><span></span><span></span><span></span></div>
-            </div>
-            <div class="eu-tiktok-topbar">
-              <div class="eu-tiktok-title">
-                <img src="${LOGO_ICON}" alt="Erome" class="eu-tiktok-brand-logo">
-                <span>For You</span>
-              </div>
-              <div class="eu-tiktok-controls">
-                <button class="eu-tiktok-tab" data-type="videos">Videos</button>
-                <button class="eu-tiktok-tab" data-type="photos">Photos</button>
-                <button class="eu-tiktok-tab" data-type="all">All</button>
-                <button class="eu-tiktok-layout-toggle" title="Switch to desktop layout">Desktop</button>
-                <button class="eu-tiktok-close" title="Close">${ICONS.close}</button>
-              </div>
-            </div>
-            <div class="eu-tiktok-counter" id="eu-tiktok-counter">0 / 0</div>
-            <div class="eu-tiktok-feed" id="eu-tiktok-feed"></div>
-          </div>`;
-
-        document.body.appendChild(overlay);
-
-        overlay.querySelector('.eu-tiktok-close').addEventListener('click', closeTikTok);
-        overlay.addEventListener('click', (e) => {
-            // Click outside phone closes
-            if (e.target === overlay) closeTikTok();
-        });
-
-        overlay.querySelectorAll('.eu-tiktok-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                STATE.tiktokType = tab.dataset.type;
-                updateSetting('defaultFeedType', STATE.tiktokType);
-                updateTikTokTabs();
-                resetAndRenderFeed();
-            });
-        });
-
-        overlay.querySelector('.eu-tiktok-layout-toggle')?.addEventListener('click', () => {
-            setTikTokLayout(STATE.tiktokLayout === 'desktop' ? 'phone' : 'desktop');
-        });
-
-        // Setup IntersectionObserver once
-        const feed = overlay.querySelector('#eu-tiktok-feed');
-        TT.io = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const card = entry.target;
-                const videoEl = card.querySelector('video');
-                const idx = parseInt(card.dataset.idx);
-
-                if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
-                    STATE.tiktokIndex = idx;
-                    updateTikTokCounter();
-                    if (card._euData?.albumUrl) markSeenAlbum(card._euData.albumUrl);
-                    if (videoEl) {
-                        applyVideoPrefs(videoEl);
-                        if (SETTINGS.autoplay !== false) {
-                            videoEl.play().catch(() => {
-                                // Autoplay with sound blocked — fall back to muted
-                                videoEl.muted = true;
-                                videoEl.play().catch(() => {});
-                            });
-                        } else {
-                            videoEl.pause();
-                        }
-                    }
-                    markCurrentFeedPosition();
-                    decorateTrackingBadges();
-                    // Preload next album when nearing the end
-                    if (idx >= TT.items.length - 3) {
-                        preloadNextAlbum();
-                    }
-                } else if (videoEl) {
-                    videoEl.pause();
-                }
-            });
-        }, { root: feed, threshold: [0, 0.65, 0.9] });
-
-        // Scroll fallback for desktop wheel/trackpad: load ahead when nearing the end.
-        let feedScrollDebounce;
-        feed.addEventListener('scroll', () => {
-            if (!STATE.tiktokMode) return;
-            clearTimeout(feedScrollDebounce);
-            feedScrollDebounce = setTimeout(() => {
-                const nearEnd = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - (feed.clientHeight * 2.2);
-                if (nearEnd) preloadNextAlbum();
-            }, 80);
-        }, { passive: true });
-
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
-            if (!STATE.tiktokMode) return;
-            if (e.key === 'Escape') closeTikTok();
-            else if (e.key === 'ArrowDown' || e.key === 'j') { scrollTikTok(1); e.preventDefault(); }
-            else if (e.key === 'ArrowUp' || e.key === 'k') { scrollTikTok(-1); e.preventDefault(); }
-            else if (e.key === ' ') {
-                const card = getCurrentCard();
-                const video = card?.querySelector('video');
-                if (video) {
-                    if (video.paused) video.play(); else video.pause();
-                    e.preventDefault();
-                }
-            }
-            else if (e.key === 'd') {
-                const item = getCurrentItem();
-                if (item) downloadSingle(item.url, getFilename(item.url), null, item.albumUrl);
-            }
-            else if (e.key === 'l') {
-                const card = getCurrentCard();
-                card?.querySelector('.eu-tiktok-action[data-act="like"]')?.click();
-            }
-        });
-    }
-
-    function updateTikTokTabs() {
-        document.querySelectorAll('.eu-tiktok-tab').forEach(t => {
-            t.classList.toggle('active', t.dataset.type === STATE.tiktokType);
-        });
-    }
-
-    function getCurrentCard() {
-        const feed = document.getElementById('eu-tiktok-feed');
-        if (!feed) return null;
-        const cards = feed.querySelectorAll('.eu-tiktok-item');
-        return cards[STATE.tiktokIndex] || cards[0] || null;
-    }
-
-    function getCurrentItem() {
-        return getCurrentCard()?._euData || null;
-    }
-
-    function scrollTikTok(direction) {
-        const feed = document.getElementById('eu-tiktok-feed');
-        if (!feed) return;
-        const cards = feed.querySelectorAll('.eu-tiktok-item');
-        const next = Math.max(0, Math.min(cards.length - 1, STATE.tiktokIndex + direction));
-        cards[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (next >= cards.length - 3) preloadNextAlbum();
-    }
-
-    async function resetAndRenderFeed() {
-        const feed = document.getElementById('eu-tiktok-feed');
-        if (!feed) return;
-
-        // Reset state
-        TT.items = [];
-        TT.seenUrls = new Set();
-        TT.albumQueue = [];
-        TT.albumSeen = new Set();
-        TT.loadingMore = false;
-        resetListingFeedPager();
-        resetFeedScope();
-        if (IS_ALBUM_PAGE) TT.albumSeen.add(euCleanFeedUrl(location.href, location.href));
-        if (TT.io) TT.io.disconnect();
-        STATE.tiktokIndex = 0;
-
-        feed.innerHTML = '';
-
-        // Album pages can render their own media immediately. Listing pages are queued
-        // from album links and fetched in the background so the browser URL never changes.
-        const pageItems = collectCurrentPageItems(STATE.tiktokType);
-        TT.items = pageItems;
-        pageItems.forEach((item, idx) => appendTikTokCard(item, idx));
-
-        buildNextAlbumQueue(document, location.href, IS_ALBUM_PAGE ? 'album' : 'listing');
-        if (!IS_ALBUM_PAGE && TT.albumQueue.length === 0) {
-            await loadNextListingPageIntoQueue();
-        }
-
-        // If the current page had no real media, pull albums until the first usable
-        // card appears. This is what makes desktop feed work from profile/search grids.
-        let attempts = 0;
-        while (TT.items.length === 0 && attempts < 12) {
-            if (TT.albumQueue.length === 0 && !IS_ALBUM_PAGE && !TT.listingStopped) {
-                await loadNextListingPageIntoQueue();
-            }
-            if (TT.albumQueue.length === 0) break;
-            const added = await preloadNextAlbum();
-            attempts++;
-            if (added > 0) break;
-        }
-
-        if (TT.items.length === 0) {
-            feed.innerHTML = `<div class="eu-tiktok-empty">
-                <div style="font-size:44px;margin-bottom:14px;">📭</div>
-                <div style="font-weight:600;margin-bottom:4px;">No ${STATE.tiktokType} found</div>
-                <div style="font-size:11px;opacity:.6;">Try another tab, or turn Related On for next-album loading.</div>
-            </div>`;
-            const c = document.getElementById('eu-tiktok-counter');
-            if (c) c.textContent = '0 / 0';
-            return;
-        }
-
-        updateTikTokCounter();
-        feed.scrollTop = 0;
-        applyFeedFitMode();
-        updateFeedStatus();
-        setTimeout(resumeFeedPosition, 250);
-
-        // Preload ahead without changing the current page/URL.
-        if (TT.albumQueue.length > 0 || (!IS_ALBUM_PAGE && !TT.listingStopped)) {
-            setTimeout(() => preloadNextAlbum(), STATE.tiktokLayout === 'desktop' ? 700 : 1500);
-        }
-    }
-
-    function openTikTok(type, layout = 'phone') {
-        buildTikTokOverlay();
-        if (type) STATE.tiktokType = type;
-        updateSetting('defaultFeedType', STATE.tiktokType);
-        setTikTokLayout(layout);
-        enhanceFeedControls();
-        updateTikTokTabs();
-        STATE.tiktokMode = true;
-        document.getElementById('eu-tiktok').classList.add('open');
-        document.body.style.overflow = 'hidden';
-        resetAndRenderFeed();
-        const msg = STATE.tiktokLayout === 'desktop'
-            ? (SETTINGS.lockFeedToSearch !== false && !IS_ALBUM_PAGE
-                ? 'Desktop feed — locked to this search/listing and pulls next result pages'
-                : 'Desktop feed — scroll up/down, loads next albums without changing page')
-            : 'TikTok mode — swipe up/down, tap to pause, double-tap to like';
-        toast(msg, 'info', 3500);
-    }
-
-    function openDesktopFeed(type = 'all') {
-        openTikTok(type, 'desktop');
-    }
-
-    function closeTikTok() {
-        markCurrentFeedPosition();
-        STATE.tiktokMode = false;
-        const o = document.getElementById('eu-tiktok');
-        if (o) {
-            o.classList.remove('open');
-            // Pause all videos
-            o.querySelectorAll('video').forEach(v => v.pause());
-        }
-        document.body.style.overflow = '';
-    }
-
-    /* ============================================================
-     *  FLOATING ACTION BUTTON (FAB)
-     * ============================================================ */
-    function buildFAB() {
-        if (!document.querySelector('.eu-fab-bulk')) {
-            const fab = document.createElement('button');
-            fab.className = 'eu-fab eu-fab-bulk';
-            fab.title = 'Bulk Download';
-            fab.innerHTML = `${ICONS.download}<span class="eu-fab-badge" id="eu-fab-badge">0</span>`;
-            fab.addEventListener('click', openBulkModal);
-            document.body.appendChild(fab);
-        }
-
-        // Feed FAB — phone layout on small screens, desktop layout on desktop.
-        if (!document.querySelector('.eu-fab-tiktok')) {
-            const tt = document.createElement('button');
-            tt.className = 'eu-fab eu-fab-tiktok';
-            tt.title = 'Feed Mode';
-            tt.style.bottom = '92px';
-            tt.style.background = 'linear-gradient(135deg, #ff0050 0%, #8a5acc 50%, #00f2ea 100%)';
-            tt.innerHTML = `<img src="${LOGO_ICON}" alt="Erome" style="width:32px;height:32px;border-radius:50%;object-fit:cover;box-shadow:0 0 8px rgba(0,0,0,0.4);">`;
-            tt.addEventListener('click', () => {
-                const layout = SETTINGS.defaultFeedLayout || (window.matchMedia('(min-width: 760px)').matches ? 'desktop' : 'phone');
-                const type = SETTINGS.defaultFeedType || (IS_ALBUM_PAGE ? STATE.tiktokType : 'all');
-                openTikTok(type, layout);
-            });
-            document.body.appendChild(tt);
-        }
-    }
-    function updateFabBadge() {
-        const badge = document.getElementById('eu-fab-badge');
-        if (!badge) return;
-        const n = collectAllMediaUrls().length;
-        badge.textContent = n;
-        badge.style.display = n > 0 ? 'flex' : 'none';
-    }
-
-    /* ============================================================
-     *  HUB MENU (Twitter-style popup cards in navbar)
-     * ============================================================ */
-
-    function buildSettingsModal() {
-        if (document.getElementById('eu-settings-modal')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'eu-settings-modal';
-        overlay.className = 'eu-modal-overlay';
-        overlay.innerHTML = `
-          <div class="eu-modal" style="width:620px;">
-            <div class="eu-modal-header">
-              <h3>${ICONS.settings}<span>Smart Premium Settings</span></h3>
-              <button class="eu-modal-close">${ICONS.close}</button>
-            </div>
-            <div class="eu-modal-body">
-              <div class="eu-smart-row">
-                <div class="eu-smart-field"><label>Default Feed</label><select id="eu-set-feed-type">
-                    <option value="all">All</option><option value="videos">Videos</option><option value="photos">Photos</option>
-                </select></div>
-                <div class="eu-smart-field"><label>Layout</label><select id="eu-set-feed-layout">
-                    <option value="desktop">Desktop</option><option value="phone">Phone</option>
-                </select></div>
-              </div>
-              <div class="eu-smart-row">
-                <div class="eu-smart-field"><label>Performance</label><select id="eu-set-performance">
-                    <option value="lite">Lite</option><option value="normal">Normal</option><option value="aggressive">Aggressive</option>
-                </select></div>
-                <div class="eu-smart-field"><label>Feed Fit</label><select id="eu-set-fit">
-                    <option value="contain">Contain</option><option value="cover">Cover</option><option value="natural">Natural</option>
-                </select></div>
-              </div>
-              <div class="eu-smart-row">
-                <div class="eu-smart-field"><label>Min video length seconds</label><input id="eu-set-min-seconds" type="number" min="0" max="3600" step="5" placeholder="0 = off"></div>
-                <div class="eu-smart-field"><label>Max video length seconds</label><input id="eu-set-max-seconds" type="number" min="0" max="3600" step="5" placeholder="0 = off"></div>
-              </div>
-              <div class="eu-smart-row">
-                <div class="eu-smart-field"><label>Album search filter</label><input id="eu-set-album-search" type="text" placeholder="blank = off"></div>
-                <div class="eu-smart-field"><label>Length filter</label><input disabled value="0 means off · applies to album page and feed videos"></div>
-              </div>
-              <div class="eu-option-group">
-                <div class="eu-option-title">Toggles</div>
-                <div class="eu-smart-checks">
-                  <label class="eu-smart-check"><input id="eu-set-autoplay" type="checkbox"> Autoplay feed videos</label>
-                  <label class="eu-smart-check"><input id="eu-set-mute" type="checkbox"> Start feed muted</label>
-                  <label class="eu-smart-check"><input id="eu-set-loop" type="checkbox"> Loop videos</label>
-                  <label class="eu-smart-check"><input id="eu-set-resume" type="checkbox"> Resume feed position</label>
-                  <label class="eu-smart-check"><input id="eu-set-badges" type="checkbox"> Seen/download badges</label>
-                  <label class="eu-smart-check"><input id="eu-set-hide-seen" type="checkbox"> Hide seen albums</label>
-                  <label class="eu-smart-check"><input id="eu-set-hide-down" type="checkbox"> Hide downloaded albums</label>
-                  <label class="eu-smart-check"><input id="eu-set-skip-down" type="checkbox"> Skip downloaded in downloads</label>
-                  <label class="eu-smart-check"><input id="eu-set-folders" type="checkbox"> ZIP folders by album</label>
-                  <label class="eu-smart-check"><input id="eu-set-retry" type="checkbox"> Retry failed downloads</label>
-                  <label class="eu-smart-check"><input id="eu-set-dlbtns" type="checkbox"> Show media download buttons</label>
-                  <label class="eu-smart-check"><input id="eu-set-lock-search" type="checkbox"> Lock feed to current search/listing</label>
-                  <label class="eu-smart-check"><input id="eu-set-related" type="checkbox"> Allow related album expansion</label>
-                  <label class="eu-smart-check"><input id="eu-set-strict-search" type="checkbox"> Strict search-word title filter</label>
-                  <label class="eu-smart-check"><input id="eu-set-feed-auto-hide" type="checkbox"> Auto-hide feed tools row</label>
-                  <label class="eu-smart-check"><input id="eu-set-feed-pinned" type="checkbox"> Keep feed tools pinned</label>
+    function modalShell(id, title, body) {
+        let modal = document.getElementById(id);
+        if (modal) return modal;
+        modal = document.createElement('div');
+        modal.id = id;
+        modal.className = 'eu-modal eu-shell';
+        modal.innerHTML = `
+            <div class="eu-card">
+                <div class="eu-card-head">
+                    <h2 class="eu-title">${ICON.logo}<span>${htmlEscape(title)}</span></h2>
+                    <button class="eu-close" type="button" title="Close">${ICON.close}</button>
                 </div>
-              </div>
-              <div class="eu-smart-actions">
-                <button class="eu-btn-primary" id="eu-save-settings">${ICONS.check}<span>Save Settings</span></button>
-                <button class="eu-btn-secondary" id="eu-reset-settings">Reset Defaults</button>
-              </div>
+                <div class="eu-card-body">${body}</div>
+            </div>`;
+        document.body.appendChild(modal);
+        $('.eu-close', modal).addEventListener('click', () => modal.classList.remove('eu-open'));
+        modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('eu-open'); });
+        return modal;
+    }
+
+    function openDownloadModal() {
+        const modal = modalShell('eu-download-modal', 'Downloads & Settings', `
+            <div class="eu-grid">
+                <div class="eu-field"><label>Source</label><select id="eu-dl-source"><option value="page">Current page</option><option value="feed">Loaded feed</option></select></div>
+                <div class="eu-field"><label>Type</label><select id="eu-dl-type"><option value="all">All media</option><option value="videos">Videos only</option><option value="images">Images only</option></select></div>
+                <div class="eu-field"><label>Feed layout</label><select id="eu-set-layout"><option value="desktop">Desktop</option><option value="phone">Phone</option></select></div>
+                <div class="eu-field"><label>Fit mode</label><select id="eu-set-fit"><option value="contain">Contain</option><option value="cover">Cover</option><option value="natural">Natural</option></select></div>
+                <div class="eu-field"><label>Min seconds</label><input id="eu-set-min" type="number" min="0" step="5"></div>
+                <div class="eu-field"><label>Max seconds</label><input id="eu-set-max" type="number" min="0" step="5"></div>
+                <div class="eu-field" style="grid-column:1/-1"><label>Album search filter</label><input id="eu-set-search" type="text" placeholder="blank = off"></div>
             </div>
-          </div>`;
-        document.body.appendChild(overlay);
-        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
-        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-        overlay.querySelector('#eu-save-settings').onclick = saveSettingsFromModal;
-        overlay.querySelector('#eu-reset-settings').onclick = () => {
-            if (!confirm('Reset Erome Ultimate settings to defaults? Tracking history is not deleted.')) return;
-            Object.assign(SETTINGS, DEFAULT_SETTINGS);
+            <div class="eu-checks">
+                <label><input id="eu-set-autoplay" type="checkbox"> Autoplay feed</label>
+                <label><input id="eu-set-muted" type="checkbox"> Start muted</label>
+                <label><input id="eu-set-loop" type="checkbox"> Loop videos</label>
+                <label><input id="eu-set-buttons" type="checkbox"> Media save buttons</label>
+                <label><input id="eu-set-badges" type="checkbox"> Seen/saved badges</label>
+                <label><input id="eu-set-hide-seen" type="checkbox"> Hide seen albums</label>
+                <label><input id="eu-set-hide-down" type="checkbox"> Hide saved albums</label>
+                <label><input id="eu-set-skip-down" type="checkbox"> Skip saved media</label>
+                <label><input id="eu-set-folders" type="checkbox"> ZIP folders</label>
+                <label><input id="eu-set-lock" type="checkbox"> Lock listing feed</label>
+                <label><input id="eu-set-related" type="checkbox"> Load related albums</label>
+                <label><input id="eu-set-tools" type="checkbox"> Auto-hide feed tools</label>
+            </div>
+            <div class="eu-note" id="eu-dl-stats">Scanning...</div>
+            <div class="eu-progress"><span id="eu-dl-progress"></span></div>
+            <div class="eu-note" id="eu-dl-line">Ready</div>
+            <div class="eu-actions">
+                <button class="eu-btn eu-btn-primary" id="eu-start-zip">${ICON.download}<span>Download ZIP</span></button>
+                <button class="eu-btn" id="eu-start-loose">${ICON.download}<span>Download Files</span></button>
+                <button class="eu-btn" id="eu-open-feed">${ICON.logo}<span>Open Feed</span></button>
+                <button class="eu-btn" id="eu-save-settings">${ICON.settings}<span>Save Settings</span></button>
+            </div>
+            <div class="eu-log" id="eu-dl-log">No downloads started.</div>
+        `);
+        syncModalSettings(modal);
+        const refresh = () => updateDownloadStats(modal);
+        ['#eu-dl-source', '#eu-dl-type', '#eu-set-skip-down'].forEach(sel => $(sel, modal).addEventListener('change', refresh));
+        $('#eu-start-zip', modal).onclick = () => runBulkDownload(modal, true);
+        $('#eu-start-loose', modal).onclick = () => runBulkDownload(modal, false);
+        $('#eu-open-feed', modal).onclick = () => openFeed(settings.feedType, settings.feedLayout);
+        $('#eu-save-settings', modal).onclick = () => {
+            readModalSettings(modal);
             saveSettings();
-            syncSettingsModal();
-            applySettingsNow();
-            toast('Settings reset', 'success');
+            applyFilters();
+            applyFeedFit();
+            toast('Settings saved', 'success');
         };
+        updateDownloadStats(modal);
+        modal.classList.add('eu-open');
     }
 
-    function syncSettingsModal() {
-        const o = document.getElementById('eu-settings-modal');
-        if (!o) return;
-        o.querySelector('#eu-set-feed-type').value = SETTINGS.defaultFeedType || 'all';
-        o.querySelector('#eu-set-feed-layout').value = SETTINGS.defaultFeedLayout || 'desktop';
-        o.querySelector('#eu-set-performance').value = SETTINGS.performanceMode || 'normal';
-        o.querySelector('#eu-set-fit').value = SETTINGS.fitMode || 'contain';
-        o.querySelector('#eu-set-min-seconds').value = getMinVideoSeconds();
-        o.querySelector('#eu-set-max-seconds').value = getMaxVideoSeconds();
-        o.querySelector('#eu-set-album-search').value = SETTINGS.albumSearch || '';
-        o.querySelector('#eu-set-autoplay').checked = SETTINGS.autoplay !== false;
-        o.querySelector('#eu-set-mute').checked = !!SETTINGS.muteVideos;
-        o.querySelector('#eu-set-loop').checked = SETTINGS.loopVideos !== false;
-        o.querySelector('#eu-set-resume').checked = SETTINGS.autoResume !== false;
-        o.querySelector('#eu-set-badges').checked = SETTINGS.showSeenBadges !== false;
-        o.querySelector('#eu-set-hide-seen').checked = !!SETTINGS.hideSeen;
-        o.querySelector('#eu-set-hide-down').checked = !!SETTINGS.hideDownloaded;
-        o.querySelector('#eu-set-skip-down').checked = !!SETTINGS.skipDownloadedInDownloads;
-        o.querySelector('#eu-set-folders').checked = SETTINGS.zipFolders !== false;
-        o.querySelector('#eu-set-retry').checked = SETTINGS.retryDownloads !== false;
-        o.querySelector('#eu-set-dlbtns').checked = SETTINGS.showDownloadButtons !== false;
-        o.querySelector('#eu-set-lock-search').checked = SETTINGS.lockFeedToSearch !== false;
-        o.querySelector('#eu-set-related').checked = SETTINGS.allowRelatedAlbumExpansion !== false;
-        o.querySelector('#eu-set-strict-search').checked = SETTINGS.strictSearchTitleMatch === true;
-        o.querySelector('#eu-set-feed-auto-hide').checked = SETTINGS.feedControlsAutoHide !== false;
-        o.querySelector('#eu-set-feed-pinned').checked = SETTINGS.feedControlsPinned === true;
+    function syncModalSettings(modal) {
+        $('#eu-set-layout', modal).value = settings.feedLayout;
+        $('#eu-set-fit', modal).value = settings.fitMode;
+        $('#eu-set-min', modal).value = settings.minSeconds;
+        $('#eu-set-max', modal).value = settings.maxSeconds;
+        $('#eu-set-search', modal).value = settings.search;
+        $('#eu-set-autoplay', modal).checked = settings.autoplay;
+        $('#eu-set-muted', modal).checked = settings.muted;
+        $('#eu-set-loop', modal).checked = settings.loop;
+        $('#eu-set-buttons', modal).checked = settings.showDownloadButtons;
+        $('#eu-set-badges', modal).checked = settings.showBadges;
+        $('#eu-set-hide-seen', modal).checked = settings.hideSeen;
+        $('#eu-set-hide-down', modal).checked = settings.hideDownloaded;
+        $('#eu-set-skip-down', modal).checked = settings.skipDownloaded;
+        $('#eu-set-folders', modal).checked = settings.zipFolders;
+        $('#eu-set-lock', modal).checked = settings.lockListingFeed;
+        $('#eu-set-related', modal).checked = settings.loadRelatedAlbums;
+        $('#eu-set-tools', modal).checked = settings.autoHideFeedTools;
     }
-
-    function saveSettingsFromModal() {
-        const o = document.getElementById('eu-settings-modal');
-        if (!o) return;
-        updateSetting('defaultFeedType', o.querySelector('#eu-set-feed-type').value);
-        updateSetting('defaultFeedLayout', o.querySelector('#eu-set-feed-layout').value);
-        updateSetting('performanceMode', o.querySelector('#eu-set-performance').value);
-        updateSetting('fitMode', o.querySelector('#eu-set-fit').value);
-        const minSeconds = Math.max(0, Math.floor(Number(o.querySelector('#eu-set-min-seconds').value) || 0));
-        const maxSeconds = Math.max(0, Math.floor(Number(o.querySelector('#eu-set-max-seconds').value) || 0));
-        if (minSeconds > 0 && maxSeconds > 0 && minSeconds > maxSeconds) {
-            toast('Min length cannot be higher than max length', 'error');
-            return;
+    function readModalSettings(modal) {
+        settings.feedLayout = $('#eu-set-layout', modal).value;
+        settings.fitMode = $('#eu-set-fit', modal).value;
+        settings.minSeconds = Math.max(0, Number($('#eu-set-min', modal).value) || 0);
+        settings.maxSeconds = Math.max(0, Number($('#eu-set-max', modal).value) || 0);
+        if (settings.minSeconds && settings.maxSeconds && settings.minSeconds > settings.maxSeconds) {
+            const tmp = settings.minSeconds;
+            settings.minSeconds = settings.maxSeconds;
+            settings.maxSeconds = tmp;
         }
-        updateSetting('minVideoSeconds', minSeconds);
-        updateSetting('hiddenSeconds', minSeconds);
-        updateSetting('maxVideoSeconds', maxSeconds);
-        updateSetting('albumSearch', o.querySelector('#eu-set-album-search').value.trim());
-        updateSetting('autoplay', o.querySelector('#eu-set-autoplay').checked);
-        updateSetting('muteVideos', o.querySelector('#eu-set-mute').checked);
-        updateSetting('loopVideos', o.querySelector('#eu-set-loop').checked);
-        updateSetting('autoResume', o.querySelector('#eu-set-resume').checked);
-        updateSetting('showSeenBadges', o.querySelector('#eu-set-badges').checked);
-        updateSetting('hideSeen', o.querySelector('#eu-set-hide-seen').checked);
-        updateSetting('hideDownloaded', o.querySelector('#eu-set-hide-down').checked);
-        updateSetting('skipDownloadedInDownloads', o.querySelector('#eu-set-skip-down').checked);
-        updateSetting('zipFolders', o.querySelector('#eu-set-folders').checked);
-        updateSetting('retryDownloads', o.querySelector('#eu-set-retry').checked);
-        updateSetting('showDownloadButtons', o.querySelector('#eu-set-dlbtns').checked);
-        updateSetting('lockFeedToSearch', o.querySelector('#eu-set-lock-search').checked);
-        updateSetting('allowRelatedAlbumExpansion', o.querySelector('#eu-set-related').checked);
-        updateSetting('strictSearchTitleMatch', o.querySelector('#eu-set-strict-search').checked);
-        updateSetting('feedControlsAutoHide', o.querySelector('#eu-set-feed-auto-hide').checked);
-        updateSetting('feedControlsPinned', o.querySelector('#eu-set-feed-pinned').checked);
-        applySettingsNow();
-        toast('Settings saved', 'success');
+        settings.search = $('#eu-set-search', modal).value.trim();
+        settings.autoplay = $('#eu-set-autoplay', modal).checked;
+        settings.muted = $('#eu-set-muted', modal).checked;
+        settings.loop = $('#eu-set-loop', modal).checked;
+        settings.showDownloadButtons = $('#eu-set-buttons', modal).checked;
+        settings.showBadges = $('#eu-set-badges', modal).checked;
+        settings.hideSeen = $('#eu-set-hide-seen', modal).checked;
+        settings.hideDownloaded = $('#eu-set-hide-down', modal).checked;
+        settings.skipDownloaded = $('#eu-set-skip-down', modal).checked;
+        settings.zipFolders = $('#eu-set-folders', modal).checked;
+        settings.lockListingFeed = $('#eu-set-lock', modal).checked;
+        settings.loadRelatedAlbums = $('#eu-set-related', modal).checked;
+        settings.autoHideFeedTools = $('#eu-set-tools', modal).checked;
     }
 
-    function applySettingsNow() {
-        STATE.tiktokType = SETTINGS.defaultFeedType || STATE.tiktokType;
-        STATE.tiktokLayout = SETTINGS.defaultFeedLayout || STATE.tiktokLayout;
-        STATE.showDownloadButtons = SETTINGS.showDownloadButtons !== false;
-        STATE.hiddenSeconds = getMinVideoSeconds();
-        STATE.maxVideoSeconds = getMaxVideoSeconds();
-        document.querySelectorAll('.eu-dl-btn').forEach(btn => { btn.style.display = STATE.showDownloadButtons ? '' : 'none'; });
-        applyHiddenFilter();
-        applyAlbumSearch();
-        decorateTrackingBadges();
-        applyFeedFitMode();
-        updateFeedTools();
-        if (document.getElementById('eu-tiktok')) {
-            if (SETTINGS.feedControlsPinned || SETTINGS.feedControlsAutoHide === false) setFeedControlsVisible(true, false);
-            else scheduleFeedControlsHide(900);
-        }
-    }
-
-    function openSettingsModal() {
-        buildSettingsModal();
-        syncSettingsModal();
-        document.getElementById('eu-settings-modal').classList.add('open');
-    }
-
-    function getStatusStats() {
-        return {
-            albums: document.querySelectorAll('.album').length,
-            pageMedia: collectAllMediaUrls().length,
-            feedItems: TT.items.length,
-            queue: TT.albumQueue.length,
-            seen: TRACKING.seenAlbums.size,
-            downloaded: TRACKING.downloadedMedia.size,
-            favorites: TRACKING.favorites.length,
-            failures: DLX.failed.length,
-            scope: TT.feedScopeLabel || (SETTINGS.lockFeedToSearch !== false ? 'Search/listing lock' : 'Related expansion')
-        };
-    }
-
-    function buildStatusPanel() {
-        if (document.getElementById('eu-status-modal')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'eu-status-modal';
-        overlay.className = 'eu-modal-overlay';
-        overlay.innerHTML = `
-          <div class="eu-modal" style="width:620px;">
-            <div class="eu-modal-header">
-              <h3>${ICONS.bell}<span>Status / Debug</span></h3>
-              <button class="eu-modal-close">${ICONS.close}</button>
-            </div>
-            <div class="eu-modal-body">
-              <div class="eu-status-grid" id="eu-status-grid"></div>
-              <div class="eu-zip-preview" id="eu-status-line"></div>
-              <div class="eu-smart-actions">
-                <button class="eu-btn-primary" id="eu-refresh-now">${ICONS.check}<span>Refresh UI</span></button>
-                <button class="eu-btn-secondary" id="eu-export-tracking">Export Tracking</button>
-                <button class="eu-btn-secondary" id="eu-clear-seen">Clear Seen</button>
-                <button class="eu-btn-secondary" id="eu-clear-downloaded">Clear Downloaded</button>
-              </div>
-            </div>
-          </div>`;
-        document.body.appendChild(overlay);
-        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
-        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-        overlay.querySelector('#eu-refresh-now').onclick = () => { refreshAll(); updateStatusPanel(); toast('UI refreshed', 'success'); };
-        overlay.querySelector('#eu-export-tracking').onclick = exportTrackingData;
-        overlay.querySelector('#eu-clear-seen').onclick = () => {
-            if (!confirm('Clear seen album history?')) return;
-            TRACKING.seenAlbums.clear(); saveLimitedSet('eu_seen_albums_v1', TRACKING.seenAlbums); decorateTrackingBadges(); updateStatusPanel();
-        };
-        overlay.querySelector('#eu-clear-downloaded').onclick = () => {
-            if (!confirm('Clear downloaded media/album history?')) return;
-            TRACKING.downloadedMedia.clear(); TRACKING.downloadedAlbums.clear();
-            saveLimitedSet('eu_downloaded_media_v1', TRACKING.downloadedMedia); saveLimitedSet('eu_downloaded_albums_v1', TRACKING.downloadedAlbums);
-            decorateTrackingBadges(); updateStatusPanel();
-        };
-    }
-
-    function updateStatusPanel() {
-        const overlay = document.getElementById('eu-status-modal');
-        if (!overlay) return;
-        const s = getStatusStats();
-        const cards = [
-            ['Albums', s.albums], ['Page media', s.pageMedia], ['Feed items', s.feedItems], ['Queue', s.queue],
-            ['Seen albums', s.seen], ['Downloaded', s.downloaded], ['Favorites', s.favorites], ['Failures', s.failures]
-        ];
-        overlay.querySelector('#eu-status-grid').innerHTML = cards.map(([label, val]) => `<div class="eu-status-card"><b>${val}</b><span>${label}</span></div>`).join('');
-        overlay.querySelector('#eu-status-line').textContent = `Mode: ${SETTINGS.performanceMode} · Feed: ${SETTINGS.defaultFeedLayout}/${SETTINGS.defaultFeedType} · Scope: ${s.scope} · ${getLengthFilterLabel()} · Page: ${normalizeUrl(location.href)}`;
-    }
-
-    function openStatusPanel() {
-        buildStatusPanel();
-        updateStatusPanel();
-        document.getElementById('eu-status-modal').classList.add('open');
-    }
-
-    function exportTrackingData() {
-        const data = {
-            exportedAt: new Date().toISOString(),
-            settings: SETTINGS,
-            seenAlbums: Array.from(TRACKING.seenAlbums),
-            downloadedMedia: Array.from(TRACKING.downloadedMedia),
-            downloadedAlbums: Array.from(TRACKING.downloadedAlbums),
-            favorites: TRACKING.favorites
-        };
-        exportTextFile(`Erome_Ultimate_tracking_${Date.now()}.json`, JSON.stringify(data, null, 2));
-    }
-
-    function collectDownloadItems(source = 'auto', type = 'all') {
+    function getDownloadItems(modal) {
+        readModalSettings(modal);
+        const source = $('#eu-dl-source', modal).value;
+        const type = $('#eu-dl-type', modal).value;
         let items = [];
-        const feedOpen = STATE.tiktokMode && TT.items.length > 0;
-        if ((source === 'feed') || (source === 'auto' && feedOpen)) {
-            items = TT.items.map((item, idx) => ({
-                url: item.url,
-                kind: item.kind,
-                albumUrl: item.albumUrl || '',
-                title: item.title || `Feed_${idx + 1}`,
-                index: idx + 1
-            }));
+        if (source === 'feed' && feed.items.length) {
+            items = feed.items.map((item, i) => ({ ...item, index: i + 1 }));
         } else {
-            items = collectAllMediaUrls().map((url, idx) => ({
+            items = collectMediaUrls().map((url, i) => ({
                 url,
-                kind: isImageUrl(url) ? 'image' : 'video',
-                albumUrl: currentAlbumUrl(),
-                title: getPageTitle(),
-                index: idx + 1
+                kind: isVideo(url) ? 'video' : 'image',
+                title: pageTitle(),
+                username: 'Erome',
+                albumUrl: isAlbumPage ? normalizeUrl(location.href) : '',
+                index: i + 1
             }));
         }
-        if (type === 'images') items = items.filter(i => i.kind === 'image' || isImageUrl(i.url));
-        if (type === 'videos') items = items.filter(i => i.kind === 'video' || isVideoUrl(i.url));
-        const seen = new Set();
-        items = items.filter(i => {
-            const clean = normalizeUrl(i.url);
-            if (!clean || seen.has(clean)) return false;
-            seen.add(clean);
-            if (SETTINGS.skipDownloadedInDownloads && TRACKING.downloadedMedia.has(clean)) return false;
+        if (type === 'videos') items = items.filter(item => item.kind === 'video' || isVideo(item.url));
+        if (type === 'images') items = items.filter(item => item.kind === 'image' || isImage(item.url));
+        if (settings.skipDownloaded) items = items.filter(item => !tracking.downloadedMedia.has(normalizeUrl(item.url)));
+        const dedupe = new Set();
+        return items.filter(item => {
+            const clean = normalizeUrl(item.url);
+            if (!clean || dedupe.has(clean)) return false;
+            dedupe.add(clean);
             return true;
         });
-        return items;
     }
-
-    function buildDownloadManager() {
-        if (document.getElementById('eu-dlx-modal')) return;
-        const overlay = document.createElement('div');
-        overlay.id = 'eu-dlx-modal';
-        overlay.className = 'eu-modal-overlay';
-        overlay.innerHTML = `
-          <div class="eu-modal" style="width:620px;">
-            <div class="eu-modal-header">
-              <h3>${ICONS.download}<span>Smart Download Manager</span></h3>
-              <button class="eu-modal-close">${ICONS.close}</button>
-            </div>
-            <div class="eu-modal-body">
-              <div class="eu-smart-row">
-                <div class="eu-smart-field"><label>Source</label><select id="eu-dlx-source"><option value="auto">Auto/current feed</option><option value="page">Current page</option><option value="feed">Loaded feed queue</option></select></div>
-                <div class="eu-smart-field"><label>Media Type</label><select id="eu-dlx-type"><option value="all">All</option><option value="images">Images</option><option value="videos">Videos</option></select></div>
-              </div>
-              <div class="eu-option-group">
-                <div class="eu-option-title">Options</div>
-                <div class="eu-smart-checks">
-                  <label class="eu-smart-check"><input id="eu-dlx-zip" type="checkbox" checked> Package as ZIP</label>
-                  <label class="eu-smart-check"><input id="eu-dlx-folders" type="checkbox"> Folder by album/title</label>
-                  <label class="eu-smart-check"><input id="eu-dlx-skip" type="checkbox"> Skip downloaded</label>
-                  <label class="eu-smart-check"><input id="eu-dlx-retry" type="checkbox"> Retry failures</label>
-                </div>
-              </div>
-              <div class="eu-zip-preview" id="eu-dlx-stats">Scanning…</div>
-              <div class="eu-smart-actions">
-                <button class="eu-btn-primary" id="eu-dlx-start">${ICONS.download}<span>Start</span></button>
-                <button class="eu-btn-secondary" id="eu-dlx-cancel">Cancel</button>
-              </div>
-              <div class="eu-progress-box">
-                <div class="eu-progress-bar"><div class="eu-progress-fill" id="eu-dlx-fill"></div></div>
-                <div class="eu-progress-text" id="eu-dlx-text">Ready</div>
-              </div>
-              <div class="eu-dlx-log" id="eu-dlx-log">No downloads started.</div>
-            </div>
-          </div>`;
-        document.body.appendChild(overlay);
-        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
-        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-        ['#eu-dlx-source', '#eu-dlx-type', '#eu-dlx-skip'].forEach(sel => overlay.querySelector(sel).addEventListener('change', updateDownloadManagerStats));
-        overlay.querySelector('#eu-dlx-folders').checked = SETTINGS.zipFolders !== false;
-        overlay.querySelector('#eu-dlx-skip').checked = !!SETTINGS.skipDownloadedInDownloads;
-        overlay.querySelector('#eu-dlx-retry').checked = SETTINGS.retryDownloads !== false;
-        overlay.querySelector('#eu-dlx-start').onclick = runDownloadManager;
-        overlay.querySelector('#eu-dlx-cancel').onclick = () => { DLX.cancel = true; toast('Download cancel requested', 'warning'); };
+    function updateDownloadStats(modal) {
+        const items = getDownloadItems(modal);
+        const videos = items.filter(item => item.kind === 'video' || isVideo(item.url)).length;
+        const images = items.length - videos;
+        $('#eu-dl-stats', modal).textContent = `Ready: ${items.length} files (${images} images, ${videos} videos). Length filter: ${lengthLabel()}. Feed loaded: ${feed.items.length}.`;
     }
-
-    function updateDownloadManagerStats() {
-        const overlay = document.getElementById('eu-dlx-modal');
-        if (!overlay) return;
-        const oldSkip = SETTINGS.skipDownloadedInDownloads;
-        SETTINGS.skipDownloadedInDownloads = overlay.querySelector('#eu-dlx-skip').checked;
-        const items = collectDownloadItems(overlay.querySelector('#eu-dlx-source').value, overlay.querySelector('#eu-dlx-type').value);
-        SETTINGS.skipDownloadedInDownloads = oldSkip;
-        const imgs = items.filter(i => i.kind === 'image' || isImageUrl(i.url)).length;
-        const vids = items.filter(i => i.kind === 'video' || isVideoUrl(i.url)).length;
-        overlay.querySelector('#eu-dlx-stats').textContent = `Ready: ${items.length} items (${imgs} images, ${vids} videos). Feed loaded: ${TT.items.length}. Queue: ${TT.albumQueue.length}.`;
-    }
-
-    function openDownloadManager() {
-        buildDownloadManager();
-        updateDownloadManagerStats();
-        document.getElementById('eu-dlx-modal').classList.add('open');
-    }
-
-    async function runDownloadManager() {
-        if (DLX.running || STATE.downloadInProgress) { toast('A download is already running', 'warning'); return; }
-        const overlay = document.getElementById('eu-dlx-modal');
-        const source = overlay.querySelector('#eu-dlx-source').value;
-        const type = overlay.querySelector('#eu-dlx-type').value;
-        const asZip = overlay.querySelector('#eu-dlx-zip').checked;
-        updateSetting('zipFolders', overlay.querySelector('#eu-dlx-folders').checked);
-        updateSetting('skipDownloadedInDownloads', overlay.querySelector('#eu-dlx-skip').checked);
-        updateSetting('retryDownloads', overlay.querySelector('#eu-dlx-retry').checked);
-        const items = collectDownloadItems(source, type);
-        const fill = overlay.querySelector('#eu-dlx-fill');
-        const text = overlay.querySelector('#eu-dlx-text');
-        const log = overlay.querySelector('#eu-dlx-log');
-        if (!items.length) { toast('No downloadable items found', 'error'); return; }
-
-        DLX.running = true; DLX.cancel = false; DLX.done = 0; DLX.ok = 0; DLX.total = items.length; DLX.failed = [];
-        STATE.downloadInProgress = true;
-        fill.style.width = '0%'; log.textContent = '';
-
-        const addLog = line => { log.textContent += line + '\n'; log.scrollTop = log.scrollHeight; };
+    async function runBulkDownload(modal, zipMode) {
+        const items = getDownloadItems(modal);
+        if (!items.length) return toast('No downloadable media found', 'error');
+        saveSettings();
+        const progress = $('#eu-dl-progress', modal);
+        const line = $('#eu-dl-line', modal);
+        const log = $('#eu-dl-log', modal);
+        const addLog = txt => { log.textContent += `${txt}\n`; log.scrollTop = log.scrollHeight; };
+        log.textContent = '';
+        let ok = 0;
         try {
-            if (asZip && typeof JSZip !== 'undefined') {
+            if (zipMode) {
+                if (typeof JSZip === 'undefined') throw new Error('JSZip did not load');
                 const zip = new JSZip();
+                const failed = [];
                 for (let i = 0; i < items.length; i++) {
-                    if (DLX.cancel) break;
                     const item = items[i];
-                    const base = `${String(i + 1).padStart(4, '0')}_${getFilename(item.url)}`;
-                    const folder = SETTINGS.zipFolders ? sanitize(item.title || getPageTitle()) + '/' : '';
-                    text.textContent = `Downloading ${i + 1}/${items.length}: ${base}`;
-                    fill.style.width = `${(i / items.length) * 100}%`;
+                    const name = `${String(i + 1).padStart(4, '0')}_${sanitize(filenameFromUrl(item.url))}`;
+                    const path = settings.zipFolders ? `${sanitize(item.title || pageTitle())}/${name}` : name;
+                    progress.style.width = `${(i / items.length) * 100}%`;
+                    line.textContent = `Downloading ${i + 1}/${items.length}: ${name}`;
                     try {
-                        const blob = await downloadBlobWithRetry(item.url, SETTINGS.retryDownloads ? 2 : 1);
-                        zip.file(folder + base, await blob.arrayBuffer());
-                        markDownloadedMedia(item.url, item.albumUrl);
-                        DLX.ok++;
-                        addLog(`OK  ${base}`);
-                    } catch (e) {
-                        DLX.failed.push({ url: item.url, error: String(e) });
-                        addLog(`ERR ${base} — ${e}`);
+                        const blob = await getBlobRetry(item.url, settings.performanceMode === 'max' ? 3 : 2);
+                        zip.file(path, await blob.arrayBuffer());
+                        markDownloaded(item.url, item.albumUrl);
+                        ok++;
+                        addLog(`OK  ${name}`);
+                    } catch (err) {
+                        failed.push(`${item.url}\n${err.message || err}`);
+                        addLog(`ERR ${name} - ${err.message || err}`);
                     }
-                    DLX.done++;
                 }
-                if (DLX.failed.length) {
-                    zip.file('FAILED_DOWNLOADS.txt', DLX.failed.map(f => `${f.url}\n${f.error}\n`).join('\n'));
-                }
-                text.textContent = 'Generating ZIP…';
-                const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }, meta => {
-                    fill.style.width = `${meta.percent}%`;
-                    text.textContent = `Compressing: ${Math.round(meta.percent)}%`;
+                if (failed.length) zip.file('FAILED_DOWNLOADS.txt', failed.join('\n\n'));
+                line.textContent = 'Compressing ZIP...';
+                const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }, meta => {
+                    progress.style.width = `${meta.percent}%`;
+                    line.textContent = `Compressing ZIP: ${Math.round(meta.percent)}%`;
                 });
-                if (!DLX.cancel) {
-                    if (typeof saveAs === 'function') saveAs(zipBlob, generateZipName());
-                    else {
-                        const u = URL.createObjectURL(zipBlob);
-                        const a = document.createElement('a');
-                        a.href = u; a.download = generateZipName(); a.style.display = 'none';
-                        document.body.appendChild(a); a.click(); a.remove();
-                        setTimeout(() => URL.revokeObjectURL(u), 5000);
-                    }
-                }
+                saveAs(blob, `Erome_${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}_${pageTitle()}.zip`);
             } else {
                 for (let i = 0; i < items.length; i++) {
-                    if (DLX.cancel) break;
                     const item = items[i];
-                    const name = `${String(i + 1).padStart(4, '0')}_${getFilename(item.url)}`;
-                    text.textContent = `Downloading ${i + 1}/${items.length}: ${name}`;
-                    fill.style.width = `${(i / items.length) * 100}%`;
+                    const name = `${String(i + 1).padStart(4, '0')}_${sanitize(filenameFromUrl(item.url))}`;
+                    progress.style.width = `${(i / items.length) * 100}%`;
+                    line.textContent = `Downloading ${i + 1}/${items.length}: ${name}`;
                     try {
-                        const blob = await downloadBlobWithRetry(item.url, SETTINGS.retryDownloads ? 2 : 1);
-                        const u = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = u; a.download = name; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
-                        setTimeout(() => URL.revokeObjectURL(u), 5000);
-                        markDownloadedMedia(item.url, item.albumUrl);
-                        DLX.ok++;
+                        await downloadSingle(item.url, name, null, item.albumUrl);
+                        ok++;
                         addLog(`OK  ${name}`);
-                    } catch (e) {
-                        DLX.failed.push({ url: item.url, error: String(e) });
-                        addLog(`ERR ${name} — ${e}`);
+                        await sleep(settings.performanceMode === 'max' ? 120 : 320);
+                    } catch (err) {
+                        addLog(`ERR ${name} - ${err.message || err}`);
                     }
-                    DLX.done++;
-                    await new Promise(r => setTimeout(r, SETTINGS.performanceMode === 'aggressive' ? 120 : 350));
                 }
-                if (DLX.failed.length) exportTextFile(`FAILED_DOWNLOADS_${Date.now()}.txt`, DLX.failed.map(f => `${f.url}\n${f.error}\n`).join('\n'));
             }
-            fill.style.width = '100%';
-            text.textContent = DLX.cancel ? `Canceled (${DLX.ok}/${items.length})` : `Complete (${DLX.ok}/${items.length})`;
-            toast(text.textContent, DLX.cancel ? 'warning' : 'success');
-        } catch (e) {
-            console.error('[EU] Download manager failed:', e);
-            toast('Download manager error', 'error');
+            progress.style.width = '100%';
+            line.textContent = `Complete: ${ok}/${items.length}`;
+            toast(`Download complete: ${ok}/${items.length}`, 'success');
+        } catch (err) {
+            console.error('[EU] Bulk download failed', err);
+            toast(`Bulk download failed: ${err.message || err}`, 'error', 4000);
         } finally {
-            DLX.running = false; STATE.downloadInProgress = false;
-            decorateTrackingBadges(); updateDownloadManagerStats(); updateStatusPanel();
+            scheduleRefresh('bulk-download');
+            updateDownloadStats(modal);
         }
     }
 
-    function buildHubMenu(id, iconKey, items, title = '') {
-        if (document.getElementById(id)) return null;
-        const hub = document.createElement('div');
-        hub.id = id;
-        hub.className = 'eu-hub';
-        hub.innerHTML = `
-          <div class="eu-hub-btn" title="${title}">${ICONS[iconKey] || ICONS.settings}</div>
-          <ul class="eu-hub-menu"></ul>`;
-        const menu = hub.querySelector('.eu-hub-menu');
-        items.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'eu-hub-item';
-            li.innerHTML = `${ICONS[item.icon] || ICONS.settings}<span>${item.label}</span>`;
-            li.addEventListener('click', (e) => {
-                e.stopPropagation();
-                item.action?.();
-                hub.classList.remove('open');
+    function buildFeedOverlay() {
+        if ($('#eu-feed')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'eu-feed';
+        overlay.className = 'eu-shell';
+        overlay.innerHTML = `
+            <div class="eu-phone">
+                <div class="eu-feed-head">
+                    <div class="eu-brand">${ICON.brand}</div>
+                    <div class="eu-feed-tabs">
+                        <button class="eu-pill" data-feed-type="all">All</button>
+                        <button class="eu-pill" data-feed-type="videos">Videos</button>
+                        <button class="eu-pill" data-feed-type="images">Photos</button>
+                        <button class="eu-pill" id="eu-layout">Layout</button>
+                        <button class="eu-pill" id="eu-close-feed">${ICON.close}</button>
+                    </div>
+                </div>
+                <div class="eu-tools" id="eu-tools">
+                    <button class="eu-pill" id="eu-fit">Fit</button>
+                    <button class="eu-pill" id="eu-shuffle">${ICON.shuffle} Shuffle</button>
+                    <button class="eu-pill" id="eu-mute">Mute</button>
+                    <button class="eu-pill" id="eu-length">Length</button>
+                    <button class="eu-pill" id="eu-more">More</button>
+                </div>
+                <div class="eu-counter" id="eu-counter">0 / 0</div>
+                <div class="eu-status" id="eu-feed-status">Ready</div>
+                <div class="eu-feed-scroll" id="eu-feed-scroll"></div>
+            </div>`;
+        document.body.appendChild(overlay);
+        $('#eu-close-feed', overlay).onclick = closeFeed;
+        $('#eu-layout', overlay).onclick = () => setFeedLayout(settings.feedLayout === 'desktop' ? 'phone' : 'desktop');
+        $('#eu-fit', overlay).onclick = cycleFit;
+        $('#eu-shuffle', overlay).onclick = shuffleFeed;
+        $('#eu-mute', overlay).onclick = () => {
+            settings.muted = !settings.muted;
+            saveSettings();
+            $$('#eu-feed video').forEach(applyVideoPrefs);
+            syncFeedControls();
+        };
+        $('#eu-length', overlay).onclick = () => {
+            const min = prompt('Minimum video seconds, 0 for off', String(settings.minSeconds));
+            if (min === null) return;
+            const max = prompt('Maximum video seconds, 0 for off', String(settings.maxSeconds));
+            if (max === null) return;
+            settings.minSeconds = Math.max(0, Number(min) || 0);
+            settings.maxSeconds = Math.max(0, Number(max) || 0);
+            saveSettings();
+            pruneFeedByLength();
+            applyFilters();
+            syncFeedControls();
+        };
+        $('#eu-more', overlay).onclick = openDownloadModal;
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeFeed(); });
+        $$('.eu-feed-tabs [data-feed-type]', overlay).forEach(btn => {
+            btn.onclick = () => openFeed(btn.dataset.feedType, settings.feedLayout, true);
+        });
+        $('#eu-feed-scroll', overlay).addEventListener('scroll', debounce(() => {
+            const scroller = $('#eu-feed-scroll');
+            if (scroller.scrollTop + scroller.clientHeight > scroller.scrollHeight - scroller.clientHeight * 2) preloadAlbum();
+            if (settings.autoHideFeedTools) hideToolsSoon();
+        }, 90), { passive: true });
+        document.addEventListener('keydown', feedKeys);
+    }
+
+    function debounce(fn, ms) {
+        let t;
+        return (...args) => {
+            clearTimeout(t);
+            t = setTimeout(() => fn(...args), ms);
+        };
+    }
+
+    async function openFeed(type = settings.feedType, layout = settings.feedLayout, reset = false) {
+        buildFeedOverlay();
+        settings.feedType = type;
+        settings.feedLayout = layout;
+        saveSettings();
+        const overlay = $('#eu-feed');
+        overlay.classList.add('eu-open');
+        document.body.style.overflow = 'hidden';
+        feed.open = true;
+        setFeedLayout(layout);
+        syncFeedControls();
+        if (reset || !feed.items.length) await resetFeed();
+        toast(layout === 'desktop' ? 'Desktop feed ready' : 'Swipe feed ready', 'info', 1800);
+    }
+
+    function closeFeed() {
+        feed.open = false;
+        $('#eu-feed')?.classList.remove('eu-open');
+        document.body.style.overflow = '';
+        $$('#eu-feed video').forEach(v => v.pause());
+    }
+
+    function setFeedLayout(layout) {
+        settings.feedLayout = layout === 'desktop' ? 'desktop' : 'phone';
+        saveSettings();
+        $('#eu-feed')?.classList.toggle('eu-desktop', settings.feedLayout === 'desktop');
+        syncFeedControls();
+    }
+    function applyFeedFit() {
+        const overlay = $('#eu-feed');
+        if (!overlay) return;
+        overlay.classList.remove('eu-fit-contain', 'eu-fit-cover', 'eu-fit-natural');
+        overlay.classList.add(`eu-fit-${settings.fitMode || 'cover'}`);
+    }
+    function cycleFit() {
+        const modes = ['contain', 'cover', 'natural'];
+        settings.fitMode = modes[(modes.indexOf(settings.fitMode) + 1) % modes.length] || 'cover';
+        saveSettings();
+        applyFeedFit();
+        syncFeedControls();
+    }
+    function syncFeedControls() {
+        applyFeedFit();
+        $$('#eu-feed [data-feed-type]').forEach(btn => btn.classList.toggle('eu-active', btn.dataset.feedType === settings.feedType));
+        $('#eu-layout') && ($('#eu-layout').textContent = settings.feedLayout === 'desktop' ? 'Phone' : 'Desktop');
+        $('#eu-fit') && ($('#eu-fit').textContent = `Fit: ${settings.fitMode}`);
+        $('#eu-mute') && ($('#eu-mute').textContent = settings.muted ? 'Muted' : 'Sound');
+        $('#eu-length') && ($('#eu-length').textContent = lengthLabel());
+        updateFeedStatus();
+    }
+    function updateFeedCounter() {
+        const el = $('#eu-counter');
+        if (el) el.textContent = `${Math.min(feed.index + 1, feed.items.length)} / ${feed.items.length}`;
+        updateFeedStatus();
+    }
+    function updateFeedStatus() {
+        const el = $('#eu-feed-status');
+        if (!el) return;
+        el.textContent = `Queue ${feed.albumQueue.length} - ${settings.lockListingFeed && !isAlbumPage ? 'listing lock' : 'related on'} - ${lengthLabel()}`;
+    }
+    let hideToolsTimer = 0;
+    function hideToolsSoon() {
+        clearTimeout(hideToolsTimer);
+        const tools = $('#eu-tools');
+        if (!tools) return;
+        tools.classList.remove('eu-hidden');
+        hideToolsTimer = setTimeout(() => tools.classList.add('eu-hidden'), 2400);
+    }
+
+    async function resetFeed() {
+        feed.items = [];
+        feed.itemUrls = new Set();
+        feed.albumQueue = [];
+        feed.albumSeen = new Set();
+        feed.loading = false;
+        feed.index = 0;
+        feed.listingPage = Number(new URL(location.href).searchParams.get('page') || 1) + 1;
+        feed.stopped = false;
+        const scroller = $('#eu-feed-scroll');
+        scroller.innerHTML = '';
+        setupFeedObserver(scroller);
+
+        if (isAlbumPage) {
+            feed.albumSeen.add(normalizeUrl(location.href));
+            addFeedItems(extractMedia(document, location.href));
+            queueAlbumsFromDoc(document, location.href, 'album');
+        } else {
+            queueAlbumsFromDoc(document, location.href, 'listing');
+            if (!feed.albumQueue.length) await queueNextListingPage();
+        }
+
+        let attempts = 0;
+        while (!feed.items.length && attempts++ < 10 && (feed.albumQueue.length || !feed.stopped)) {
+            if (!feed.albumQueue.length) await queueNextListingPage();
+            await preloadAlbum();
+        }
+        if (!feed.items.length) scroller.innerHTML = '<div class="eu-empty">No media found here. Try another tab or turn related album loading on.</div>';
+        updateFeedCounter();
+        if (feed.albumQueue.length) setTimeout(preloadAlbum, 700);
+    }
+
+    function setupFeedObserver(scroller) {
+        feed.io?.disconnect();
+        feed.io = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting || entry.intersectionRatio < .64) return;
+                const card = entry.target;
+                feed.index = Number(card.dataset.index) || 0;
+                updateFeedCounter();
+                const item = card._euItem;
+                if (item?.albumUrl) markSeen(item.albumUrl);
+                $$('#eu-feed video').forEach(v => { if (!card.contains(v)) v.pause(); });
+                const video = $('video', card);
+                if (video) {
+                    applyVideoPrefs(video);
+                    if (settings.autoplay) video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+                }
+                if (feed.index >= feed.items.length - 3) preloadAlbum();
             });
-            menu.appendChild(li);
-        });
+        }, { root: scroller, threshold: [.64] });
+    }
 
-        hub.querySelector('.eu-hub-btn').addEventListener('click', (e) => {
+    function getAlbumMeta(doc, url) {
+        return {
+            albumUrl: normalizeUrl(url),
+            title: pageTitle(doc),
+            username: sanitize($('#user_name, .username, .user-name', doc)?.textContent || 'Erome')
+        };
+    }
+    function extractMedia(doc, albumPageUrl) {
+        const meta = getAlbumMeta(doc, albumPageUrl);
+        const results = [];
+        const add = (kind, raw) => {
+            const url = normalizeUrl(raw, albumPageUrl);
+            if (!url || feed.itemUrls.has(url) || /thumb|avatar|logo|favicon/i.test(url)) return;
+            if (settings.feedType === 'videos' && kind !== 'video') return;
+            if (settings.feedType === 'images' && kind !== 'image') return;
+            feed.itemUrls.add(url);
+            results.push({ kind, url, ...meta });
+        };
+        $$('.media-group video, .video-js video, video, source', doc).forEach(v => add('video', v.currentSrc || v.src || v.getAttribute('src') || v.dataset?.src));
+        $$('.media-group img, img.media, .album-image img', doc).forEach(img => add('image', img.currentSrc || img.src || img.getAttribute('src') || img.dataset?.src || img.getAttribute('data-src')));
+        const html = doc.documentElement?.innerHTML || '';
+        html.match(/https?:\/\/[^"'<>\\\s]+?\.(?:mp4|webm|m3u8)(?:\?[^"'<>\\\s]*)?/gi)?.forEach(url => add('video', url));
+        return results;
+    }
+    function queueAlbumsFromDoc(doc, base, source) {
+        if (!isAlbumPage && source === 'album' && settings.lockListingFeed) return 0;
+        if (isAlbumPage && source === 'album' && !settings.loadRelatedAlbums) return 0;
+        const before = feed.albumQueue.length;
+        const cards = $$('#albums .album, .albums .album, .user-albums .album, .page-content .album', doc);
+        const links = cards.length
+            ? cards.map(card => albumUrl(card, base)).filter(Boolean)
+            : (source === 'album' ? $$('a[href*="/a/"]', doc).map(a => normalizeUrl(a.getAttribute('href'), base)) : []);
+        const q = settings.search.trim().toLowerCase();
+        links.forEach(url => {
+            if (!url || feed.albumSeen.has(url) || feed.albumQueue.includes(url)) return;
+            if (q && source === 'listing') {
+                const card = cards.find(c => albumUrl(c, base) === url);
+                if (card && !(`${card.textContent} ${url}`.toLowerCase().includes(q))) return;
+            }
+            feed.albumQueue.push(url);
+        });
+        updateFeedStatus();
+        return feed.albumQueue.length - before;
+    }
+    async function queueNextListingPage() {
+        if (isAlbumPage || feed.stopped) return 0;
+        const url = new URL(location.href);
+        url.searchParams.set('page', feed.listingPage);
+        try {
+            const res = await fetch(url.href, { credentials: 'include' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            const added = queueAlbumsFromDoc(doc, url.href, 'listing');
+            feed.listingPage++;
+            if (!added) feed.stopped = true;
+            return added;
+        } catch (err) {
+            feed.stopped = true;
+            console.warn('[EU] listing feed stopped', err);
+            return 0;
+        }
+    }
+    async function preloadAlbum() {
+        if (feed.loading) return 0;
+        if (!feed.albumQueue.length && !isAlbumPage && !feed.stopped) await queueNextListingPage();
+        if (!feed.albumQueue.length) return 0;
+        feed.loading = true;
+        const url = feed.albumQueue.shift();
+        feed.albumSeen.add(url);
+        updateFeedStatus();
+        try {
+            const res = await fetch(url, { credentials: 'include' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            if (isAlbumPage || !settings.lockListingFeed) queueAlbumsFromDoc(doc, url, 'album');
+            const items = extractMedia(doc, url);
+            addFeedItems(items);
+            if (!items.length) return preloadAlbum();
+            return items.length;
+        } catch (err) {
+            console.warn('[EU] album preload failed', err);
+            return 0;
+        } finally {
+            feed.loading = false;
+            updateFeedCounter();
+        }
+    }
+    function addFeedItems(items) {
+        const scroller = $('#eu-feed-scroll');
+        if (!scroller) return;
+        $('.eu-empty', scroller)?.remove();
+        items.forEach(item => {
+            feed.items.push(item);
+            appendFeedCard(item, feed.items.length - 1);
+        });
+        pruneFeedByLength(false);
+        updateFeedCounter();
+    }
+    function appendFeedCard(item, index) {
+        const scroller = $('#eu-feed-scroll');
+        const card = document.createElement('section');
+        card.className = item.kind === 'video' ? 'eu-feed-item video-container theater paused' : 'eu-feed-item';
+        card.dataset.index = String(index);
+        card._euItem = item;
+        const safeUser = htmlEscape(item.username || 'Erome');
+        const safeTitle = htmlEscape(item.title || 'Media');
+        const media = item.kind === 'video'
+            ? `<video class="eu-feed-media" src="${htmlEscape(item.url)}" playsinline preload="metadata"></video>
+               <img class="thumbnail-img" alt="">
+               <div class="video-controls-container">
+                   <div class="timeline-container"><div class="timeline"><img class="preview-img" alt=""><div class="thumb-indicator"></div></div></div>
+                   <div class="controls">
+                       <button class="play-pause-btn" type="button" data-video-act="play" title="Play/Pause"><span class="play-icon">${ICON.play}</span><span class="pause-icon">${ICON.pause}</span></button>
+                       <div class="volume-container">
+                           <button class="mute-btn" type="button" data-video-act="mute" title="Mute">${ICON.volumeHigh.replace('<svg', '<svg class="volume-high-icon"')}${ICON.volumeLow.replace('<svg', '<svg class="volume-low-icon"')}${ICON.volumeMuted.replace('<svg', '<svg class="volume-muted-icon"')}</button>
+                           <input class="volume-slider" type="range" min="0" max="1" step="any" value="1" title="Volume">
+                       </div>
+                       <div class="duration-container"><span class="current-time">0:00</span><span class="duration-separator">/</span><span class="total-time">0:00</span></div>
+                       <button class="captions-btn" type="button" data-video-act="captions" title="Captions">${ICON.captions}</button>
+                       <button class="speed-btn wide-btn" type="button" data-video-act="speed" title="Playback speed">1x</button>
+                       <button class="mini-player-btn" type="button" data-video-act="mini" title="Mini player">${ICON.mini}</button>
+                       <button class="theater-btn" type="button" data-video-act="theater" title="Theater mode"><span class="tall">${ICON.theaterTall}</span><span class="wide">${ICON.theaterWide}</span></button>
+                       <button class="full-screen-btn" type="button" data-video-act="full" title="Fullscreen"><span class="open">${ICON.fullOpen}</span><span class="close">${ICON.fullClose}</span></button>
+                   </div>
+               </div>`
+            : `<img class="eu-feed-media" src="${htmlEscape(item.url)}" alt="" loading="lazy">`;
+        card.innerHTML = `
+            ${media}
+            <div class="eu-caption">
+                <a class="eu-user" href="${htmlEscape(item.albumUrl || '#')}" target="_blank" rel="noopener">@${safeUser}</a>
+                <div class="eu-desc">${safeTitle}</div>
+                <a class="eu-album-link" href="${htmlEscape(item.albumUrl || item.url)}" target="_blank" rel="noopener">View album</a>
+            </div>
+            <div class="eu-side">
+                <button class="eu-action" data-act="save" title="Download">${ICON.download}</button>
+                <button class="eu-action" data-act="fav" title="Favorite">${ICON.heart}</button>
+                <button class="eu-action" data-act="copy" title="Copy URL">${ICON.copy}</button>
+            </div>`;
+        $('.eu-side', card).addEventListener('click', e => {
+            const btn = e.target.closest('[data-act]');
+            if (!btn) return;
             e.stopPropagation();
-            document.querySelectorAll('.eu-hub.open').forEach(h => { if (h !== hub) h.classList.remove('open'); });
-            hub.classList.toggle('open');
+            const act = btn.dataset.act;
+            if (act === 'save') downloadSingle(item.url, filenameFromUrl(item.url), null, item.albumUrl);
+            if (act === 'copy') copyText(item.url);
+            if (act === 'fav') {
+                tracking.favorites.unshift({ url: item.url, albumUrl: item.albumUrl, title: item.title, savedAt: new Date().toISOString() });
+                tracking.favorites = tracking.favorites.slice(0, 1000);
+                saveJSON('favorites', tracking.favorites);
+                toast('Saved to local favorites', 'success');
+            }
         });
-
-        return hub;
+        if (item.kind === 'video') {
+            const video = $('video', card);
+            const timelineContainer = $('.timeline-container', card);
+            const timeline = $('.timeline', card);
+            const currentTime = $('.current-time', card);
+            const totalTime = $('.total-time', card);
+            const volumeSlider = $('.volume-slider', card);
+            const speedBtn = $('.speed-btn', card);
+            const thumbnail = $('.thumbnail-img', card);
+            const preview = $('.preview-img', card);
+            card.dataset.volumeLevel = settings.muted ? 'muted' : 'high';
+            applyVideoPrefs(video);
+            volumeSlider.value = video.muted ? '0' : String(video.volume || 1);
+            video.addEventListener('loadedmetadata', () => {
+                item.seconds = Math.floor(video.duration || 0);
+                totalTime.textContent = formatTime(video.duration || 0);
+                if (video.poster) {
+                    thumbnail.src = video.poster;
+                    preview.src = video.poster;
+                }
+                if (!lengthAllowed(item.seconds)) {
+                    card.remove();
+                    feed.items = feed.items.filter(x => x !== item);
+                    reindexFeedCards();
+                }
+            });
+            video.addEventListener('timeupdate', () => {
+                currentTime.textContent = formatTime(video.currentTime || 0);
+                if (video.duration) timeline.style.setProperty('--progress-position', video.currentTime / video.duration);
+            });
+            video.addEventListener('play', () => card.classList.remove('paused'));
+            video.addEventListener('pause', () => card.classList.add('paused'));
+            $('.video-controls-container', card).addEventListener('click', e => {
+                const btn = e.target.closest('[data-video-act]');
+                if (!btn) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const act = btn.dataset.videoAct;
+                if (act === 'play') video.paused ? video.play().catch(() => {}) : video.pause();
+                if (act === 'mute') {
+                    video.muted = !video.muted;
+                    if (!video.muted && video.volume === 0) video.volume = .7;
+                    volumeSlider.value = video.muted ? '0' : String(video.volume || .7);
+                    updateVolumeLevel(card, video);
+                }
+                if (act === 'captions') card.classList.toggle('captions');
+                if (act === 'speed') {
+                    const speeds = [.5, .75, 1, 1.25, 1.5, 2];
+                    const next = speeds[(speeds.indexOf(video.playbackRate) + 1) % speeds.length] || 1;
+                    video.playbackRate = next;
+                    speedBtn.textContent = `${next}x`;
+                }
+                if (act === 'mini') video.requestPictureInPicture?.().catch(() => toast('Mini player unavailable here', 'warn', 1400));
+                if (act === 'theater') card.classList.toggle('theater');
+                if (act === 'full') {
+                    if (document.fullscreenElement) document.exitFullscreen?.();
+                    else card.requestFullscreen?.();
+                }
+            });
+            volumeSlider.addEventListener('input', e => {
+                e.stopPropagation();
+                video.volume = Number(volumeSlider.value) || 0;
+                video.muted = video.volume === 0;
+                settings.muted = video.muted;
+                saveSettings();
+                updateVolumeLevel(card, video);
+            });
+            document.addEventListener('fullscreenchange', () => {
+                card.classList.toggle('full-screen', document.fullscreenElement === card);
+            });
+            installTimelineScrub(card, video, timelineContainer, timeline);
+            card.addEventListener('click', e => {
+                if (e.target.closest('a,button')) return;
+                video.paused ? video.play().catch(() => {}) : video.pause();
+            });
+        }
+        scroller.appendChild(card);
+        feed.io?.observe(card);
     }
-
-    function installHubs() {
-        const navToggle = document.querySelector('.navbar-toggle');
-        if (!navToggle) return;
-        const target = navToggle.parentNode;
-        const ref = navToggle.nextSibling;
-
-        // Privacy hub
-        const privacyItems = [
-            { label: 'Settings', icon: 'settings', action: openSettingsModal },
-            { label: 'Status / Debug', icon: 'bell', action: openStatusPanel },
-            { label: 'Smart Download Manager', icon: 'download', action: openDownloadManager },
-            { label: 'Toggle NSFW Blur', icon: 'eye', action: toggleNSFW },
-            { label: 'Toggle Hidden Filter', icon: 'clock', action: () => {
-                const s = document.querySelector('.eu-hidden-slider');
-                if (s) s.classList.toggle('visible');
-                toast('Hidden filter ' + (s?.classList.contains('visible') ? 'on' : 'off'), 'info');
-            } }
-        ];
-        const privacyHub = buildHubMenu('eu-privacy-hub', 'eye', privacyItems, 'Privacy');
-        if (privacyHub) target.insertBefore(privacyHub, ref);
-
-        // View hub (listing pages)
-        if (!IS_ALBUM_PAGE) {
-            const viewItems = [
-                { label: 'Desktop Feed — All', icon: 'cinema', action: () => openDesktopFeed('all') },
-                { label: 'Desktop Feed — Videos', icon: 'video', action: () => openDesktopFeed('videos') },
-                { label: 'Desktop Feed — Photos', icon: 'photo', action: () => openDesktopFeed('photos') },
-                { label: 'Search Loaded Albums', icon: 'eye', action: openAlbumSearch },
-                { label: SETTINGS.lockFeedToSearch !== false ? 'Feed Search Lock: On' : 'Feed Search Lock: Off', icon: 'eye', action: () => { updateSetting('lockFeedToSearch', !(SETTINGS.lockFeedToSearch !== false)); toast(SETTINGS.lockFeedToSearch !== false ? 'Feed locked to current search/listing' : 'Feed can expand into related albums', 'info'); } },
-                { label: SETTINGS.hideSeen ? 'Show Seen Albums' : 'Hide Seen Albums', icon: 'eye', action: () => { updateSetting('hideSeen', !SETTINGS.hideSeen); decorateTrackingBadges(); toast(SETTINGS.hideSeen ? 'Seen albums hidden' : 'Seen albums shown', 'info'); } },
-                { label: SETTINGS.hideDownloaded ? 'Show Downloaded Albums' : 'Hide Downloaded Albums', icon: 'download', action: () => { updateSetting('hideDownloaded', !SETTINGS.hideDownloaded); decorateTrackingBadges(); toast(SETTINGS.hideDownloaded ? 'Downloaded albums hidden' : 'Downloaded albums shown', 'info'); } },
-                { label: 'Sort by Views', icon: 'sort', action: () => sortAlbums('views') },
-                { label: 'Sort by Video Count', icon: 'video', action: () => sortAlbums('videos') },
-                { label: 'Sort by Photo Count', icon: 'photo', action: () => sortAlbums('photos') },
-                { label: 'Toggle Sort Direction', icon: 'sort', action: () => {
-                    STATE.sortAscending = !STATE.sortAscending;
-                    sortAlbums(STATE.sortMode);
-                } },
-                { label: 'Video-Only Albums', icon: 'video', action: toggleVideoOnly }
-            ];
-            const viewHub = buildHubMenu('eu-view-hub', 'sort', viewItems, 'View & Sort');
-            if (viewHub) target.insertBefore(viewHub, ref);
-        }
-
-        // Album hub (album pages)
-        if (IS_ALBUM_PAGE) {
-            const albumItems = [
-                { label: 'TikTok Mode — Videos', icon: 'video', action: () => openTikTok('videos', 'phone') },
-                { label: 'TikTok Mode — Photos', icon: 'photo', action: () => openTikTok('photos', 'phone') },
-                { label: 'TikTok Mode — All', icon: 'cinema', action: () => openTikTok('all', 'phone') },
-                { label: 'Desktop Feed — All', icon: 'cinema', action: () => openDesktopFeed('all') },
-                { label: 'Desktop Feed — Videos', icon: 'video', action: () => openDesktopFeed('videos') },
-                { label: 'Desktop Feed — Photos', icon: 'photo', action: () => openDesktopFeed('photos') },
-                { label: SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album Next Loading: On' : 'Album Next Loading: Off', icon: 'eye', action: () => { updateSetting('allowRelatedAlbumExpansion', !(SETTINGS.allowRelatedAlbumExpansion !== false)); toast(SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album feed will load next albums' : 'Album feed limited to current album', 'info'); } },
-                { label: 'Bulk Download…', icon: 'download', action: openBulkModal },
-                { label: 'Smart Download Manager', icon: 'download', action: openDownloadManager },
-                { label: 'Toggle Download Buttons', icon: 'upload', action: toggleDownloadButtons },
-                { label: 'Toggle Photos', icon: 'photo', action: togglePhotos },
-                { label: 'Toggle Videos', icon: 'video', action: toggleVideos },
-                { label: 'Cinema Mode', icon: 'cinema', action: toggleCinema }
-            ];
-            const albumHub = buildHubMenu('eu-album-hub', 'settings', albumItems, 'Album Tools');
-            if (albumHub) target.insertBefore(albumHub, ref);
-        }
-
-        // Close hubs on outside click
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.eu-hub.open').forEach(h => h.classList.remove('open'));
+    function updateVolumeLevel(card, video) {
+        if (!card || !video) return;
+        let level = 'high';
+        if (video.muted || video.volume === 0) level = 'muted';
+        else if (video.volume < .5) level = 'low';
+        card.dataset.volumeLevel = level;
+    }
+    function installTimelineScrub(card, video, timelineContainer, timeline) {
+        if (!card || !video || !timelineContainer || !timeline) return;
+        const eventPercent = event => {
+            const rect = timelineContainer.getBoundingClientRect();
+            if (!rect.width) return 0;
+            return Math.min(Math.max(0, (event.clientX - rect.left) / rect.width), 1);
+        };
+        const seek = event => {
+            const percent = eventPercent(event);
+            timeline.style.setProperty('--preview-position', percent);
+            timeline.style.setProperty('--progress-position', percent);
+            if (video.duration) video.currentTime = percent * video.duration;
+        };
+        timelineContainer.addEventListener('pointermove', event => {
+            timeline.style.setProperty('--preview-position', eventPercent(event));
+        });
+        timelineContainer.addEventListener('click', event => event.stopPropagation());
+        timelineContainer.addEventListener('pointerdown', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            const wasPaused = video.paused;
+            card.classList.add('scrubbing');
+            video.pause();
+            seek(event);
+            const onMove = moveEvent => seek(moveEvent);
+            const onUp = upEvent => {
+                seek(upEvent);
+                card.classList.remove('scrubbing');
+                document.removeEventListener('pointermove', onMove);
+                document.removeEventListener('pointerup', onUp);
+                if (!wasPaused) video.play().catch(() => {});
+            };
+            document.addEventListener('pointermove', onMove);
+            document.addEventListener('pointerup', onUp, { once: true });
         });
     }
-
-    /* ============================================================
-     *  DISCLAIMER / ACCOUNT BYPASS
-     * ============================================================ */
-    function bypass() {
-        const disc = document.getElementById('disclaimer');
-        if (disc) {
-            disc.remove();
-            document.body.style.overflow = 'visible';
-            try {
-                if (typeof $ !== 'undefined') $.ajax({ type: 'POST', url: '/user/disclaimer', async: true });
-                else fetch('/user/disclaimer', { method: 'POST' });
-            } catch (e) {}
+    function applyVideoPrefs(video) {
+        if (!video) return;
+        video.muted = !!settings.muted;
+        video.loop = !!settings.loop;
+        video.setAttribute('playsinline', '');
+        const card = video.closest('.video-container');
+        const slider = card && $('.volume-slider', card);
+        if (slider) slider.value = video.muted ? '0' : String(video.volume || 1);
+        updateVolumeLevel(card, video);
+    }
+    function pruneFeedByLength(rebuild = true) {
+        const before = feed.items.length;
+        feed.items = feed.items.filter(item => item.kind !== 'video' || !item.seconds || lengthAllowed(item.seconds));
+        if (rebuild && feed.items.length !== before) {
+            const items = [...feed.items];
+            feed.items = [];
+            $('#eu-feed-scroll').innerHTML = '';
+            items.forEach(item => addFeedItems([item]));
         }
-        const needAcc = document.getElementById('needAccount');
-        if (needAcc) needAcc.remove();
+        reindexFeedCards();
+    }
+    function reindexFeedCards() {
+        $$('#eu-feed .eu-feed-item').forEach((card, i) => {
+            card.dataset.index = String(i);
+            if (feed.items[i]) card._euItem = feed.items[i];
+        });
+        feed.index = Math.min(feed.index, Math.max(0, feed.items.length - 1));
+        updateFeedCounter();
+    }
+    function shuffleFeed() {
+        for (let i = feed.items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [feed.items[i], feed.items[j]] = [feed.items[j], feed.items[i]];
+        }
+        $('#eu-feed-scroll').innerHTML = '';
+        const items = [...feed.items];
+        feed.items = [];
+        items.forEach(item => addFeedItems([item]));
+        feed.index = 0;
+        toast('Feed shuffled', 'success');
+    }
+    function feedKeys(event) {
+        if (!feed.open) return;
+        if (event.key === 'Escape') return closeFeed();
+        if (event.key === 'ArrowDown' || event.key.toLowerCase() === 'j') { scrollFeed(1); event.preventDefault(); }
+        if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'k') { scrollFeed(-1); event.preventDefault(); }
+        if (event.key === ' ') {
+            const card = $$('#eu-feed .eu-feed-item')[feed.index];
+            const video = $('video', card);
+            if (video) {
+                video.paused ? video.play().catch(() => {}) : video.pause();
+                event.preventDefault();
+            }
+        }
+        if (event.key.toLowerCase() === 'd') {
+            const item = feed.items[feed.index];
+            if (item) downloadSingle(item.url, filenameFromUrl(item.url), null, item.albumUrl);
+        }
+    }
+    function scrollFeed(delta) {
+        const cards = $$('#eu-feed .eu-feed-item');
+        const next = Math.max(0, Math.min(cards.length - 1, feed.index + delta));
+        cards[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (next >= cards.length - 3) preloadAlbum();
     }
 
-    /* ============================================================
-     *  INFINITE SCROLL (listing pages)
-     * ============================================================ */
+    function copyText(text) {
+        try {
+            if (typeof GM_setClipboard === 'function') GM_setClipboard(text);
+            else navigator.clipboard?.writeText(text);
+            toast('Copied', 'success', 1200);
+        } catch {
+            toast('Copy failed', 'error');
+        }
+    }
+
     function installInfiniteScroll() {
-        if (IS_ALBUM_PAGE) return;
-        if (!document.querySelector('.pagination')) return;
-
-        const container = document.querySelector('#albums') ||
-            document.querySelector('.user-albums') ||
-            document.querySelector('.albums') ||
-            document.querySelector('.page-content');
-        if (!container) return;
-
-        const url = new URL(window.location.href);
-        const currentPage = parseInt(url.searchParams.get('page'), 10) || 1;
-        let nextPage = currentPage + 1;
-        let loading = false;
+        if (isAlbumPage) return;
+        const container = $('#albums, .user-albums, .albums, .page-content');
+        if (!container || !$('.pagination')) return;
+        let page = Number(new URL(location.href).searchParams.get('page') || 1) + 1;
+        let busy = false;
         let stopped = false;
-        let emptyHits = 0;
-
-        const albumKey = (album, baseUrl = location.href) => {
-            const link = album.querySelector('a.album-link, a[href*="/a/"]');
-            const href = link?.getAttribute('href') || link?.href;
-            return href ? new URL(href, baseUrl).href : album.textContent.replace(/\s+/g, ' ').trim().slice(0, 200);
-        };
-
-        const seenAlbums = new Set(Array.from(document.querySelectorAll('.album')).map(a => albumKey(a)));
-
-        const nextPageUrl = () => {
-            url.searchParams.set('page', nextPage);
-            return url.href;
-        };
-
-        async function loadNextPage() {
-            if (loading || stopped) return;
-            loading = true;
-
-            const pageUrl = nextPageUrl();
+        const known = new Set($$('.album').map(album => albumUrl(album)).filter(Boolean));
+        async function loadMore() {
+            if (busy || stopped) return;
+            busy = true;
+            const url = new URL(location.href);
+            url.searchParams.set('page', page);
             try {
-                const res = await fetch(pageUrl, { credentials: 'include' });
+                const res = await fetch(url.href, { credentials: 'include' });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-                const html = await res.text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                const albums = Array.from(doc.querySelectorAll('.album'));
+                const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
                 let added = 0;
-
-                for (const album of albums) {
-                    const key = albumKey(album, pageUrl);
-                    if (!key || seenAlbums.has(key)) continue;
-                    seenAlbums.add(key);
+                $$('.album', doc).forEach(album => {
+                    const urlKey = albumUrl(album, url.href);
+                    if (!urlKey || known.has(urlKey)) return;
+                    known.add(urlKey);
                     container.appendChild(document.importNode(album, true));
                     added++;
-                }
-
-                nextPage++;
-
-                if (added === 0) emptyHits++;
-                else emptyHits = 0;
-
-                refreshAll();
-                decorateTrackingBadges();
-                applyAlbumSearch();
-                if (SETTINGS.performanceMode !== 'lite') loadAlbumLikes();
-
-                if (emptyHits >= 2) {
-                    stopped = true;
-                    window.removeEventListener('scroll', onScroll);
-                    toast('Unlimited loading complete — no more new albums found', 'info', 3000);
-                }
-            } catch (e) {
+                });
+                page++;
+                if (!added) stopped = true;
+                scheduleRefresh('infinite-scroll');
+            } catch (err) {
                 stopped = true;
-                window.removeEventListener('scroll', onScroll);
-                console.warn('[EU] Unlimited scroll stopped:', e);
-                toast('Unlimited loading stopped — no more pages found', 'info', 3000);
+                console.warn('[EU] infinite scroll stopped', err);
             } finally {
-                loading = false;
+                busy = false;
             }
         }
-
-        function onScroll() {
-            const docEl = document.documentElement;
-            const nearBottom = window.innerHeight + window.scrollY >= docEl.scrollHeight - 1200;
-            if (nearBottom) loadNextPage();
-        }
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
+        window.addEventListener('scroll', () => {
+            if (innerHeight + scrollY > document.documentElement.scrollHeight - 1200) loadMore();
+        }, { passive: true });
     }
 
-    /* ============================================================
-     *  PERIODIC REFRESH — runs all decorators
-     * ============================================================ */
-    function refreshAll() {
-        attachDownloadButtons();
-        decorateAlbumCounts();
-        decorateVideoDurations();
-        applyNSFW();
-        applyVideoOnly();
-        applyHiddenFilter();
-        decorateTrackingBadges();
-        applyAlbumSearch();
-        updateFabBadge();
-        enhancePlayers();
-    }
-
-    /* ============================================================
-     *  INITIALIZATION
-     * ============================================================ */
     function init() {
-        console.log(`[${CONFIG.brand}] v${CONFIG.version} initializing…`);
-
-        bypass();
-        installHubs();
-        buildFAB();
-        createHiddenSlider();
-        if (IS_ALBUM_PAGE) markSeenAlbum(location.href);
+        console.log(`[${APP.name}] ${APP.version} booting`);
+        installBlockers();
+        bypassDialogs();
+        buildFab();
+        if (isAlbumPage) markSeen(location.href);
         refreshAll();
-        if (SETTINGS.performanceMode !== 'lite') loadAlbumLikes();
         installInfiniteScroll();
-        applySettingsNow();
-
-        // Periodic refresh for dynamic content; Lite mode scans less often.
-        const refreshMs = SETTINGS.performanceMode === 'lite' ? 6500 : (SETTINGS.performanceMode === 'aggressive' ? 1200 : 3000);
-        setInterval(() => { if (!document.hidden || SETTINGS.performanceMode !== 'lite') refreshAll(); }, refreshMs);
-
-        // MutationObserver for real-time updates
-        const mo = new MutationObserver(() => {
-            clearTimeout(window._euDebounce);
-            const delay = SETTINGS.performanceMode === 'lite' ? 900 : 300;
-            window._euDebounce = setTimeout(refreshAll, delay);
-        });
-        mo.observe(document.body, { childList: true, subtree: true });
-
-        // Welcome toast
-        setTimeout(() => {
-            const n = collectAllMediaUrls().length;
-            toast(`${CONFIG.brand} ready — ${n} media items detected`, 'success', 3500);
-        }, 1200);
-
-        console.log(`[${CONFIG.brand}] ready`);
+        observer = new MutationObserver(() => scheduleRefresh('mutation'));
+        observer.observe(document.body, { childList: true, subtree: true });
+        const interval = settings.performanceMode === 'eco' ? 10000 : settings.performanceMode === 'max' ? 2500 : 5500;
+        setInterval(() => { if (!document.hidden || settings.performanceMode !== 'eco') refreshAll('interval'); }, interval);
+        addEventListener('load', () => setTimeout(refreshAll, 900), { once: true });
+        setTimeout(() => toast(`${APP.name} ready - ${collectMediaUrls().length} media found`, 'success', 3000), 850);
+        window.eromeUltimate = {
+            settings,
+            tracking,
+            feed,
+            refreshAll,
+            openFeed,
+            openDownloadModal,
+            collectMediaUrls,
+            downloadSingle
+        };
+        console.log(`[${APP.name}] ready`);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-
-    window.addEventListener('load', () => { setTimeout(refreshAll, 1000); });
-
-    // Expose API for debugging
-    window.eromeUltimate = {
-        state: STATE,
-        config: CONFIG,
-        collectAllMediaUrls,
-        openBulkModal,
-        openTikTok,
-        openDesktopFeed,
-        openSettingsModal,
-        openStatusPanel,
-        openDownloadManager,
-        tracking: TRACKING,
-        settings: SETTINGS,
-        toast,
-        refreshAll,
-        resetFeedScope,
-        buildNextAlbumQueue
-    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+    else init();
 })();
