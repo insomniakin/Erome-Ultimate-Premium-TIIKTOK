@@ -1,9 +1,8 @@
 // ==UserScript==
-// @name         Erome Ultimate Premium — By SuperNinja
-// @namespace    https://github.com/supernin/erome-ultimate
-// @version      7.1.0
-// @description  The ultimate all-in-one Erome enhancer: TikTok-style vertical feed with Erome-native buttons (Like, Favorite, Comment, Share, Report), background album preloading, downloads (single + bulk ZIP), M3U8/HLS, sort by views/video-count/photo-count, infinite scroll, video-only mode, cinema mode, playback speed, flip video, PiP, NSFW blur, hide photos/videos, album counts, video duration badges, like counts, hidden-by-duration, redirect/popup blocker, modern Twitter-like popup UI.
-// @author       SuperNinja
+// @name         Erome Ultimate Premium — By Insomnia
+// @namespace    https://github.com// @version      7.3.6-hover-length-filter
+// @description  The ultimate all-in-one Erome enhancer: TikTok-style vertical feed plus desktop feed with Erome-native buttons (Like, Favorite, Comment, Share, Report), background album preloading, downloads (single + bulk ZIP), M3U8/HLS, sort by views/video-count/photo-count, infinite scroll, video-only mode, cinema mode, playback speed, flip video, PiP, NSFW blur, hide photos/videos, album counts, video duration badges, like counts, hidden-by-duration, redirect/popup blocker, modern Twitter-like popup UI, persistent settings, seen/downloaded tracking, smart download manager, feed controls, status panel, performance modes, search/listing feed scope, and restored album-page next-album loading, auto-hiding feed tools, logo control toggle, and min/max video-length filtering.
+// @author       Insomniakin
 // @icon         https://www.erome.com/favicon-32x32.png
 // @match        https://*.erome.com/*
 // @match        https://www.erome.com/*
@@ -33,7 +32,7 @@
      * ============================================================ */
     const CONFIG = {
         brand: 'Erome Ultimate',
-        version: '7.1.0',
+        version: '7.3.6-hover-length-filter',
         accent: '#8a5acc',
         accentSoft: '#b39ad6',
         dark: '#14151f',
@@ -49,21 +48,72 @@
     const LOGO_ICON   = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAB/lBMVEWXHiq1mNve4ttgIxyXbNPQcJp1WZuDTzyhUk2fjXHoIVrDp+Day7MQEBs/QDyvK0OtqZvEYGjgn34fIB45LEVfUjxjT2KHY7bABCPCpq4MCxUREBwUEiNVVlQ3NzRISEjGycezhnByWEfNl3mtCCMsKSZnaGmKZ1LR19CuemlLOStTRDd1dXLn7ONwZFWNhnTRmYe0t7Xlp4+HiIjYpIlmSjjk5tuVl5Tqt5OnqaeOdFqNe2fr8uqvlHbEiHEvIxuMWkoUDiDHxrptUTypARurdlu0pI2SBRi9wsJ5eIMJCREICBB0aYusmIcqGxNDOlBlWnKmali9wrnd4dhQQ2c9OkVxOjA+QUFeYWLNuLIQEB2doaLa4+Pm2s59gYS5vMLIioVdYFvinYtcV2R3BxNsFxl0KCWal6S0Z2W1jIaUaNWrFy2rJzbHe2nXtI99gHuwQ1O1WWiqh9dFKBdvWZKWISuUbGOCeomzOETJnKXQoX3Mu8jjxLgkHS5HLSdtTUIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+vwaQAAAAgHRSTlP/////////////////v/////////////////7+/v///////////////////////////////////////////////////////////7nR///////////////////T/////////////////////////////////////////////////zEiVIkAAArlSURBVHja7Zn3X9tIGocNJJtsL9elqMwISVZBxbIQkpHtuGHvYlpCCwRISAKk92w2u5t//d4ZGWODDVifu/vpvsTYOPb76C3zzowm83NX3377y507d34hupOIBd04T+wZMaeVSZ7OfvLGxWIHaQigAzlFGo2RfHkogD1l/8Zl1Yu4AJDKfh9iAKEPkMp8L4I5S+gBnDgwNIMD1Uc4k4bMafsM/cbpnF1EGO5CZmCAzi0/Vu5XP+G0C5mTEhpwQSBioiTLPV/5C39KlwP0J0Amf8vwXZZYkGWjx54gcIkEeAUP49wsZAY5cIMlRr/jgWDo1CinUH0BmucUEwR/wS9BlgWO7a2kCwHJh3mlItiBaQYBZ5CLVDzbfmH/Y+zrsbHHS3bFdd3A9sTQ5gWDN0tnG8cAQN8QYA0Sgf39/aWlJBqmiTnDePv4ypUrj1sB2HfDoBE2Ao7n79nyRYCz/YclYcbY6gjDdcq8ruvC35c+hEHoJgrDsGG+CIKLAAO6KMsllkm0FdMydN0wDGzoxt90o+1WsiJRBeSuuGGjH8AMBjD9AEwTSWWbYBhXfbVaVVXVKBnt7DTRrSwRMFz+5ugeYCWJPJi34NqtajVSlyUQwqVqZWr6BFFZOQVg+glDPLAEgzM5zi7YFly+alUjrZ7P5XL5vKQuFKanpoYD2DOAQUm2sAF5tuwoIg6oOEJ1KTczAwSpqE9UZk9cECsrCWAIIcMMmipZq2CahUJBrfqG7keqilAR7BPlwIX27IkLBMCc78FAgGmDClUdALgQFeK6NNMB5NFEBDGaOh/ADgEwXQ+I/YiUJwAKcVzPdwAz+aKPs7P/EQAkmNQ/xKcRUcA3FCBV/cpxjEQxOxqA7QNgGLy6UUBxvozV4yDlpLKxOZvECDrHa/EiADsMEKMqDDEAxHmnXkSIAiQNSaqfp4DxsSuvXz8eq6QGxL5RIh7Ez+vLRUkiQfoJqWUYFY0pCngN3fX12DepALb9ZRsAuu7rWv63a2VU1BAJD5HqN6ZJEsY/Pb569fFu1wNmNEA7jquGUb5moOfx2sKff/ooPyNFKN8FTE3Pfv3VV2PZipHOgxhCpONyXY2fk7ioCGKUxzrGdVxt3KWAW9NXr2YrojHAgwsHGnjQQL6Brz1blvKQYAcEjQKpn40I40ZlNilU0owGAtjLAGwMbbpe/03Sik4eWh1NgONI2Ip/oICpkOMCURRGADAngEYjAoCvFaW4XryfI/bz4EY+J1XVuD1FYpRVRJFzRwKwvQAL+/CTk1D92f0cqSAYxsQRX41jmuUsF4ZDAMwlPIgxzMrVBb/+ZQdQlopg/77mqyimWb5ciNjBgKBh+xZWqwslFdW1n2iIissSPFVxFzAFvUhM54EXNCLDslS/VMISmQ3AcvEZJDun6mqE2gmAttMLAUz/HoV++B4FqATwp0+KB1rFs8PD688cSccosjsjjRBSA2LLiADwRtfJ6I2Xy4d7e3uaVNdRpEbtaVKnUyumEmYvFyKmH8B5bWSRudKHhl3+DVxYvu449+87pIQwjiAHALilmC+4lWxKgI39QkQABi4CAWk5Iu0NUkmWCWAWytTl3CyXAJhzQ3QG8GUBYwLwjSq0ISlf18hgy/lvNB9bqv3NLHEh4DgPxlof4NQmJ9O/PTgB2BG2ClEVlnS4A4BmdD+nlurYV9VokwC2s64LhUoBbC9gwPL9ZKPcBYD9yCdrRpgtn0vFokNDtGDFuhVFjSkAZOmkL44EYLoANSrYKukVBQDAeovaz6EFPUY+zHekTrdv0TK9GJC81QHQHRdn22ohskkzsmxcz5M2SleOjv7Gb0cYdZqR98I9BjAn13gugOkAoghSjH2/itfKSEoAeSfvlCceVTVYS9IZ4YUXKJ0q6lgeciuBZfoBDABgGFtl3V+bIL0NLt0hD8cpz81NrKnla2XoFtuKK8JI6wUw59xtYXoBBRVjVcW6//AhrHxjhwII4t0cKPPuXWbuycuPBdgQNk8AzAUApgcABQrbDeyvPXiowsqLhIg64DwF+5O1Wm1ysjZXO/ohWGnSHLCjAlSwb+Hrjx7NzfmWhpCGiHWoVSn3IxgnqmVebZIiSgDMEGXOvNMJkRVZGK+B/do7rEaaWnecvT1E58zJjuZebgNgZVQAITACVBHG1x5l5sDQk8yvmacvHWnzblHTtGL+144Lc6+yYdAU0wE8pPqfM9T+5OQ/IR5PUf53mDKfP5+ZOTwG7AWCYq5k76UAcO0CJPjh3GRXTzQHll5QR9CXjl3YVLyAS8p0VMDOUYTXJh5kOtZrXx1mNn8vFkm265rkPCWE2tPxD5wJAy2NB14jqj560HWg9mq5ctfRluvUCSmWCKH2ckr0TGgVG8xw+8MBqv/wBDB5vXjUrozDUECaBpQYPalN1n4cF6GdNkcGgMMMbGB7M1C7Xtbu/u44m9MkTnWE4peTT2pXt+kthea9UQHsDQbH6lrHgRoZtr8uL6Pl8tra4V6e7JURan/a/Phpe1x0s2KTSwEQkProQYaYfvL9q6sfN0VR096XQctkIMzAFL05vr1NVnYmHQejA2z14YPJ71/tffwk0pse2c33mob2SL+ANDjghJiFxa8ZCmFKAJ44/JdIF24iXR82tCPnCBFBy1528sVwOysqipeMgxQhwgWxqyyMWHQEV94RAoKUhxS7CllVQJKZFICg6XYJgoGIeVijJs/LmiTR21LwmaaojAqAz39nW6HbBInNUBRDQWkT88cASHSxkRV3m7sUkQbAFwqu6+7uNpsu6TcKhyigmABgoYTAAXeXmHebqQCWR277NQPIogC1qLxPCIgAyqojtcVs090NlQ0vFYCVrTYFmLzAeYIimNb74wzDlrbooAZkONxVPI8LUgKSe5chuY9sCoKpcHa7fYRUtVxWNQhUCLHZCjnT47zdVAAzBLmh6wmrMJgAQG6TbgVkRw6x0myFc13voCVwyla4kSrJwVZIFQThlifwHDwHgYcpoBBZHB+ELS/wWkGwxaUA6IUgCA62tuDrgQd2TGVdgHdMnhDIegYLXmC2vC03hCJLESLe3AG7xHYAGdiAXCq8GXiKLGBIAixoqsKOt6GYpgdKA2CX3r6dn2/NU91evH37i7eLYAqKCnfkY0XYVwReae0IIwNusiw3ryjzrVaLnBMowir8KIrZ6gUYxiq3KrRkxRwdAEs8AcIDxqFIeTBNzj0UfsOEEHGG3wHo+qK8aspcOgDPwQgmJygcOVIR5FV6DMLLAi8bhv/ZMAxyw1CXWZ7bWE8DYIXbVMIi0eoieb0EIRfIOYLRtQ/XoQt8CgDLLkICDrx57+CDN/+h5R0cHHjkOIR4ox9LlhdK6+DT8OnmHMBfl5b251tLS1BFS/NLCqkmsM+zMkvPQhL7ZM/CLy6kArB/0OD88ceqAGFahd9Eq7JMj73IQ5ZL7I4CWUjlASMbkFROuMdxHC2mDXLSRY7NhMQ4sb/Aci0uLYAHQxBwk1glZ3IcPZ5LjurkUiKIjXwjLSB5Jmd19IrpkePxWeAxAAgsW0oHWKDiN8iBn6JsEDf2ydEfPQPcF2ilJrUq7PDMyACGXShBjEs8aQ8m6RjEbmuntePt0JcCjDYQYXAcmwbA8pYiL8jCuiCsr8O/9XUanPXjIHVVYs+1PwzA9Gz9B/5397AdWmMqAMNc8jj/fPPnAUjbvnnjZtfQIDEXK8P8l/V/wP8G8Msp/dyjfwM+3QqIogQPIQAAAABJRU5ErkJggg==';
 
 
+    const DEFAULT_SETTINGS = {
+        defaultFeedLayout: 'desktop',      // 'phone' | 'desktop'
+        defaultFeedType: 'all',           // 'videos' | 'photos' | 'all'
+        performanceMode: 'normal',        // 'lite' | 'normal' | 'aggressive'
+        autoplay: true,
+        muteVideos: false,
+        loopVideos: true,
+        autoResume: true,
+        fitMode: 'contain',               // 'contain' | 'cover' | 'natural'
+        showSeenBadges: true,
+        hideSeen: false,
+        hideDownloaded: false,
+        skipDownloadedInDownloads: false,
+        zipFolders: true,
+        retryDownloads: true,
+        showDownloadButtons: true,
+        hiddenSeconds: 0,              // legacy min-length value
+        minVideoSeconds: 0,             // 0 = off; hide videos shorter than this
+        maxVideoSeconds: 0,             // 0 = off; hide videos longer than this
+        sortMode: 'views',
+        sortAscending: false,
+        albumSearch: '',
+        lockFeedToSearch: true,          // listing/search feeds stay inside the current result set/pagination
+        allowRelatedAlbumExpansion: true,  // album-page feeds preload next/related albums by default
+        strictSearchTitleMatch: false,   // optional extra filter: album card/title must contain a search word
+        feedControlsAutoHide: true,      // hide the feed tools/search/shuffle row after a moment
+        feedControlsPinned: false,       // keep feed tools visible until manually hidden
+        lastFeed: null
+    };
+
+    const SETTINGS = Object.assign({}, DEFAULT_SETTINGS, loadJSON('eu_settings_v73', {}));
+
+    const TRACKING = {
+        seenAlbums: new Set(loadJSON('eu_seen_albums_v1', [])),
+        downloadedMedia: new Set(loadJSON('eu_downloaded_media_v1', [])),
+        downloadedAlbums: new Set(loadJSON('eu_downloaded_albums_v1', [])),
+        hiddenAlbums: new Set(loadJSON('eu_hidden_albums_v1', [])),
+        favorites: loadJSON('eu_favorites_v1', [])
+    };
+
+    const DLX = {
+        running: false,
+        cancel: false,
+        done: 0,
+        total: 0,
+        ok: 0,
+        failed: []
+    };
+
     const STATE = {
         showPhotos: true,
         showVideos: true,
-        showDownloadButtons: true,
+        showDownloadButtons: SETTINGS.showDownloadButtons !== false,
         cinemaMode: false,
         nsfwBlur: loadBool('eu_nsfw', false),
-        hiddenSeconds: 0,
+        hiddenSeconds: Math.max(0, Number(SETTINGS.minVideoSeconds || SETTINGS.hiddenSeconds) || 0),
+        maxVideoSeconds: Math.max(0, Number(SETTINGS.maxVideoSeconds) || 0),
         videoOnlyMode: loadBool('eu_video_only', false),
-        sortAscending: false,
-        sortMode: 'views', // 'views' | 'videos' | 'photos'
+        sortAscending: !!SETTINGS.sortAscending,
+        sortMode: SETTINGS.sortMode || 'views', // 'views' | 'videos' | 'photos'
         videoDurations: new Map(),
         downloadQueue: [],
         downloadInProgress: false,
         tiktokMode: false,
-        tiktokType: 'videos', // 'videos' | 'photos' | 'all'
+        tiktokLayout: SETTINGS.defaultFeedLayout === 'desktop' ? 'desktop' : 'phone', // 'phone' | 'desktop'
+        tiktokType: SETTINGS.defaultFeedType || 'videos', // 'videos' | 'photos' | 'all'
         tiktokIndex: 0
     };
 
@@ -73,6 +123,41 @@
     }
     function saveBool(key, val) {
         try { localStorage.setItem(key, val ? 'true' : 'false'); } catch (e) {}
+    }
+    function loadJSON(key, def) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : def;
+        } catch (e) { return def; }
+    }
+    function saveJSON(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    }
+    function saveSettings() {
+        saveJSON('eu_settings_v73', SETTINGS);
+    }
+    function updateSetting(key, value) {
+        SETTINGS[key] = value;
+        saveSettings();
+    }
+
+    // 7.3.3 migration: 7.3.1 saved album-page feeds as "Current album only".
+    // Restore the old behavior one time so album pages preload the next/related album again.
+    (function migrateV733NextAlbumDefault() {
+        try {
+            const key = 'eu_migrated_v733_album_next_restored';
+            if (localStorage.getItem(key) !== '1') {
+                SETTINGS.allowRelatedAlbumExpansion = true;
+                saveSettings();
+                localStorage.setItem(key, '1');
+            }
+        } catch (e) {
+            SETTINGS.allowRelatedAlbumExpansion = true;
+        }
+    })();
+    function saveLimitedSet(key, set, limit = 2500) {
+        const arr = Array.from(set).filter(Boolean);
+        saveJSON(key, arr.slice(Math.max(0, arr.length - limit)));
     }
 
     const IS_ALBUM_PAGE = /^\/a\//.test(window.location.pathname);
@@ -646,6 +731,31 @@
 
     /* ---------- Utility ---------- */
     .eu-hidden-video { display: none !important; }
+
+    /* ---------- Video-Only Filter (no gaps!) ---------- */
+    .eu-filtered-out {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        pointer-events: none !important;
+    }
+    /* Compact grid auto-flow so remaining items reflow with no empty slots */
+    .eu-grid-compact {
+        display: grid !important;
+        grid-auto-flow: row dense !important;
+    }
+    /* Some Erome templates use flex-wrap — ensure items reflow */
+    .user-albums.eu-grid-compact,
+    .albums.eu-grid-compact {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+    }
     .eu-spinner {
         width: 14px; height: 14px;
         border: 2px solid rgba(255,255,255,.3);
@@ -733,6 +843,62 @@
         return (name || '').replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_').substring(0, 60);
     }
 
+    function normalizeUrl(url, base = location.href) {
+        if (!url) return '';
+        try {
+            const u = new URL(url, base);
+            u.hash = '';
+            return u.href;
+        } catch (e) { return url || ''; }
+    }
+    function getAlbumUrlFromElement(album, base = location.href) {
+        const link = album?.querySelector?.('a.album-link, a[href*="/a/"]');
+        const href = link?.getAttribute('href') || link?.href || '';
+        return href ? normalizeUrl(href, base) : '';
+    }
+    function currentAlbumUrl() {
+        return IS_ALBUM_PAGE ? normalizeUrl(location.href) : '';
+    }
+    function markSeenAlbum(url) {
+        const clean = normalizeUrl(url || currentAlbumUrl());
+        if (!clean) return;
+        TRACKING.seenAlbums.add(clean);
+        saveLimitedSet('eu_seen_albums_v1', TRACKING.seenAlbums);
+    }
+    function markDownloadedMedia(url, albumUrl = '') {
+        const media = normalizeUrl(url);
+        if (media) TRACKING.downloadedMedia.add(media);
+        const album = normalizeUrl(albumUrl || currentAlbumUrl());
+        if (album) TRACKING.downloadedAlbums.add(album);
+        saveLimitedSet('eu_downloaded_media_v1', TRACKING.downloadedMedia, 5000);
+        saveLimitedSet('eu_downloaded_albums_v1', TRACKING.downloadedAlbums, 2500);
+    }
+    function saveFavoriteItem(item) {
+        if (!item || !item.url) return;
+        const clean = normalizeUrl(item.url);
+        const exists = TRACKING.favorites.some(f => f.url === clean);
+        if (!exists) {
+            TRACKING.favorites.unshift({
+                url: clean,
+                kind: item.kind || 'media',
+                albumUrl: normalizeUrl(item.albumUrl || ''),
+                title: item.title || 'Media',
+                username: item.username || 'Erome',
+                savedAt: new Date().toISOString()
+            });
+            TRACKING.favorites = TRACKING.favorites.slice(0, 1000);
+            saveJSON('eu_favorites_v1', TRACKING.favorites);
+        }
+    }
+    function exportTextFile(name, text) {
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const u = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = u; a.download = name; a.style.display = 'none';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(u), 5000);
+    }
+
     function gmRequest(opts) {
         const fn = (typeof GM !== 'undefined' && GM.xmlHttpRequest) ? GM.xmlHttpRequest
                  : (typeof GM_xmlhttpRequest !== 'undefined' ? GM_xmlhttpRequest : null);
@@ -762,6 +928,18 @@
         });
     }
 
+    async function downloadBlobWithRetry(url, attempts = 2) {
+        let lastErr;
+        for (let i = 0; i < Math.max(1, attempts); i++) {
+            try { return await downloadBlob(url); }
+            catch (e) {
+                lastErr = e;
+                await new Promise(r => setTimeout(r, 500 + (i * 350)));
+            }
+        }
+        throw lastErr;
+    }
+
     async function downloadSingle(url, filename, btn) {
         const name = filename || getFilename(url);
         const originalHTML = btn ? btn.innerHTML : null;
@@ -778,6 +956,8 @@
             a.href = tmp; a.download = name; a.style.display = 'none';
             document.body.appendChild(a); a.click(); a.remove();
             setTimeout(() => URL.revokeObjectURL(tmp), 5000);
+            markDownloadedMedia(url, arguments[3] || currentAlbumUrl());
+            decorateTrackingBadges();
             toast(`Downloaded: ${name}`, 'success');
         } catch (err) {
             console.error('[EU] Download failed:', err);
@@ -934,27 +1114,93 @@
         });
     }
 
+
+    function decorateTrackingBadges() {
+        if (IS_ALBUM_PAGE) markSeenAlbum(location.href);
+
+        document.querySelectorAll('.album').forEach(album => {
+            const albumUrl = getAlbumUrlFromElement(album);
+            if (!albumUrl) return;
+
+            const thumb = album.querySelector('.album-thumbnail-container') || album;
+            thumb.style.position = thumb.style.position || 'relative';
+
+            const isSeen = TRACKING.seenAlbums.has(albumUrl);
+            const isDownloaded = TRACKING.downloadedAlbums.has(albumUrl);
+
+            if (SETTINGS.showSeenBadges && isSeen && !thumb.querySelector('.eu-tracking-badge.eu-seen')) {
+                const b = document.createElement('div');
+                b.className = 'eu-tracking-badge eu-seen';
+                b.textContent = 'Seen';
+                thumb.appendChild(b);
+            }
+            if (SETTINGS.showSeenBadges && isDownloaded && !thumb.querySelector('.eu-tracking-badge.eu-downloaded')) {
+                const b = document.createElement('div');
+                b.className = 'eu-tracking-badge eu-downloaded';
+                b.textContent = 'Downloaded';
+                thumb.appendChild(b);
+            }
+
+            album.classList.toggle('eu-track-filtered-out',
+                (SETTINGS.hideSeen && isSeen) ||
+                (SETTINGS.hideDownloaded && isDownloaded) ||
+                TRACKING.hiddenAlbums.has(albumUrl)
+            );
+
+            const link = album.querySelector('a.album-link, a[href*="/a/"]');
+            if (link && !link.dataset.euTrackSeen) {
+                link.dataset.euTrackSeen = '1';
+                link.addEventListener('click', () => markSeenAlbum(albumUrl), { capture: true });
+            }
+        });
+    }
+
+    function applyAlbumSearch() {
+        const q = (SETTINGS.albumSearch || '').trim().toLowerCase();
+        document.querySelectorAll('.album').forEach(album => {
+            if (!q) { album.classList.remove('eu-search-filtered-out'); return; }
+            const text = album.textContent.toLowerCase();
+            const href = getAlbumUrlFromElement(album).toLowerCase();
+            album.classList.toggle('eu-search-filtered-out', !(text.includes(q) || href.includes(q)));
+        });
+    }
+
+    function openAlbumSearch() {
+        const q = prompt('Search loaded albums by title, creator, or URL. Leave blank to clear.', SETTINGS.albumSearch || '');
+        if (q === null) return;
+        updateSetting('albumSearch', q.trim());
+        applyAlbumSearch();
+        toast(q.trim() ? `Search filter: ${q.trim()}` : 'Search filter cleared', 'info');
+    }
+
     /* ============================================================
      *  LIKE COUNTS ON ALBUMS (listing page)
      * ============================================================ */
     async function loadAlbumLikes() {
-        if (IS_ALBUM_PAGE) return;
-        const albums = Array.from(document.querySelectorAll('.album-link')).slice(0, 30); // limit to prevent lag
+        if (IS_ALBUM_PAGE || SETTINGS.performanceMode === 'lite') return;
+
+        // Unlimited: process every album currently loaded, not just the first 30.
+        // dataset.euLiked keeps this cheap on repeat calls; small pauses keep the UI responsive.
+        const albums = Array.from(document.querySelectorAll('.album-link'));
         for (const a of albums) {
             if (a.dataset.euLiked) continue;
             a.dataset.euLiked = '1';
             try {
-                const res = await fetch(a.href);
+                const res = await fetch(a.href, { credentials: 'include' });
                 const text = await res.text();
                 const doc = new DOMParser().parseFromString(text, 'text/html');
                 const likeArea = doc.querySelector('#like_count') || doc.querySelector('.far.fa-heart.fa-lg');
                 const count = likeArea?.nextElementSibling?.firstChild?.textContent?.trim() || 0;
                 if (+count < 1) continue;
                 const viewSec = a.parentElement.querySelector('.album-bottom-right .album-images');
-                if (!viewSec) continue;
+                if (!viewSec || viewSec.querySelector('.eu-likes-badge')) continue;
                 viewSec.insertAdjacentHTML('afterbegin',
                     `<span class="eu-likes-badge">${ICONS.heart} ${count}</span>`);
             } catch (e) { /* silent */ }
+
+            // Avoid hammering the browser/site when many albums are loaded.
+            const likeDelay = SETTINGS.performanceMode === 'aggressive' ? 25 : 100;
+            await new Promise(r => setTimeout(r, likeDelay));
         }
     }
 
@@ -983,6 +1229,8 @@
 
     function sortAlbums(mode) {
         if (mode) STATE.sortMode = mode;
+        updateSetting('sortMode', STATE.sortMode);
+        updateSetting('sortAscending', STATE.sortAscending);
         const container = document.querySelector('#albums') || document.querySelector('.page-content');
         if (!container) return;
         const albums = Array.from(container.querySelectorAll('.album'));
@@ -1023,6 +1271,7 @@
         document.querySelectorAll('.eu-dl-btn').forEach(btn => {
             btn.style.display = STATE.showDownloadButtons ? '' : 'none';
         });
+        updateSetting('showDownloadButtons', STATE.showDownloadButtons);
         toast(STATE.showDownloadButtons ? 'Download buttons visible' : 'Download buttons hidden', 'info');
     }
     function toggleNSFW() {
@@ -1054,24 +1303,147 @@
         toast(STATE.videoOnlyMode ? 'Showing video albums only' : 'Showing all albums', 'info');
     }
     function applyVideoOnly() {
+        // Use a CSS class so layout reflows cleanly (no orphan grid rows / gaps)
         document.querySelectorAll('.album').forEach(a => {
             const hasVideo = !!a.querySelector('.album-videos');
-            a.style.display = (STATE.videoOnlyMode && !hasVideo) ? 'none' : '';
+            if (STATE.videoOnlyMode && !hasVideo) {
+                a.classList.add('eu-filtered-out');
+            } else {
+                a.classList.remove('eu-filtered-out');
+            }
         });
+
+        // Also hide empty placeholder slots that some Erome templates leave behind
+        document.querySelectorAll('.album-placeholder, .album-empty, .albums .placeholder').forEach(el => {
+            if (STATE.videoOnlyMode) el.classList.add('eu-filtered-out');
+            else el.classList.remove('eu-filtered-out');
+        });
+
+        // Force the parent grid/flex container to reflow by toggling a class
+        const containers = document.querySelectorAll('.user-albums, .albums, .user-content, #albums');
+        containers.forEach(c => {
+            c.classList.toggle('eu-grid-compact', STATE.videoOnlyMode);
+        });
+    }
+
+    /* ============================================================
+     *  VIDEO LENGTH FILTERS
+     * ============================================================ */
+    function getMinVideoSeconds() {
+        return Math.max(0, Number(SETTINGS.minVideoSeconds || SETTINGS.hiddenSeconds || 0) || 0);
+    }
+
+    function getMaxVideoSeconds() {
+        return Math.max(0, Number(SETTINGS.maxVideoSeconds || 0) || 0);
+    }
+
+    function videoLengthAllowed(seconds) {
+        const s = Number(seconds) || 0;
+        if (!s || !isFinite(s)) return true; // unknown length is allowed until metadata loads
+        const min = getMinVideoSeconds();
+        const max = getMaxVideoSeconds();
+        if (min > 0 && s < min) return false;
+        if (max > 0 && s > max) return false;
+        return true;
+    }
+
+    function getLengthFilterLabel() {
+        const min = getMinVideoSeconds();
+        const max = getMaxVideoSeconds();
+        if (min > 0 && max > 0) return `Length ${min}-${max}s`;
+        if (min > 0) return `Length ${min}s+`;
+        if (max > 0) return `Length ≤${max}s`;
+        return 'Length Any';
+    }
+
+    function explainLengthFilter(seconds) {
+        const s = Number(seconds) || 0;
+        const min = getMinVideoSeconds();
+        const max = getMaxVideoSeconds();
+        if (min > 0 && s > 0 && s < min) return `under ${min}s`;
+        if (max > 0 && s > 0 && s > max) return `over ${max}s`;
+        return '';
+    }
+
+    function refreshFeedIndexes() {
+        document.querySelectorAll('#eu-tiktok-feed .eu-tiktok-item').forEach((card, idx) => {
+            card.dataset.idx = idx;
+        });
+    }
+
+    function filterOutFeedVideoByLength(item, card, seconds) {
+        if (!item || !card || videoLengthAllowed(seconds)) return false;
+        const reason = explainLengthFilter(seconds);
+        const oldIndex = Number(card.dataset.idx) || 0;
+        TT.items = TT.items.filter(x => x.url !== item.url);
+        card.remove();
+        refreshFeedIndexes();
+        STATE.tiktokIndex = Math.min(STATE.tiktokIndex, Math.max(0, TT.items.length - 1));
+        updateTikTokCounter();
+        updateFeedStatus();
+
+        const cards = document.querySelectorAll('#eu-tiktok-feed .eu-tiktok-item');
+        if (cards.length) {
+            cards[Math.min(oldIndex, cards.length - 1)]?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+        if (TT.items.length < 5 || STATE.tiktokIndex >= TT.items.length - 3) {
+            setTimeout(() => preloadNextAlbum(), 160);
+        }
+        if (reason) console.log(`[EU] Length-filtered feed video (${reason}):`, item.url);
+        return true;
+    }
+
+    function pruneKnownFeedVideosByLength() {
+        const before = TT.items.length;
+        TT.items = TT.items.filter(item => item.kind !== 'video' || !item.duration || videoLengthAllowed(item.duration));
+        if (TT.items.length !== before) {
+            rebuildFeedFromItems(Math.min(STATE.tiktokIndex, Math.max(0, TT.items.length - 1)));
+            if (TT.items.length < 5) setTimeout(() => preloadNextAlbum(), 160);
+        }
+    }
+
+    function promptLengthFilter() {
+        const minNow = getMinVideoSeconds();
+        const maxNow = getMaxVideoSeconds();
+        const minRaw = prompt('Minimum video length in seconds. Use 0 for no minimum.', String(minNow));
+        if (minRaw === null) return;
+        const maxRaw = prompt('Maximum video length in seconds. Use 0 for no maximum.', String(maxNow));
+        if (maxRaw === null) return;
+        const min = Math.max(0, Math.floor(Number(minRaw) || 0));
+        const max = Math.max(0, Math.floor(Number(maxRaw) || 0));
+        if (min > 0 && max > 0 && min > max) {
+            toast('Min length cannot be higher than max length', 'error');
+            return;
+        }
+        updateSetting('minVideoSeconds', min);
+        updateSetting('hiddenSeconds', min); // keep the older bottom-left album filter in sync
+        updateSetting('maxVideoSeconds', max);
+        STATE.hiddenSeconds = min;
+        STATE.maxVideoSeconds = max;
+        applyHiddenFilter();
+        pruneKnownFeedVideosByLength();
+        updateFeedTools();
+        toast(`${getLengthFilterLabel()} filter saved`, 'success');
     }
 
     /* ============================================================
      *  HIDDEN BY DURATION (bottom-left slider)
      * ============================================================ */
     function applyHiddenFilter() {
+        const minSeconds = getMinVideoSeconds();
+        const maxSeconds = getMaxVideoSeconds();
+        STATE.hiddenSeconds = minSeconds;
+        STATE.maxVideoSeconds = maxSeconds;
         document.querySelectorAll('.video').forEach(vc => {
-            const video = vc.querySelector('.video-js video');
+            const video = vc.querySelector('.video-js video, video');
             if (!video || !video.dataset.length) { vc.classList.remove('eu-hidden-video'); return; }
-            const len = parseInt(video.dataset.length);
-            if (STATE.hiddenSeconds > 0 && len < STATE.hiddenSeconds) {
+            const len = parseInt(video.dataset.length, 10);
+            if ((minSeconds > 0 && len < minSeconds) || (maxSeconds > 0 && len > maxSeconds)) {
                 vc.classList.add('eu-hidden-video');
+                vc.title = `Hidden by length filter: ${getLengthFilterLabel()}`;
             } else {
                 vc.classList.remove('eu-hidden-video');
+                if (vc.title && vc.title.startsWith('Hidden by length filter')) vc.title = '';
             }
         });
     }
@@ -1082,9 +1454,9 @@
 
         const btn = document.createElement('button');
         btn.className = 'eu-hidden-slider';
-        btn.dataset.count = '0';
+        btn.dataset.count = String(getMinVideoSeconds() || 0);
         btn.innerHTML = ICONS.clock;
-        btn.title = 'Hide videos shorter than (seconds)';
+        btn.title = 'Min video length: hide videos shorter than this many seconds';
 
         btn.addEventListener('mouseenter', () => {
             const n = parseInt(btn.dataset.count);
@@ -1097,9 +1469,11 @@
             if (n >= 100) n = 0;
             btn.dataset.count = n;
             STATE.hiddenSeconds = n;
+            updateSetting('minVideoSeconds', n);
+            updateSetting('hiddenSeconds', n);
             btn.innerHTML = n > 0 ? `${n}s` : 'OFF';
             applyHiddenFilter();
-            toast(n > 0 ? `Hiding videos shorter than ${n}s` : 'Duration filter off', 'info');
+            toast(n > 0 ? `Minimum video length: ${n}s` : 'Minimum length filter off', 'info');
         });
 
         document.body.appendChild(btn);
@@ -1251,6 +1625,8 @@
               <div class="eu-option-group">
                 <div class="eu-option-title">Output</div>
                 <label class="eu-option"><input type="checkbox" id="eu-zip" checked><span class="eu-check"></span>Package as ZIP</label>
+                <label class="eu-option"><input type="checkbox" id="eu-zip-folders" ${SETTINGS.zipFolders ? 'checked' : ''}><span class="eu-check"></span>Folder ZIP by album/title</label>
+                <label class="eu-option"><input type="checkbox" id="eu-skip-downloaded" ${SETTINGS.skipDownloadedInDownloads ? 'checked' : ''}><span class="eu-check"></span>Skip already downloaded media</label>
                 <div class="eu-zip-preview" id="eu-zip-name"></div>
               </div>
               <div class="eu-option-group">
@@ -1258,6 +1634,7 @@
                 <div class="eu-zip-preview" id="eu-stats">Scanning…</div>
               </div>
               <button class="eu-btn-primary" id="eu-start-dl">${ICONS.download}<span>Start Download</span></button>
+              <button class="eu-btn-secondary" id="eu-open-dlx" style="margin-top:10px;">Open Smart Download Manager</button>
               <div class="eu-progress-box">
                 <div class="eu-progress-bar"><div class="eu-progress-fill" id="eu-progress-fill"></div></div>
                 <div class="eu-progress-text" id="eu-progress-text">Ready</div>
@@ -1280,6 +1657,9 @@
         document.getElementById('eu-zip').addEventListener('change', refreshPreview);
 
         document.getElementById('eu-start-dl').onclick = () => bulkDownload(overlay);
+        document.getElementById('eu-open-dlx').onclick = () => { overlay.classList.remove('open'); openDownloadManager(); };
+        document.getElementById('eu-zip-folders').addEventListener('change', e => updateSetting('zipFolders', e.target.checked));
+        document.getElementById('eu-skip-downloaded').addEventListener('change', e => updateSetting('skipDownloadedInDownloads', e.target.checked));
 
         // Refresh preview whenever opened
         overlay.dataset.refresh = '1';
@@ -1299,6 +1679,10 @@
 
         const type = overlay.querySelector('input[name="eu-type"]:checked').value;
         const asZip = overlay.querySelector('#eu-zip').checked;
+        const zipFolders = overlay.querySelector('#eu-zip-folders')?.checked ?? SETTINGS.zipFolders;
+        const skipDownloaded = overlay.querySelector('#eu-skip-downloaded')?.checked ?? SETTINGS.skipDownloadedInDownloads;
+        updateSetting('zipFolders', zipFolders);
+        updateSetting('skipDownloadedInDownloads', skipDownloaded);
         const btn = overlay.querySelector('#eu-start-dl');
         const fill = overlay.querySelector('#eu-progress-fill');
         const text = overlay.querySelector('#eu-progress-text');
@@ -1306,6 +1690,7 @@
         let urls = collectAllMediaUrls();
         if (type === 'images') urls = urls.filter(isImageUrl);
         if (type === 'videos') urls = urls.filter(isVideoUrl);
+        if (skipDownloaded) urls = urls.filter(u => !TRACKING.downloadedMedia.has(normalizeUrl(u)));
 
         if (urls.length === 0) { toast('No media found', 'error'); return; }
 
@@ -1321,12 +1706,14 @@
                 let ok = 0;
                 for (let i = 0; i < urls.length; i++) {
                     const url = urls[i];
-                    const name = `${String(i + 1).padStart(3, '0')}_${getFilename(url)}`;
-                    text.textContent = `Downloading ${i + 1}/${urls.length}: ${name.substring(0, 30)}`;
+                    const baseName = `${String(i + 1).padStart(3, '0')}_${getFilename(url)}`;
+                    const name = zipFolders ? `${getPageTitle()}/${baseName}` : baseName;
+                    text.textContent = `Downloading ${i + 1}/${urls.length}: ${baseName.substring(0, 30)}`;
                     fill.style.width = `${(i / urls.length) * 100}%`;
                     try {
-                        const blob = await downloadBlob(url);
+                        const blob = await downloadBlobWithRetry(url, SETTINGS.retryDownloads ? 2 : 1);
                         zip.file(name, await blob.arrayBuffer());
+                        markDownloadedMedia(url, currentAlbumUrl());
                         ok++;
                     } catch (e) {
                         zip.file(`ERROR_${i + 1}.txt`, `URL: ${url}\nError: ${e}`);
@@ -1355,18 +1742,20 @@
                     text.textContent = `Downloading ${i + 1}/${urls.length}`;
                     fill.style.width = `${(i / urls.length) * 100}%`;
                     try {
-                        const blob = await downloadBlob(url);
+                        const blob = await downloadBlobWithRetry(url, SETTINGS.retryDownloads ? 2 : 1);
                         const u = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = u; a.download = name; a.style.display = 'none';
                         document.body.appendChild(a); a.click(); a.remove();
                         setTimeout(() => URL.revokeObjectURL(u), 5000);
+                        markDownloadedMedia(url, currentAlbumUrl());
                         ok++;
-                        await new Promise(r => setTimeout(r, 400));
+                        await new Promise(r => setTimeout(r, SETTINGS.performanceMode === 'aggressive' ? 150 : 400));
                     } catch (e) { console.error(e); }
                 }
                 fill.style.width = '100%';
                 text.textContent = `Complete (${ok}/${urls.length})`;
+                decorateTrackingBadges();
                 toast(`Downloaded ${ok}/${urls.length} files`, 'success');
             }
         } catch (err) {
@@ -1393,6 +1782,8 @@
         animation: eu-fade-in .3s ease;
     }
     .eu-tiktok-overlay.open { display: flex; }
+
+    /* TikTok layout - simple phone centered */
 
     /* Phone-shaped container (9:16 aspect ratio, like a real phone) */
     .eu-phone {
@@ -1434,6 +1825,82 @@
         }
         .eu-phone::before { display: none; }
     }
+
+    /* Desktop Feed layout: same one-card scroll as mobile, but wide/fullscreen. */
+    .eu-tiktok-overlay.eu-desktop-mode {
+        align-items: stretch;
+        justify-content: center;
+        padding: 16px;
+        background: radial-gradient(circle at 50% 20%, #24213a 0%, #090910 72%);
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-phone {
+        width: min(1280px, calc(100vw - 32px));
+        height: calc(100vh - 32px);
+        aspect-ratio: auto;
+        border-radius: 18px;
+        box-shadow:
+            0 0 0 1px rgba(138,90,204,.35),
+            0 24px 90px rgba(0,0,0,.75),
+            0 0 70px rgba(138,90,204,.22);
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-phone::before { display: none; }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-topbar {
+        height: 74px;
+        padding-top: 18px;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-title { font-size: 16px; }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-counter {
+        top: 82px;
+        left: 24px;
+        font-size: 12px;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-item,
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-feed {
+        height: 100%;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-media,
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-item video,
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-item img {
+        object-fit: contain;
+        background: #000;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-sidebar {
+        right: 24px;
+        bottom: 34px;
+        gap: 12px;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-caption {
+        left: 24px;
+        right: 120px;
+        bottom: 30px;
+        margin-left: -24px;
+        margin-right: -120px;
+        padding-left: 24px;
+        padding-right: 120px;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-caption .eu-tiktok-desc {
+        font-size: 13px;
+        max-width: 760px;
+    }
+    .eu-tiktok-overlay.eu-desktop-mode .eu-tiktok-duration-live {
+        left: 24px;
+        bottom: 96px;
+    }
+    .eu-tiktok-layout-toggle {
+        background: rgba(138,90,204,.45);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,.18);
+        padding: 5px 10px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        backdrop-filter: blur(6px);
+        transition: all .2s ease;
+    }
+    .eu-tiktok-layout-toggle:hover { background: rgba(138,90,204,.75); }
 
     .eu-tiktok-topbar {
         position: absolute;
@@ -1578,11 +2045,16 @@
         background: #000;
         overflow: hidden;
     }
-    .eu-tiktok-media {
+    .eu-tiktok-media,
+    .eu-tiktok-item video,
+    .eu-tiktok-item img {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
+        max-width: 100%;
+        max-height: 100%;
         background: #000;
+        display: block;
     }
     .eu-tiktok-item::after {
         content: '';
@@ -1740,6 +2212,35 @@
         border: 1px solid rgba(255,255,255,0.1);
     }
     .eu-tiktok-views svg, .eu-tiktok-kind-pill svg { width: 12px; height: 12px; fill: #fff; }
+    .eu-tiktok-duration-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 0, 80, 0.85);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(6px);
+        font-family: 'Courier New', monospace;
+    }
+    .eu-tiktok-duration-live {
+        position: absolute;
+        bottom: 80px;
+        left: 14px;
+        background: rgba(0, 0, 0, 0.85);
+        color: #fff;
+        padding: 5px 11px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        z-index: 6;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        pointer-events: none;
+    }
 
     /* Avatar button (profile + follow plus sign) */
     .eu-tiktok-avatar {
@@ -1885,7 +2386,138 @@
         0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
         30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
         70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+    }
+    `);
+
+
+    GM_addStyle(`
+    /* ---------- Smart Premium v7.3 additions ---------- */
+    .eu-tracking-badge {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .2px;
+        background: rgba(0,0,0,.84);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,.12);
+        z-index: 18;
+        backdrop-filter: blur(8px);
+        pointer-events: none;
+    }
+    .eu-tracking-badge.eu-downloaded { bottom: 34px; color: #d1fae5; border-color: rgba(74,222,128,.45); }
+    .eu-track-filtered-out, .eu-search-filtered-out { display: none !important; }
+    .eu-smart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .eu-smart-row.full { grid-template-columns: 1fr; }
+    .eu-smart-field label { display: block; color: ${CONFIG.accentSoft}; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+    .eu-smart-field select, .eu-smart-field input[type="number"], .eu-smart-field input[type="text"] {
+        width: 100%; padding: 10px; border-radius: 9px; border: 1px solid rgba(255,255,255,.1);
+        background: ${CONFIG.darker}; color: #fff; outline: none;
+    }
+    .eu-smart-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-top: 6px; }
+    .eu-smart-check { display: flex; align-items: center; gap: 8px; color: #eee; font-size: 13px; cursor: pointer; user-select: none; }
+    .eu-smart-check input { accent-color: ${CONFIG.accent}; }
+    .eu-smart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .eu-btn-secondary {
+        width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12);
+        background: ${CONFIG.darker}; color: #fff; cursor: pointer; font-weight: 800;
+    }
+    .eu-btn-secondary:hover { border-color: ${CONFIG.accent}; box-shadow: 0 0 15px rgba(138,90,204,.25); }
+    .eu-status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .eu-status-card { background: ${CONFIG.darker}; border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,.08); }
+    .eu-status-card b { display: block; font-size: 20px; color: #fff; margin-bottom: 2px; }
+    .eu-status-card span { color: ${CONFIG.accentSoft}; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .eu-feed-tools {
+        position: absolute; top: 58px; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 7px; z-index: 35; flex-wrap: wrap; justify-content: center;
+        width: min(760px, calc(100vw - 24px)); pointer-events: none;
+        opacity: 1; visibility: visible;
+        transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
+    }
+    .eu-feed-tools button, .eu-feed-tools .eu-feed-chip {
+        pointer-events: auto; border: 1px solid rgba(255,255,255,.12); color: #fff;
+        background: rgba(20,21,31,.72); backdrop-filter: blur(10px); border-radius: 999px;
+        font-size: 11px; font-weight: 800; padding: 7px 10px; cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0,0,0,.28);
+    }
+    .eu-feed-tools button:hover { border-color: ${CONFIG.accent}; background: rgba(138,90,204,.35); }
+    .eu-feed-tools button.eu-active { border-color: ${CONFIG.accent}; background: rgba(138,90,204,.42); box-shadow: 0 0 18px rgba(138,90,204,.32); }
+    .eu-feed-status {
+        position: absolute; top: 98px; left: 50%; transform: translateX(-50%);
+        color: ${CONFIG.accentSoft}; font-size: 11px; font-weight: 800; z-index: 34;
+        background: rgba(0,0,0,.48); border: 1px solid rgba(255,255,255,.08); border-radius: 999px;
+        padding: 5px 10px; backdrop-filter: blur(10px); pointer-events: none;
+        opacity: 1; visibility: visible;
+        transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
+    }
+    .eu-tiktok-topbar,
+    .eu-tiktok-tab,
+    .eu-tiktok-layout-toggle,
+    .eu-tiktok-title span,
+    .eu-tiktok-close {
+        transition: opacity .22s ease, transform .22s ease, background .22s ease, visibility .22s ease;
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-feed-tools,
+    .eu-phone.eu-feed-controls-hidden .eu-feed-status {
+        opacity: 0; visibility: hidden; pointer-events: none;
+        transform: translate(-50%, -12px);
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-tab,
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-layout-toggle {
+        opacity: 0; visibility: hidden; pointer-events: none;
+        transform: translateY(-10px);
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-title span {
+        opacity: 0; visibility: hidden; transform: translateY(-6px);
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-brand-logo {
+        opacity: .95;
+        box-shadow: 0 0 16px rgba(138,90,204,.45);
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-topbar {
+        background: linear-gradient(180deg, rgba(0,0,0,.24), transparent);
+        pointer-events: none;
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-close,
+    .eu-phone.eu-feed-controls-hidden .eu-feed-tools-toggle {
+        visibility: visible; pointer-events: auto;
+    }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-close { opacity: .72; }
+    .eu-phone.eu-feed-controls-hidden .eu-tiktok-close:hover { opacity: 1; }
+    .eu-feed-tools-toggle {
+        position: absolute; top: 104px; right: 14px; z-index: 36;
+        display: inline-flex; align-items: center; gap: 7px;
+        height: 34px; padding: 5px 10px 5px 6px;
+        border-radius: 999px; border: 1px solid rgba(255,255,255,.14);
+        color: #fff; background: rgba(20,21,31,.72); backdrop-filter: blur(12px);
+        box-shadow: 0 8px 26px rgba(0,0,0,.32), 0 0 20px rgba(138,90,204,.18);
+        font-size: 11px; font-weight: 900; cursor: pointer;
+        opacity: .72; transition: opacity .2s ease, transform .2s ease, background .2s ease;
+    }
+    .eu-feed-tools-toggle:hover { opacity: 1; transform: scale(1.04); background: rgba(138,90,204,.36); }
+    .eu-feed-tools-toggle img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(138,90,204,.55); }
+    .eu-feed-tools-toggle span { max-width: 48px; overflow: hidden; transition: max-width .18s ease, opacity .18s ease; }
+    .eu-phone.eu-feed-controls-hidden .eu-feed-tools-toggle span { max-width: 0; opacity: 0; }
+    .eu-phone.eu-feed-controls-hidden .eu-feed-tools-toggle:hover span { max-width: 48px; opacity: 1; }
+    .eu-phone:not(.eu-feed-controls-hidden) .eu-feed-tools-toggle { opacity: .46; }
+    .eu-desktop-mode .eu-feed-tools { top: 68px; }
+    .eu-desktop-mode .eu-feed-status { top: 108px; }
+    .eu-desktop-mode .eu-feed-tools-toggle { top: 118px; right: 24px; }
+    .eu-fit-contain .eu-tiktok-media { object-fit: contain !important; }
+    .eu-fit-cover .eu-tiktok-media { object-fit: cover !important; }
+    .eu-fit-natural .eu-tiktok-media { object-fit: scale-down !important; max-width: 100%; max-height: 100%; }
+    .eu-feed-badge {
+        position: absolute; left: 18px; top: 88px; z-index: 12; border-radius: 999px;
+        background: rgba(0,0,0,.58); color: #fff; border: 1px solid rgba(255,255,255,.12);
+        padding: 5px 9px; font-size: 11px; font-weight: 900; backdrop-filter: blur(8px);
+    }
+    .eu-feed-badge.eu-feed-downloaded { top: 118px; color: #d1fae5; border-color: rgba(74,222,128,.45); }
+    .eu-dlx-log {
+        max-height: 160px; overflow: auto; margin-top: 12px; padding: 10px; background: ${CONFIG.darker};
+        color: #ddd; border-radius: 10px; font: 11px/1.45 monospace; white-space: pre-wrap;
     }
     `);
 
@@ -1896,6 +2528,15 @@
         albumQueue: [],     // Album URLs queued for preload
         albumSeen: new Set(), // Already preloaded album URLs
         loadingMore: false,
+        listingNextPage: 2,  // Listing pages queued in the background for desktop feed
+        listingLoading: false,
+        listingStopped: false,
+        listingEmptyHits: 0,
+        listingSeenPages: new Set(),
+        feedScopeMode: 'album',
+        feedScopeLabel: '',
+        feedScopeUrl: '',
+        feedScopeTerms: [],
         io: null,           // IntersectionObserver
         currentAlbum: null
     };
@@ -1910,14 +2551,21 @@
         };
 
         if (type === 'videos' || type === 'all') {
+            const addVideoSrc = (src) => {
+                if (!src) return;
+                src = String(src).trim().replace(/\\\//g, '/');
+                if (src.startsWith('//')) src = 'https:' + src;
+                if (/\.(mp4|webm|m3u8)(?:[?#]|$)/i.test(src)) add('video', src);
+            };
             doc.querySelectorAll('.media-group video, .video-js video, video').forEach(v => {
-                const src = v.querySelector('source')?.src || v.src || v.getAttribute('src');
-                if (src) add('video', src.startsWith('//') ? 'https:' + src : src);
+                addVideoSrc(v.currentSrc || v.querySelector('source')?.src || v.src || v.getAttribute('src') || v.getAttribute('data-src') || v.dataset?.src);
             });
-            doc.querySelectorAll('.media-group source, video source').forEach(s => {
-                const src = s.src || s.getAttribute('src');
-                if (src) add('video', src.startsWith('//') ? 'https:' + src : src);
+            doc.querySelectorAll('.media-group source, video source, source').forEach(s => {
+                addVideoSrc(s.src || s.getAttribute('src') || s.getAttribute('data-src') || s.dataset?.src);
             });
+            doc.querySelectorAll('a[href]').forEach(a => addVideoSrc(a.getAttribute('href')));
+            const html = doc.documentElement?.innerHTML || '';
+            html.match(/https?:\/\/[^"'<>\\\s]+?\.(?:mp4|webm|m3u8)(?:\?[^"'<>\\\s]*)?/gi)?.forEach(addVideoSrc);
         }
 
         if (type === 'photos' || type === 'all') {
@@ -1954,23 +2602,197 @@
 
     function collectCurrentPageItems(type) {
         TT.seenUrls = new Set();
+        // Listing/profile/search pages mostly contain thumbnails. For feed mode we fetch
+        // the real album pages in the background instead of showing low-res thumbs.
+        if (!IS_ALBUM_PAGE) {
+            TT.currentAlbum = null;
+            return [];
+        }
         const meta = getAlbumMetaFromDoc(document, location.href);
         TT.currentAlbum = meta;
         return extractMediaFromDoc(document, type, meta);
     }
 
-    function buildNextAlbumQueue() {
-        // Collect related album links on the current page (other albums, same user, suggested, etc.)
-        const links = new Set();
-        document.querySelectorAll('a.album-link, .album a[href*="/a/"]').forEach(a => {
-            const href = a.getAttribute('href');
-            if (href && /\/a\//.test(href) && href !== location.pathname) {
-                const abs = new URL(href, location.href).href;
-                if (!TT.albumSeen.has(abs)) links.add(abs);
+    function euCleanFeedUrl(href, baseUrl = location.href) {
+        try {
+            const u = new URL(href, baseUrl);
+            u.hash = '';
+            return u.href;
+        } catch (e) { return ''; }
+    }
+
+    function normalizeFeedTerms(value) {
+        return String(value || '')
+            .toLowerCase()
+            .replace(/https?:\/\/\S+/g, ' ')
+            .replace(/[^a-z0-9]+/g, ' ')
+            .split(/\s+/)
+            .filter(w => w.length >= 3 && !['www', 'com', 'the', 'and', 'for', 'with', 'from', 'erome', 'page', 'search'].includes(w))
+            .slice(0, 8);
+    }
+
+    function getFeedSearchPhrase() {
+        try {
+            const url = new URL(location.href);
+            for (const key of ['q', 'query', 'search', 'term', 'keyword', 'keywords', 's']) {
+                const val = url.searchParams.get(key);
+                if (val && val.trim()) return val.trim();
             }
+        } catch (e) {}
+
+        const searchInput = document.querySelector('input[type="search"], input[name="q"], input[name="search"], input[name="query"]');
+        if (searchInput?.value?.trim()) return searchInput.value.trim();
+
+        const heading = document.querySelector('.page-content h1, h1, .search-title, .page-title');
+        const h = heading?.textContent?.replace(/\s+/g, ' ').trim() || '';
+        const m = h.match(/(?:search|results?)\s*(?:for)?\s*[:\-]?\s*(.+)$/i);
+        return (m?.[1] || '').trim();
+    }
+
+    function resetFeedScope() {
+        TT.feedScopeUrl = normalizeUrl(location.href);
+        TT.feedScopeMode = IS_ALBUM_PAGE ? 'album' : 'listing';
+        TT.feedScopeTerms = normalizeFeedTerms(getFeedSearchPhrase());
+        if (IS_ALBUM_PAGE) {
+            TT.feedScopeLabel = SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album + related' : 'Current album only';
+        } else if (TT.feedScopeTerms.length) {
+            TT.feedScopeLabel = `Search lock: ${TT.feedScopeTerms.join(' ')}`;
+        } else {
+            TT.feedScopeLabel = SETTINGS.lockFeedToSearch !== false ? 'Search/listing lock' : 'Related expansion on';
+        }
+    }
+
+    function albumCardMatchesFeedScope(album, href) {
+        if (!album) return true;
+        const text = `${album.textContent || ''} ${href || ''}`.toLowerCase();
+        const q = (SETTINGS.albumSearch || '').trim().toLowerCase();
+        if (q && !text.includes(q)) return false;
+        if (SETTINGS.strictSearchTitleMatch && TT.feedScopeTerms?.length) {
+            return TT.feedScopeTerms.some(term => text.includes(term));
+        }
+        if (album.classList?.contains('eu-search-filtered-out') || album.classList?.contains('eu-track-filtered-out')) return false;
+        return true;
+    }
+
+    function collectAlbumLinksFromResultDoc(doc = document, baseUrl = location.href, source = 'listing') {
+        const out = [];
+        const localSeen = new Set();
+
+        // For searches/listings, only trust actual album result cards. This prevents the
+        // feed from drifting into related/suggested album links found inside fetched albums.
+        let albumCards = Array.from(doc.querySelectorAll('#albums .album'));
+        if (!albumCards.length) {
+            albumCards = Array.from(doc.querySelectorAll('.page-content .album, .albums .album, .user-albums .album'));
+        }
+
+        if (albumCards.length) {
+            albumCards.forEach(album => {
+                const a = album.querySelector('a.album-link[href*="/a/"], a[href*="/a/"]');
+                const href = a?.getAttribute('href');
+                if (!href || !/\/a\//.test(href)) return;
+                const abs = euCleanFeedUrl(href, baseUrl);
+                if (!abs || localSeen.has(abs)) return;
+                if (!albumCardMatchesFeedScope(album, abs)) return;
+                localSeen.add(abs);
+                out.push(abs);
+            });
+            // Listing/search pages should only use result cards. Album pages can still
+            // fall back to older related-album links if the related section is not
+            // built from .album cards.
+            if (out.length || source !== 'album') return out;
+        }
+
+        // Album-page fallback: restore the old next-album behavior. This is never
+        // used for locked search/listing feeds because buildNextAlbumQueue() blocks
+        // source='album' there.
+        if (source === 'album' && (SETTINGS.allowRelatedAlbumExpansion !== false || SETTINGS.lockFeedToSearch === false)) {
+            doc.querySelectorAll('a.album-link[href*="/a/"], .album a[href*="/a/"], a[href*="/a/"]').forEach(a => {
+                const abs = euCleanFeedUrl(a.getAttribute('href'), baseUrl);
+                if (abs && !localSeen.has(abs)) { localSeen.add(abs); out.push(abs); }
+            });
+        }
+        return out;
+    }
+
+    function buildNextAlbumQueue(doc = document, baseUrl = location.href, source = 'listing') {
+        const lockedListing = !IS_ALBUM_PAGE && SETTINGS.lockFeedToSearch !== false;
+        const albumRelatedDisabled = IS_ALBUM_PAGE && SETTINGS.allowRelatedAlbumExpansion === false;
+
+        if (lockedListing && source === 'album') {
+            console.log('[EU] Feed search lock: skipped related album links from fetched album');
+            return 0;
+        }
+        if (albumRelatedDisabled && source === 'album') {
+            console.log('[EU] Feed scope: album page related expansion is disabled');
+            return 0;
+        }
+
+        const links = new Set(TT.albumQueue);
+        const before = links.size;
+        const currentAbs = euCleanFeedUrl(location.href, location.href);
+
+        collectAlbumLinksFromResultDoc(doc, baseUrl, source).forEach(abs => {
+            if (abs === currentAbs) return;
+            if (TT.albumSeen.has(abs)) return;
+            links.add(abs);
         });
+
         TT.albumQueue = Array.from(links);
-        console.log(`[EU] TikTok queue: ${TT.albumQueue.length} related albums ready to preload`);
+        const added = Math.max(0, TT.albumQueue.length - before);
+        const mode = lockedListing ? 'search/listing result' : 'related/expanded';
+        console.log(`[EU] Feed queue: ${TT.albumQueue.length} ${mode} albums ready (${added} new)`);
+        updateFeedStatus();
+        return added;
+    }
+
+    function resetListingFeedPager() {
+        const url = new URL(window.location.href);
+        const currentPage = parseInt(url.searchParams.get('page'), 10) || 1;
+        TT.listingNextPage = currentPage + 1;
+        TT.listingLoading = false;
+        TT.listingStopped = false;
+        TT.listingEmptyHits = 0;
+        TT.listingSeenPages = new Set();
+    }
+
+    async function loadNextListingPageIntoQueue() {
+        if (IS_ALBUM_PAGE || TT.listingLoading || TT.listingStopped) return 0;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', TT.listingNextPage);
+        const pageUrl = url.href;
+        if (TT.listingSeenPages?.has(pageUrl)) {
+            TT.listingNextPage++;
+            return 0;
+        }
+
+        TT.listingLoading = true;
+        TT.listingSeenPages?.add(pageUrl);
+
+        try {
+            const res = await fetch(pageUrl, { credentials: 'include' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const before = TT.albumQueue.length;
+            buildNextAlbumQueue(doc, pageUrl, 'listing');
+            TT.listingNextPage++;
+
+            const added = Math.max(0, TT.albumQueue.length - before);
+            if (added === 0) TT.listingEmptyHits++;
+            else TT.listingEmptyHits = 0;
+
+            if (TT.listingEmptyHits >= 2) TT.listingStopped = true;
+            console.log(`[EU] Desktop feed queued ${added} albums from listing page ${TT.listingNextPage - 1}`);
+            return added;
+        } catch (e) {
+            TT.listingStopped = true;
+            console.warn('[EU] Desktop feed listing queue stopped:', e);
+            return 0;
+        } finally {
+            TT.listingLoading = false;
+        }
     }
 
     async function fetchAlbumPage(url) {
@@ -1988,7 +2810,10 @@
     async function preloadNextAlbum() {
         if (TT.loadingMore) return 0;
         if (TT.albumQueue.length === 0) {
-            buildNextAlbumQueue();
+            buildNextAlbumQueue(document, location.href, IS_ALBUM_PAGE ? 'album' : 'listing');
+            if (TT.albumQueue.length === 0 && !IS_ALBUM_PAGE) {
+                await loadNextListingPageIntoQueue();
+            }
             if (TT.albumQueue.length === 0) return 0;
         }
 
@@ -2001,6 +2826,12 @@
         let added = 0;
 
         if (doc) {
+            // Search/listing feeds stay locked to the original result pages. We only
+            // discover related albums from fetched albums when the user disables the lock.
+            if (IS_ALBUM_PAGE || SETTINGS.lockFeedToSearch === false) {
+                buildNextAlbumQueue(doc, url, 'album');
+            }
+
             const meta = getAlbumMetaFromDoc(doc, url);
             const newItems = extractMediaFromDoc(doc, STATE.tiktokType, meta);
             added = newItems.length;
@@ -2008,16 +2839,23 @@
                 TT.items.push(...newItems);
                 newItems.forEach((item, i) => appendTikTokCard(item, TT.items.length - added + i));
                 updateTikTokCounter();
+                updateFeedStatus();
                 console.log(`[EU] Preloaded ${added} items from: ${meta.title}`);
             }
         }
 
         showLoadingCard(false);
         TT.loadingMore = false;
+        updateFeedStatus();
 
-        // If this album produced nothing useful, try the next one automatically
-        if (added === 0 && TT.albumQueue.length > 0) {
-            return preloadNextAlbum();
+        // If this album produced nothing useful, keep moving through the queue.
+        // On listing/profile/search pages, silently pull the next result page too.
+        if (added === 0) {
+            if (TT.albumQueue.length > 0) return preloadNextAlbum();
+            if (!IS_ALBUM_PAGE && !TT.listingStopped) {
+                const queued = await loadNextListingPageIntoQueue();
+                if (queued > 0) return preloadNextAlbum();
+            }
         }
 
         return added;
@@ -2031,7 +2869,10 @@
             if (!card) {
                 card = document.createElement('div');
                 card.className = 'eu-tiktok-loading';
-                card.innerHTML = `<span class="eu-spinner"></span><span>Loading next album…</span>`;
+                const label = STATE.tiktokLayout === 'desktop'
+                    ? 'Loading more albums without changing page…'
+                    : 'Loading next album…';
+                card.innerHTML = `<span class="eu-spinner"></span><span>${label}</span>`;
                 feed.appendChild(card);
             }
         } else if (card) {
@@ -2044,11 +2885,13 @@
         if (!el) return;
         const idx = Math.min(STATE.tiktokIndex + 1, TT.items.length);
         el.textContent = `${idx} / ${TT.items.length}`;
+        updateFeedStatus();
     }
 
     function appendTikTokCard(item, idx) {
         const feed = document.getElementById('eu-tiktok-feed');
         if (!feed) return;
+        feed.querySelector('.eu-tiktok-empty')?.remove();
 
         const el = document.createElement('div');
         el.className = 'eu-tiktok-item';
@@ -2057,7 +2900,7 @@
 
         let mediaHTML;
         if (item.kind === 'video') {
-            mediaHTML = `<video class="eu-tiktok-media" src="${item.url}" loop playsinline preload="metadata" muted></video>`;
+            mediaHTML = `<video class="eu-tiktok-media" src="${item.url}" playsinline preload="metadata" ${SETTINGS.loopVideos !== false ? 'loop' : ''} ${SETTINGS.muteVideos ? 'muted' : ''}></video>`;
         } else {
             mediaHTML = `<img class="eu-tiktok-media" src="${item.url}" alt="" loading="lazy">`;
         }
@@ -2076,10 +2919,13 @@
             ${mediaHTML}
             <div class="eu-tiktok-play-hint">${ICONS.video}</div>
             <div class="eu-tiktok-heart-pop">❤️</div>
+            ${TRACKING.seenAlbums.has(normalizeUrl(item.albumUrl || '')) ? '<div class="eu-feed-badge">Seen</div>' : ''}
+            ${TRACKING.downloadedMedia.has(normalizeUrl(item.url)) ? '<div class="eu-feed-badge eu-feed-downloaded">Downloaded</div>' : ''}
 
             <div class="eu-tiktok-top">
                 ${viewCount ? `<span class="eu-tiktok-views">${ICONS.eye}<span>${viewCount}</span></span>` : ''}
                 <span class="eu-tiktok-kind-pill">${kindEmoji} ${item.kind === 'video' ? 'Video' : 'Photo'}</span>
+                ${item.kind === 'video' ? `<span class="eu-tiktok-duration-pill" data-duration>⏱ <span class="eu-tt-dur-val">--:--</span></span>` : ''}
             </div>
 
             <div class="eu-tiktok-caption">
@@ -2144,7 +2990,7 @@
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const act = btn.dataset.act;
-                if (act === 'download') downloadSingle(item.url, getFilename(item.url));
+                if (act === 'download') downloadSingle(item.url, getFilename(item.url), null, item.albumUrl);
                 if (act === 'copy') {
                     navigator.clipboard?.writeText(item.url)
                         .then(() => toast('URL copied!', 'success', 1400))
@@ -2159,7 +3005,8 @@
                 }
                 if (act === 'favorite') {
                     btn.classList.toggle('faved');
-                    toast(btn.classList.contains('faved') ? 'Added to favorites \u2b50' : 'Removed from favorites', 'success', 1400);
+                    if (btn.classList.contains('faved')) saveFavoriteItem(item);
+                    toast(btn.classList.contains('faved') ? 'Added to local favorites \u2b50' : 'Removed from favorites', 'success', 1400);
                 }
                 if (act === 'comment') {
                     if (item.albumUrl) window.open(item.albumUrl + '#comments', '_blank');
@@ -2218,12 +3065,41 @@
         if (loadingCard) feed.insertBefore(el, loadingCard);
         else feed.appendChild(el);
 
-        // Video progress bar
+        // Video progress bar + duration display
         if (item.kind === 'video') {
             const video = el.querySelector('video');
+            applyVideoPrefs(video);
             const fill = el.querySelector('.eu-tiktok-progress-fill');
+            const durPill = el.querySelector('.eu-tt-dur-val');
+
+            // Live elapsed/total time badge (bottom-left)
+            const liveTime = document.createElement('div');
+            liveTime.className = 'eu-tiktok-duration-live';
+            liveTime.textContent = '00:00 / --:--';
+            el.appendChild(liveTime);
+
+            const fmtTime = (s) => {
+                if (!isFinite(s) || s < 0) return '--:--';
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60).toString().padStart(2, '0');
+                return `${m}:${sec}`;
+            };
+
+            video?.addEventListener('loadedmetadata', () => {
+                if (video.duration && isFinite(video.duration)) {
+                    const seconds = Math.floor(video.duration);
+                    item.duration = seconds;
+                    if (filterOutFeedVideoByLength(item, el, seconds)) return;
+                    if (durPill) durPill.textContent = fmtTime(video.duration);
+                    liveTime.textContent = `00:00 / ${fmtTime(video.duration)}`;
+                }
+            });
+
             video?.addEventListener('timeupdate', () => {
-                if (video.duration) fill.style.width = `${(video.currentTime / video.duration) * 100}%`;
+                if (video.duration) {
+                    fill.style.width = `${(video.currentTime / video.duration) * 100}%`;
+                    liveTime.textContent = `${fmtTime(video.currentTime)} / ${fmtTime(video.duration)}`;
+                }
             });
         }
     }
@@ -2234,6 +3110,297 @@
         pop.classList.remove('animate');
         void pop.offsetWidth;
         pop.classList.add('animate');
+    }
+
+    /* ---------- Right Panel (2-column grid) - REMOVED ---------- */
+
+    function setTikTokLayout(layout) {
+        STATE.tiktokLayout = layout === 'desktop' ? 'desktop' : 'phone';
+        updateSetting('defaultFeedLayout', STATE.tiktokLayout);
+        const overlay = document.getElementById('eu-tiktok');
+        if (!overlay) return;
+
+        const isDesktop = STATE.tiktokLayout === 'desktop';
+        overlay.classList.toggle('eu-desktop-mode', isDesktop);
+
+        const btn = overlay.querySelector('.eu-tiktok-layout-toggle');
+        if (btn) {
+            btn.textContent = isDesktop ? 'Phone' : 'Desktop';
+            btn.title = isDesktop ? 'Switch to phone layout' : 'Switch to desktop layout';
+        }
+
+        const title = overlay.querySelector('.eu-tiktok-title span');
+        if (title) title.textContent = isDesktop ? 'Desktop Feed' : 'For You';
+        applyFeedFitMode();
+    }
+
+
+    function applyVideoPrefs(video) {
+        if (!video) return;
+        video.loop = SETTINGS.loopVideos !== false;
+        video.muted = !!SETTINGS.muteVideos;
+        video.setAttribute('playsinline', '');
+    }
+
+    function applyFeedFitMode() {
+        const overlay = document.getElementById('eu-tiktok');
+        if (!overlay) return;
+        overlay.classList.remove('eu-fit-contain', 'eu-fit-cover', 'eu-fit-natural');
+        overlay.classList.add('eu-fit-' + (SETTINGS.fitMode || 'contain'));
+        document.querySelectorAll('#eu-tiktok video').forEach(applyVideoPrefs);
+        updateFeedTools();
+    }
+
+    function markCurrentFeedPosition() {
+        if (!SETTINGS.autoResume || !STATE.tiktokMode) return;
+        SETTINGS.lastFeed = {
+            page: normalizeUrl(location.href),
+            type: STATE.tiktokType,
+            layout: STATE.tiktokLayout,
+            index: STATE.tiktokIndex,
+            savedAt: new Date().toISOString()
+        };
+        saveSettings();
+    }
+
+    function resumeFeedPosition() {
+        if (!SETTINGS.autoResume || !SETTINGS.lastFeed) return;
+        const last = SETTINGS.lastFeed;
+        if (last.page !== normalizeUrl(location.href)) return;
+        if (last.type !== STATE.tiktokType || last.layout !== STATE.tiktokLayout) return;
+        const feed = document.getElementById('eu-tiktok-feed');
+        const cards = feed?.querySelectorAll('.eu-tiktok-item');
+        if (!cards || !cards.length) return;
+        const idx = Math.min(Math.max(0, Number(last.index) || 0), cards.length - 1);
+        if (idx > 0) {
+            STATE.tiktokIndex = idx;
+            setTimeout(() => cards[idx]?.scrollIntoView({ behavior: 'auto', block: 'start' }), 150);
+        }
+    }
+
+    function getFeedScopeButtonLabel() {
+        if (IS_ALBUM_PAGE) return SETTINGS.allowRelatedAlbumExpansion !== false ? 'Related On' : 'Current Only';
+        return SETTINGS.lockFeedToSearch !== false ? 'Search Lock' : 'Related On';
+    }
+
+    function updateFeedTools() {
+        const panel = document.getElementById('eu-feed-tools');
+        if (!panel) return;
+        const auto = panel.querySelector('[data-act="autoplay"] span');
+        const mute = panel.querySelector('[data-act="mute"] span');
+        const fit = panel.querySelector('[data-act="fit"] span');
+        const scope = panel.querySelector('[data-act="scope"] span');
+        const length = panel.querySelector('[data-act="length"] span');
+        const pin = panel.querySelector('[data-act="pin"] span');
+        const pinBtn = panel.querySelector('[data-act="pin"]');
+        if (auto) auto.textContent = SETTINGS.autoplay ? 'Auto On' : 'Auto Off';
+        if (mute) mute.textContent = SETTINGS.muteVideos ? 'Muted' : 'Sound';
+        if (fit) fit.textContent = `Fit ${SETTINGS.fitMode || 'contain'}`;
+        if (scope) scope.textContent = getFeedScopeButtonLabel();
+        if (length) {
+            length.textContent = getLengthFilterLabel();
+            length.closest('button')?.classList.toggle('eu-active', getMinVideoSeconds() > 0 || getMaxVideoSeconds() > 0);
+        }
+        if (pin) pin.textContent = SETTINGS.feedControlsPinned ? 'Pinned' : (SETTINGS.feedControlsAutoHide === false ? 'Always On' : 'Auto Hide');
+        if (pinBtn) pinBtn.classList.toggle('eu-active', SETTINGS.feedControlsPinned === true || SETTINGS.feedControlsAutoHide === false);
+        updateFeedStatus();
+    }
+
+    function updateFeedStatus() {
+        const el = document.getElementById('eu-feed-status');
+        if (!el) return;
+        const scope = TT.feedScopeLabel || (SETTINGS.lockFeedToSearch !== false ? 'Search/listing lock' : 'Related expansion');
+        el.textContent = `Items ${TT.items.length} · Queue ${TT.albumQueue.length} · Page ${TT.listingNextPage || '-'} · ${scope} · ${getLengthFilterLabel()} · ${SETTINGS.performanceMode}`;
+    }
+
+    function rebuildFeedFromItems(scrollIndex = 0) {
+        const feed = document.getElementById('eu-tiktok-feed');
+        if (!feed) return;
+        if (TT.io) TT.io.disconnect();
+        feed.innerHTML = '';
+        TT.items.forEach((item, idx) => appendTikTokCard(item, idx));
+        STATE.tiktokIndex = Math.min(scrollIndex, Math.max(0, TT.items.length - 1));
+        updateTikTokCounter();
+        applyFeedFitMode();
+        updateFeedStatus();
+        setTimeout(() => getCurrentCard()?.scrollIntoView({ behavior: 'auto', block: 'start' }), 80);
+    }
+
+    function skipCurrentAlbumInFeed() {
+        const item = getCurrentItem();
+        const album = item?.albumUrl;
+        if (!album) { toast('No album to skip', 'warning'); return; }
+        const before = TT.items.length;
+        TT.items = TT.items.filter(x => x.albumUrl !== album);
+        const removed = before - TT.items.length;
+        rebuildFeedFromItems(Math.min(STATE.tiktokIndex, Math.max(0, TT.items.length - 1)));
+        toast(`Skipped ${removed} item${removed === 1 ? '' : 's'} from album`, 'info');
+        if (TT.items.length < 4) preloadNextAlbum();
+    }
+
+    function shuffleFeed() {
+        for (let i = TT.items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [TT.items[i], TT.items[j]] = [TT.items[j], TT.items[i]];
+        }
+        rebuildFeedFromItems(0);
+        toast('Feed shuffled', 'success');
+    }
+
+    function cycleFitMode() {
+        const modes = ['contain', 'cover', 'natural'];
+        const next = modes[(modes.indexOf(SETTINGS.fitMode) + 1) % modes.length] || 'contain';
+        updateSetting('fitMode', next);
+        applyFeedFitMode();
+        toast(`Fit mode: ${next}`, 'info');
+    }
+
+    let feedControlsTimer = null;
+
+    function feedToolsShouldAutoHide() {
+        return SETTINGS.feedControlsAutoHide !== false && SETTINGS.feedControlsPinned !== true;
+    }
+
+    function setFeedControlsVisible(visible, temporary = true, forceHide = false) {
+        const overlay = document.getElementById('eu-tiktok');
+        const phone = overlay?.querySelector('.eu-phone');
+        if (!phone) return;
+        const shouldHide = !visible && (forceHide || feedToolsShouldAutoHide());
+        phone.classList.toggle('eu-feed-controls-hidden', shouldHide);
+        const toggle = document.getElementById('eu-feed-tools-toggle');
+        if (toggle) {
+            toggle.title = shouldHide ? 'Show feed tools' : 'Hide feed tools';
+            const label = toggle.querySelector('span');
+            if (label) label.textContent = shouldHide ? 'Tools' : 'Hide';
+        }
+        if (visible && temporary && feedToolsShouldAutoHide()) scheduleFeedControlsHide();
+    }
+
+    function scheduleFeedControlsHide(delay = 2800) {
+        clearTimeout(feedControlsTimer);
+        const phone = document.querySelector('#eu-tiktok .eu-phone');
+        if (!phone) return;
+        if (!feedToolsShouldAutoHide()) {
+            phone.classList.remove('eu-feed-controls-hidden');
+            return;
+        }
+        feedControlsTimer = setTimeout(() => setFeedControlsVisible(false, false), delay);
+    }
+
+    function showFeedControlsTemp(delay = 2800) {
+        setFeedControlsVisible(true, false);
+        if (feedToolsShouldAutoHide()) scheduleFeedControlsHide(delay);
+    }
+
+    function installFeedControlsAutoHide(phone, panel) {
+        if (!phone || phone.dataset.euFeedAutohide === '1') return;
+        phone.dataset.euFeedAutohide = '1';
+
+        panel?.addEventListener('mouseenter', () => clearTimeout(feedControlsTimer));
+        panel?.addEventListener('mouseleave', () => scheduleFeedControlsHide(1400));
+        panel?.addEventListener('click', () => scheduleFeedControlsHide(1800));
+
+        const hideSoon = () => scheduleFeedControlsHide(650);
+        const showFromTop = (e) => {
+            const y = e.touches?.[0]?.clientY ?? e.clientY ?? 9999;
+            const rect = phone.getBoundingClientRect();
+            // Reveal only when the mouse rolls over the top control zone,
+            // so the video stays clean during normal scrolling/watching.
+            if (y - rect.top <= 155) showFeedControlsTemp(2400);
+        };
+
+        phone.addEventListener('wheel', hideSoon, { passive: true });
+        phone.addEventListener('touchmove', hideSoon, { passive: true });
+        phone.addEventListener('mousemove', showFromTop, { passive: true });
+
+        const feed = phone.querySelector('#eu-tiktok-feed');
+        feed?.addEventListener('scroll', () => scheduleFeedControlsHide(650), { passive: true });
+
+        setTimeout(() => {
+            if (feedToolsShouldAutoHide()) setFeedControlsVisible(false, false);
+            else setFeedControlsVisible(true, false);
+        }, 2600);
+    }
+
+    function enhanceFeedControls() {
+        const overlay = document.getElementById('eu-tiktok');
+        const phone = overlay?.querySelector('.eu-phone');
+        if (!phone) return;
+        if (!document.getElementById('eu-feed-tools')) {
+            const panel = document.createElement('div');
+            panel.id = 'eu-feed-tools';
+            panel.className = 'eu-feed-tools';
+            panel.innerHTML = `
+                <button data-act="skip"><span>Skip Album</span></button>
+                <button data-act="shuffle"><span>Shuffle</span></button>
+                <button data-act="fit"><span>Fit ${SETTINGS.fitMode}</span></button>
+                <button data-act="scope"><span>${getFeedScopeButtonLabel()}</span></button>
+                <button data-act="length"><span>${getLengthFilterLabel()}</span></button>
+                <button data-act="mute"><span>${SETTINGS.muteVideos ? 'Muted' : 'Sound'}</span></button>
+                <button data-act="autoplay"><span>${SETTINGS.autoplay ? 'Auto On' : 'Auto Off'}</span></button>
+                <button data-act="manager"><span>Downloads</span></button>
+                <button data-act="status"><span>Status</span></button>
+                <button data-act="pin"><span>${SETTINGS.feedControlsPinned ? 'Pinned' : (SETTINGS.feedControlsAutoHide === false ? 'Always On' : 'Auto Hide')}</span></button>
+                <button data-act="hide"><span>Hide</span></button>`;
+            phone.appendChild(panel);
+
+            panel.addEventListener('click', e => {
+                const btn = e.target.closest('button[data-act]');
+                if (!btn) return;
+                const act = btn.dataset.act;
+                if (act === 'skip') skipCurrentAlbumInFeed();
+                if (act === 'shuffle') shuffleFeed();
+                if (act === 'fit') cycleFitMode();
+                if (act === 'scope') {
+                    if (IS_ALBUM_PAGE) {
+                        updateSetting('allowRelatedAlbumExpansion', !(SETTINGS.allowRelatedAlbumExpansion !== false));
+                        toast(SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album feed will load next/related albums' : 'Album feed limited to current album', 'info');
+                    } else {
+                        updateSetting('lockFeedToSearch', !(SETTINGS.lockFeedToSearch !== false));
+                        toast(SETTINGS.lockFeedToSearch !== false ? 'Feed locked to current search/listing' : 'Related album expansion enabled', 'info');
+                    }
+                    resetAndRenderFeed();
+                }
+                if (act === 'length') promptLengthFilter();
+                if (act === 'mute') { updateSetting('muteVideos', !SETTINGS.muteVideos); document.querySelectorAll('#eu-tiktok video').forEach(applyVideoPrefs); updateFeedTools(); }
+                if (act === 'autoplay') { updateSetting('autoplay', !SETTINGS.autoplay); updateFeedTools(); }
+                if (act === 'manager') openDownloadManager();
+                if (act === 'status') openStatusPanel();
+                if (act === 'pin') {
+                    updateSetting('feedControlsPinned', !SETTINGS.feedControlsPinned);
+                    if (SETTINGS.feedControlsPinned) setFeedControlsVisible(true, false);
+                    else scheduleFeedControlsHide(900);
+                    updateFeedTools();
+                    toast(SETTINGS.feedControlsPinned ? 'Feed tools pinned' : 'Feed tools will auto-hide', 'info');
+                }
+                if (act === 'hide') setFeedControlsVisible(false, false, true);
+            });
+        }
+        if (!document.getElementById('eu-feed-tools-toggle')) {
+            const toggle = document.createElement('button');
+            toggle.id = 'eu-feed-tools-toggle';
+            toggle.className = 'eu-feed-tools-toggle';
+            toggle.innerHTML = `<img src="${LOGO_ICON}" alt=""><span>Tools</span>`;
+            toggle.title = 'Show feed tools';
+            toggle.addEventListener('click', e => {
+                e.stopPropagation();
+                const isHidden = phone.classList.contains('eu-feed-controls-hidden');
+                if (isHidden) showFeedControlsTemp(4200);
+                else setFeedControlsVisible(false, false, true);
+            });
+            phone.appendChild(toggle);
+        }
+        if (!document.getElementById('eu-feed-status')) {
+            const status = document.createElement('div');
+            status.id = 'eu-feed-status';
+            status.className = 'eu-feed-status';
+            phone.appendChild(status);
+        }
+        installFeedControlsAutoHide(phone, document.getElementById('eu-feed-tools'));
+        applyFeedFitMode();
+        updateFeedStatus();
+        if (feedToolsShouldAutoHide()) scheduleFeedControlsHide(2600);
+        else setFeedControlsVisible(true, false);
     }
 
     function buildTikTokOverlay() {
@@ -2258,6 +3425,7 @@
                 <button class="eu-tiktok-tab" data-type="videos">Videos</button>
                 <button class="eu-tiktok-tab" data-type="photos">Photos</button>
                 <button class="eu-tiktok-tab" data-type="all">All</button>
+                <button class="eu-tiktok-layout-toggle" title="Switch to desktop layout">Desktop</button>
                 <button class="eu-tiktok-close" title="Close">${ICONS.close}</button>
               </div>
             </div>
@@ -2276,9 +3444,14 @@
         overlay.querySelectorAll('.eu-tiktok-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 STATE.tiktokType = tab.dataset.type;
+                updateSetting('defaultFeedType', STATE.tiktokType);
                 updateTikTokTabs();
                 resetAndRenderFeed();
             });
+        });
+
+        overlay.querySelector('.eu-tiktok-layout-toggle')?.addEventListener('click', () => {
+            setTikTokLayout(STATE.tiktokLayout === 'desktop' ? 'phone' : 'desktop');
         });
 
         // Setup IntersectionObserver once
@@ -2292,14 +3465,21 @@
                 if (entry.isIntersecting && entry.intersectionRatio > 0.65) {
                     STATE.tiktokIndex = idx;
                     updateTikTokCounter();
+                    if (card._euData?.albumUrl) markSeenAlbum(card._euData.albumUrl);
                     if (videoEl) {
-                        videoEl.muted = false;
-                        videoEl.play().catch(() => {
-                            // Autoplay with sound blocked — fall back to muted
-                            videoEl.muted = true;
-                            videoEl.play().catch(() => {});
-                        });
+                        applyVideoPrefs(videoEl);
+                        if (SETTINGS.autoplay !== false) {
+                            videoEl.play().catch(() => {
+                                // Autoplay with sound blocked — fall back to muted
+                                videoEl.muted = true;
+                                videoEl.play().catch(() => {});
+                            });
+                        } else {
+                            videoEl.pause();
+                        }
                     }
+                    markCurrentFeedPosition();
+                    decorateTrackingBadges();
                     // Preload next album when nearing the end
                     if (idx >= TT.items.length - 3) {
                         preloadNextAlbum();
@@ -2309,6 +3489,17 @@
                 }
             });
         }, { root: feed, threshold: [0, 0.65, 0.9] });
+
+        // Scroll fallback for desktop wheel/trackpad: load ahead when nearing the end.
+        let feedScrollDebounce;
+        feed.addEventListener('scroll', () => {
+            if (!STATE.tiktokMode) return;
+            clearTimeout(feedScrollDebounce);
+            feedScrollDebounce = setTimeout(() => {
+                const nearEnd = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - (feed.clientHeight * 2.2);
+                if (nearEnd) preloadNextAlbum();
+            }, 80);
+        }, { passive: true });
 
         // Keyboard controls
         document.addEventListener('keydown', (e) => {
@@ -2326,7 +3517,7 @@
             }
             else if (e.key === 'd') {
                 const item = getCurrentItem();
-                if (item) downloadSingle(item.url, getFilename(item.url));
+                if (item) downloadSingle(item.url, getFilename(item.url), null, item.albumUrl);
             }
             else if (e.key === 'l') {
                 const card = getCurrentCard();
@@ -2358,9 +3549,10 @@
         const cards = feed.querySelectorAll('.eu-tiktok-item');
         const next = Math.max(0, Math.min(cards.length - 1, STATE.tiktokIndex + direction));
         cards[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (next >= cards.length - 3) preloadNextAlbum();
     }
 
-    function resetAndRenderFeed() {
+    async function resetAndRenderFeed() {
         const feed = document.getElementById('eu-tiktok-feed');
         if (!feed) return;
 
@@ -2369,51 +3561,87 @@
         TT.seenUrls = new Set();
         TT.albumQueue = [];
         TT.albumSeen = new Set();
-        if (IS_ALBUM_PAGE) TT.albumSeen.add(location.href);
+        TT.loadingMore = false;
+        resetListingFeedPager();
+        resetFeedScope();
+        if (IS_ALBUM_PAGE) TT.albumSeen.add(euCleanFeedUrl(location.href, location.href));
+        if (TT.io) TT.io.disconnect();
         STATE.tiktokIndex = 0;
 
         feed.innerHTML = '';
 
-        // Collect from current page
+        // Album pages can render their own media immediately. Listing pages are queued
+        // from album links and fetched in the background so the browser URL never changes.
         const pageItems = collectCurrentPageItems(STATE.tiktokType);
         TT.items = pageItems;
+        pageItems.forEach((item, idx) => appendTikTokCard(item, idx));
 
-        if (pageItems.length === 0) {
+        buildNextAlbumQueue(document, location.href, IS_ALBUM_PAGE ? 'album' : 'listing');
+        if (!IS_ALBUM_PAGE && TT.albumQueue.length === 0) {
+            await loadNextListingPageIntoQueue();
+        }
+
+        // If the current page had no real media, pull albums until the first usable
+        // card appears. This is what makes desktop feed work from profile/search grids.
+        let attempts = 0;
+        while (TT.items.length === 0 && attempts < 12) {
+            if (TT.albumQueue.length === 0 && !IS_ALBUM_PAGE && !TT.listingStopped) {
+                await loadNextListingPageIntoQueue();
+            }
+            if (TT.albumQueue.length === 0) break;
+            const added = await preloadNextAlbum();
+            attempts++;
+            if (added > 0) break;
+        }
+
+        if (TT.items.length === 0) {
             feed.innerHTML = `<div class="eu-tiktok-empty">
                 <div style="font-size:44px;margin-bottom:14px;">📭</div>
-                <div style="font-weight:600;margin-bottom:4px;">No ${STATE.tiktokType} on this page</div>
-                <div style="font-size:11px;opacity:.6;">Try another tab above, or open an album.</div>
+                <div style="font-weight:600;margin-bottom:4px;">No ${STATE.tiktokType} found</div>
+                <div style="font-size:11px;opacity:.6;">Try another tab, or turn Related On for next-album loading.</div>
             </div>`;
             const c = document.getElementById('eu-tiktok-counter');
             if (c) c.textContent = '0 / 0';
             return;
         }
 
-        pageItems.forEach((item, idx) => appendTikTokCard(item, idx));
         updateTikTokCounter();
         feed.scrollTop = 0;
+        applyFeedFitMode();
+        updateFeedStatus();
+        setTimeout(resumeFeedPosition, 250);
 
-        // Build queue of related albums for infinite background loading
-        buildNextAlbumQueue();
-
-        // Preload first background album after a short delay
-        if (IS_ALBUM_PAGE && TT.albumQueue.length > 0) {
-            setTimeout(() => preloadNextAlbum(), 1500);
+        // Preload ahead without changing the current page/URL.
+        if (TT.albumQueue.length > 0 || (!IS_ALBUM_PAGE && !TT.listingStopped)) {
+            setTimeout(() => preloadNextAlbum(), STATE.tiktokLayout === 'desktop' ? 700 : 1500);
         }
     }
 
-    function openTikTok(type) {
+    function openTikTok(type, layout = 'phone') {
         buildTikTokOverlay();
         if (type) STATE.tiktokType = type;
+        updateSetting('defaultFeedType', STATE.tiktokType);
+        setTikTokLayout(layout);
+        enhanceFeedControls();
         updateTikTokTabs();
         STATE.tiktokMode = true;
         document.getElementById('eu-tiktok').classList.add('open');
         document.body.style.overflow = 'hidden';
         resetAndRenderFeed();
-        toast(`TikTok mode — swipe up/down, tap to pause, double-tap to like`, 'info', 3500);
+        const msg = STATE.tiktokLayout === 'desktop'
+            ? (SETTINGS.lockFeedToSearch !== false && !IS_ALBUM_PAGE
+                ? 'Desktop feed — locked to this search/listing and pulls next result pages'
+                : 'Desktop feed — scroll up/down, loads next albums without changing page')
+            : 'TikTok mode — swipe up/down, tap to pause, double-tap to like';
+        toast(msg, 'info', 3500);
+    }
+
+    function openDesktopFeed(type = 'all') {
+        openTikTok(type, 'desktop');
     }
 
     function closeTikTok() {
+        markCurrentFeedPosition();
         STATE.tiktokMode = false;
         const o = document.getElementById('eu-tiktok');
         if (o) {
@@ -2428,23 +3656,28 @@
      *  FLOATING ACTION BUTTON (FAB)
      * ============================================================ */
     function buildFAB() {
-        if (document.querySelector('.eu-fab')) return;
-        const fab = document.createElement('button');
-        fab.className = 'eu-fab';
-        fab.title = 'Bulk Download';
-        fab.innerHTML = `${ICONS.download}<span class="eu-fab-badge" id="eu-fab-badge">0</span>`;
-        fab.addEventListener('click', openBulkModal);
-        document.body.appendChild(fab);
+        if (!document.querySelector('.eu-fab-bulk')) {
+            const fab = document.createElement('button');
+            fab.className = 'eu-fab eu-fab-bulk';
+            fab.title = 'Bulk Download';
+            fab.innerHTML = `${ICONS.download}<span class="eu-fab-badge" id="eu-fab-badge">0</span>`;
+            fab.addEventListener('click', openBulkModal);
+            document.body.appendChild(fab);
+        }
 
-        // TikTok-mode FAB on album pages — uses the Erome logo
-        if (IS_ALBUM_PAGE && !document.querySelector('.eu-fab-tiktok')) {
+        // Feed FAB — phone layout on small screens, desktop layout on desktop.
+        if (!document.querySelector('.eu-fab-tiktok')) {
             const tt = document.createElement('button');
             tt.className = 'eu-fab eu-fab-tiktok';
-            tt.title = 'TikTok-style Feed';
+            tt.title = 'Feed Mode';
             tt.style.bottom = '92px';
             tt.style.background = 'linear-gradient(135deg, #ff0050 0%, #8a5acc 50%, #00f2ea 100%)';
             tt.innerHTML = `<img src="${LOGO_ICON}" alt="Erome" style="width:32px;height:32px;border-radius:50%;object-fit:cover;box-shadow:0 0 8px rgba(0,0,0,0.4);">`;
-            tt.addEventListener('click', () => openTikTok(STATE.tiktokType));
+            tt.addEventListener('click', () => {
+                const layout = SETTINGS.defaultFeedLayout || (window.matchMedia('(min-width: 760px)').matches ? 'desktop' : 'phone');
+                const type = SETTINGS.defaultFeedType || (IS_ALBUM_PAGE ? STATE.tiktokType : 'all');
+                openTikTok(type, layout);
+            });
             document.body.appendChild(tt);
         }
     }
@@ -2459,6 +3692,452 @@
     /* ============================================================
      *  HUB MENU (Twitter-style popup cards in navbar)
      * ============================================================ */
+
+    function buildSettingsModal() {
+        if (document.getElementById('eu-settings-modal')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'eu-settings-modal';
+        overlay.className = 'eu-modal-overlay';
+        overlay.innerHTML = `
+          <div class="eu-modal" style="width:620px;">
+            <div class="eu-modal-header">
+              <h3>${ICONS.settings}<span>Smart Premium Settings</span></h3>
+              <button class="eu-modal-close">${ICONS.close}</button>
+            </div>
+            <div class="eu-modal-body">
+              <div class="eu-smart-row">
+                <div class="eu-smart-field"><label>Default Feed</label><select id="eu-set-feed-type">
+                    <option value="all">All</option><option value="videos">Videos</option><option value="photos">Photos</option>
+                </select></div>
+                <div class="eu-smart-field"><label>Layout</label><select id="eu-set-feed-layout">
+                    <option value="desktop">Desktop</option><option value="phone">Phone</option>
+                </select></div>
+              </div>
+              <div class="eu-smart-row">
+                <div class="eu-smart-field"><label>Performance</label><select id="eu-set-performance">
+                    <option value="lite">Lite</option><option value="normal">Normal</option><option value="aggressive">Aggressive</option>
+                </select></div>
+                <div class="eu-smart-field"><label>Feed Fit</label><select id="eu-set-fit">
+                    <option value="contain">Contain</option><option value="cover">Cover</option><option value="natural">Natural</option>
+                </select></div>
+              </div>
+              <div class="eu-smart-row">
+                <div class="eu-smart-field"><label>Min video length seconds</label><input id="eu-set-min-seconds" type="number" min="0" max="3600" step="5" placeholder="0 = off"></div>
+                <div class="eu-smart-field"><label>Max video length seconds</label><input id="eu-set-max-seconds" type="number" min="0" max="3600" step="5" placeholder="0 = off"></div>
+              </div>
+              <div class="eu-smart-row">
+                <div class="eu-smart-field"><label>Album search filter</label><input id="eu-set-album-search" type="text" placeholder="blank = off"></div>
+                <div class="eu-smart-field"><label>Length filter</label><input disabled value="0 means off · applies to album page and feed videos"></div>
+              </div>
+              <div class="eu-option-group">
+                <div class="eu-option-title">Toggles</div>
+                <div class="eu-smart-checks">
+                  <label class="eu-smart-check"><input id="eu-set-autoplay" type="checkbox"> Autoplay feed videos</label>
+                  <label class="eu-smart-check"><input id="eu-set-mute" type="checkbox"> Start feed muted</label>
+                  <label class="eu-smart-check"><input id="eu-set-loop" type="checkbox"> Loop videos</label>
+                  <label class="eu-smart-check"><input id="eu-set-resume" type="checkbox"> Resume feed position</label>
+                  <label class="eu-smart-check"><input id="eu-set-badges" type="checkbox"> Seen/download badges</label>
+                  <label class="eu-smart-check"><input id="eu-set-hide-seen" type="checkbox"> Hide seen albums</label>
+                  <label class="eu-smart-check"><input id="eu-set-hide-down" type="checkbox"> Hide downloaded albums</label>
+                  <label class="eu-smart-check"><input id="eu-set-skip-down" type="checkbox"> Skip downloaded in downloads</label>
+                  <label class="eu-smart-check"><input id="eu-set-folders" type="checkbox"> ZIP folders by album</label>
+                  <label class="eu-smart-check"><input id="eu-set-retry" type="checkbox"> Retry failed downloads</label>
+                  <label class="eu-smart-check"><input id="eu-set-dlbtns" type="checkbox"> Show media download buttons</label>
+                  <label class="eu-smart-check"><input id="eu-set-lock-search" type="checkbox"> Lock feed to current search/listing</label>
+                  <label class="eu-smart-check"><input id="eu-set-related" type="checkbox"> Allow related album expansion</label>
+                  <label class="eu-smart-check"><input id="eu-set-strict-search" type="checkbox"> Strict search-word title filter</label>
+                  <label class="eu-smart-check"><input id="eu-set-feed-auto-hide" type="checkbox"> Auto-hide feed tools row</label>
+                  <label class="eu-smart-check"><input id="eu-set-feed-pinned" type="checkbox"> Keep feed tools pinned</label>
+                </div>
+              </div>
+              <div class="eu-smart-actions">
+                <button class="eu-btn-primary" id="eu-save-settings">${ICONS.check}<span>Save Settings</span></button>
+                <button class="eu-btn-secondary" id="eu-reset-settings">Reset Defaults</button>
+              </div>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
+        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+        overlay.querySelector('#eu-save-settings').onclick = saveSettingsFromModal;
+        overlay.querySelector('#eu-reset-settings').onclick = () => {
+            if (!confirm('Reset Erome Ultimate settings to defaults? Tracking history is not deleted.')) return;
+            Object.assign(SETTINGS, DEFAULT_SETTINGS);
+            saveSettings();
+            syncSettingsModal();
+            applySettingsNow();
+            toast('Settings reset', 'success');
+        };
+    }
+
+    function syncSettingsModal() {
+        const o = document.getElementById('eu-settings-modal');
+        if (!o) return;
+        o.querySelector('#eu-set-feed-type').value = SETTINGS.defaultFeedType || 'all';
+        o.querySelector('#eu-set-feed-layout').value = SETTINGS.defaultFeedLayout || 'desktop';
+        o.querySelector('#eu-set-performance').value = SETTINGS.performanceMode || 'normal';
+        o.querySelector('#eu-set-fit').value = SETTINGS.fitMode || 'contain';
+        o.querySelector('#eu-set-min-seconds').value = getMinVideoSeconds();
+        o.querySelector('#eu-set-max-seconds').value = getMaxVideoSeconds();
+        o.querySelector('#eu-set-album-search').value = SETTINGS.albumSearch || '';
+        o.querySelector('#eu-set-autoplay').checked = SETTINGS.autoplay !== false;
+        o.querySelector('#eu-set-mute').checked = !!SETTINGS.muteVideos;
+        o.querySelector('#eu-set-loop').checked = SETTINGS.loopVideos !== false;
+        o.querySelector('#eu-set-resume').checked = SETTINGS.autoResume !== false;
+        o.querySelector('#eu-set-badges').checked = SETTINGS.showSeenBadges !== false;
+        o.querySelector('#eu-set-hide-seen').checked = !!SETTINGS.hideSeen;
+        o.querySelector('#eu-set-hide-down').checked = !!SETTINGS.hideDownloaded;
+        o.querySelector('#eu-set-skip-down').checked = !!SETTINGS.skipDownloadedInDownloads;
+        o.querySelector('#eu-set-folders').checked = SETTINGS.zipFolders !== false;
+        o.querySelector('#eu-set-retry').checked = SETTINGS.retryDownloads !== false;
+        o.querySelector('#eu-set-dlbtns').checked = SETTINGS.showDownloadButtons !== false;
+        o.querySelector('#eu-set-lock-search').checked = SETTINGS.lockFeedToSearch !== false;
+        o.querySelector('#eu-set-related').checked = SETTINGS.allowRelatedAlbumExpansion !== false;
+        o.querySelector('#eu-set-strict-search').checked = SETTINGS.strictSearchTitleMatch === true;
+        o.querySelector('#eu-set-feed-auto-hide').checked = SETTINGS.feedControlsAutoHide !== false;
+        o.querySelector('#eu-set-feed-pinned').checked = SETTINGS.feedControlsPinned === true;
+    }
+
+    function saveSettingsFromModal() {
+        const o = document.getElementById('eu-settings-modal');
+        if (!o) return;
+        updateSetting('defaultFeedType', o.querySelector('#eu-set-feed-type').value);
+        updateSetting('defaultFeedLayout', o.querySelector('#eu-set-feed-layout').value);
+        updateSetting('performanceMode', o.querySelector('#eu-set-performance').value);
+        updateSetting('fitMode', o.querySelector('#eu-set-fit').value);
+        const minSeconds = Math.max(0, Math.floor(Number(o.querySelector('#eu-set-min-seconds').value) || 0));
+        const maxSeconds = Math.max(0, Math.floor(Number(o.querySelector('#eu-set-max-seconds').value) || 0));
+        if (minSeconds > 0 && maxSeconds > 0 && minSeconds > maxSeconds) {
+            toast('Min length cannot be higher than max length', 'error');
+            return;
+        }
+        updateSetting('minVideoSeconds', minSeconds);
+        updateSetting('hiddenSeconds', minSeconds);
+        updateSetting('maxVideoSeconds', maxSeconds);
+        updateSetting('albumSearch', o.querySelector('#eu-set-album-search').value.trim());
+        updateSetting('autoplay', o.querySelector('#eu-set-autoplay').checked);
+        updateSetting('muteVideos', o.querySelector('#eu-set-mute').checked);
+        updateSetting('loopVideos', o.querySelector('#eu-set-loop').checked);
+        updateSetting('autoResume', o.querySelector('#eu-set-resume').checked);
+        updateSetting('showSeenBadges', o.querySelector('#eu-set-badges').checked);
+        updateSetting('hideSeen', o.querySelector('#eu-set-hide-seen').checked);
+        updateSetting('hideDownloaded', o.querySelector('#eu-set-hide-down').checked);
+        updateSetting('skipDownloadedInDownloads', o.querySelector('#eu-set-skip-down').checked);
+        updateSetting('zipFolders', o.querySelector('#eu-set-folders').checked);
+        updateSetting('retryDownloads', o.querySelector('#eu-set-retry').checked);
+        updateSetting('showDownloadButtons', o.querySelector('#eu-set-dlbtns').checked);
+        updateSetting('lockFeedToSearch', o.querySelector('#eu-set-lock-search').checked);
+        updateSetting('allowRelatedAlbumExpansion', o.querySelector('#eu-set-related').checked);
+        updateSetting('strictSearchTitleMatch', o.querySelector('#eu-set-strict-search').checked);
+        updateSetting('feedControlsAutoHide', o.querySelector('#eu-set-feed-auto-hide').checked);
+        updateSetting('feedControlsPinned', o.querySelector('#eu-set-feed-pinned').checked);
+        applySettingsNow();
+        toast('Settings saved', 'success');
+    }
+
+    function applySettingsNow() {
+        STATE.tiktokType = SETTINGS.defaultFeedType || STATE.tiktokType;
+        STATE.tiktokLayout = SETTINGS.defaultFeedLayout || STATE.tiktokLayout;
+        STATE.showDownloadButtons = SETTINGS.showDownloadButtons !== false;
+        STATE.hiddenSeconds = getMinVideoSeconds();
+        STATE.maxVideoSeconds = getMaxVideoSeconds();
+        document.querySelectorAll('.eu-dl-btn').forEach(btn => { btn.style.display = STATE.showDownloadButtons ? '' : 'none'; });
+        applyHiddenFilter();
+        applyAlbumSearch();
+        decorateTrackingBadges();
+        applyFeedFitMode();
+        updateFeedTools();
+        if (document.getElementById('eu-tiktok')) {
+            if (SETTINGS.feedControlsPinned || SETTINGS.feedControlsAutoHide === false) setFeedControlsVisible(true, false);
+            else scheduleFeedControlsHide(900);
+        }
+    }
+
+    function openSettingsModal() {
+        buildSettingsModal();
+        syncSettingsModal();
+        document.getElementById('eu-settings-modal').classList.add('open');
+    }
+
+    function getStatusStats() {
+        return {
+            albums: document.querySelectorAll('.album').length,
+            pageMedia: collectAllMediaUrls().length,
+            feedItems: TT.items.length,
+            queue: TT.albumQueue.length,
+            seen: TRACKING.seenAlbums.size,
+            downloaded: TRACKING.downloadedMedia.size,
+            favorites: TRACKING.favorites.length,
+            failures: DLX.failed.length,
+            scope: TT.feedScopeLabel || (SETTINGS.lockFeedToSearch !== false ? 'Search/listing lock' : 'Related expansion')
+        };
+    }
+
+    function buildStatusPanel() {
+        if (document.getElementById('eu-status-modal')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'eu-status-modal';
+        overlay.className = 'eu-modal-overlay';
+        overlay.innerHTML = `
+          <div class="eu-modal" style="width:620px;">
+            <div class="eu-modal-header">
+              <h3>${ICONS.bell}<span>Status / Debug</span></h3>
+              <button class="eu-modal-close">${ICONS.close}</button>
+            </div>
+            <div class="eu-modal-body">
+              <div class="eu-status-grid" id="eu-status-grid"></div>
+              <div class="eu-zip-preview" id="eu-status-line"></div>
+              <div class="eu-smart-actions">
+                <button class="eu-btn-primary" id="eu-refresh-now">${ICONS.check}<span>Refresh UI</span></button>
+                <button class="eu-btn-secondary" id="eu-export-tracking">Export Tracking</button>
+                <button class="eu-btn-secondary" id="eu-clear-seen">Clear Seen</button>
+                <button class="eu-btn-secondary" id="eu-clear-downloaded">Clear Downloaded</button>
+              </div>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
+        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+        overlay.querySelector('#eu-refresh-now').onclick = () => { refreshAll(); updateStatusPanel(); toast('UI refreshed', 'success'); };
+        overlay.querySelector('#eu-export-tracking').onclick = exportTrackingData;
+        overlay.querySelector('#eu-clear-seen').onclick = () => {
+            if (!confirm('Clear seen album history?')) return;
+            TRACKING.seenAlbums.clear(); saveLimitedSet('eu_seen_albums_v1', TRACKING.seenAlbums); decorateTrackingBadges(); updateStatusPanel();
+        };
+        overlay.querySelector('#eu-clear-downloaded').onclick = () => {
+            if (!confirm('Clear downloaded media/album history?')) return;
+            TRACKING.downloadedMedia.clear(); TRACKING.downloadedAlbums.clear();
+            saveLimitedSet('eu_downloaded_media_v1', TRACKING.downloadedMedia); saveLimitedSet('eu_downloaded_albums_v1', TRACKING.downloadedAlbums);
+            decorateTrackingBadges(); updateStatusPanel();
+        };
+    }
+
+    function updateStatusPanel() {
+        const overlay = document.getElementById('eu-status-modal');
+        if (!overlay) return;
+        const s = getStatusStats();
+        const cards = [
+            ['Albums', s.albums], ['Page media', s.pageMedia], ['Feed items', s.feedItems], ['Queue', s.queue],
+            ['Seen albums', s.seen], ['Downloaded', s.downloaded], ['Favorites', s.favorites], ['Failures', s.failures]
+        ];
+        overlay.querySelector('#eu-status-grid').innerHTML = cards.map(([label, val]) => `<div class="eu-status-card"><b>${val}</b><span>${label}</span></div>`).join('');
+        overlay.querySelector('#eu-status-line').textContent = `Mode: ${SETTINGS.performanceMode} · Feed: ${SETTINGS.defaultFeedLayout}/${SETTINGS.defaultFeedType} · Scope: ${s.scope} · ${getLengthFilterLabel()} · Page: ${normalizeUrl(location.href)}`;
+    }
+
+    function openStatusPanel() {
+        buildStatusPanel();
+        updateStatusPanel();
+        document.getElementById('eu-status-modal').classList.add('open');
+    }
+
+    function exportTrackingData() {
+        const data = {
+            exportedAt: new Date().toISOString(),
+            settings: SETTINGS,
+            seenAlbums: Array.from(TRACKING.seenAlbums),
+            downloadedMedia: Array.from(TRACKING.downloadedMedia),
+            downloadedAlbums: Array.from(TRACKING.downloadedAlbums),
+            favorites: TRACKING.favorites
+        };
+        exportTextFile(`Erome_Ultimate_tracking_${Date.now()}.json`, JSON.stringify(data, null, 2));
+    }
+
+    function collectDownloadItems(source = 'auto', type = 'all') {
+        let items = [];
+        const feedOpen = STATE.tiktokMode && TT.items.length > 0;
+        if ((source === 'feed') || (source === 'auto' && feedOpen)) {
+            items = TT.items.map((item, idx) => ({
+                url: item.url,
+                kind: item.kind,
+                albumUrl: item.albumUrl || '',
+                title: item.title || `Feed_${idx + 1}`,
+                index: idx + 1
+            }));
+        } else {
+            items = collectAllMediaUrls().map((url, idx) => ({
+                url,
+                kind: isImageUrl(url) ? 'image' : 'video',
+                albumUrl: currentAlbumUrl(),
+                title: getPageTitle(),
+                index: idx + 1
+            }));
+        }
+        if (type === 'images') items = items.filter(i => i.kind === 'image' || isImageUrl(i.url));
+        if (type === 'videos') items = items.filter(i => i.kind === 'video' || isVideoUrl(i.url));
+        const seen = new Set();
+        items = items.filter(i => {
+            const clean = normalizeUrl(i.url);
+            if (!clean || seen.has(clean)) return false;
+            seen.add(clean);
+            if (SETTINGS.skipDownloadedInDownloads && TRACKING.downloadedMedia.has(clean)) return false;
+            return true;
+        });
+        return items;
+    }
+
+    function buildDownloadManager() {
+        if (document.getElementById('eu-dlx-modal')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'eu-dlx-modal';
+        overlay.className = 'eu-modal-overlay';
+        overlay.innerHTML = `
+          <div class="eu-modal" style="width:620px;">
+            <div class="eu-modal-header">
+              <h3>${ICONS.download}<span>Smart Download Manager</span></h3>
+              <button class="eu-modal-close">${ICONS.close}</button>
+            </div>
+            <div class="eu-modal-body">
+              <div class="eu-smart-row">
+                <div class="eu-smart-field"><label>Source</label><select id="eu-dlx-source"><option value="auto">Auto/current feed</option><option value="page">Current page</option><option value="feed">Loaded feed queue</option></select></div>
+                <div class="eu-smart-field"><label>Media Type</label><select id="eu-dlx-type"><option value="all">All</option><option value="images">Images</option><option value="videos">Videos</option></select></div>
+              </div>
+              <div class="eu-option-group">
+                <div class="eu-option-title">Options</div>
+                <div class="eu-smart-checks">
+                  <label class="eu-smart-check"><input id="eu-dlx-zip" type="checkbox" checked> Package as ZIP</label>
+                  <label class="eu-smart-check"><input id="eu-dlx-folders" type="checkbox"> Folder by album/title</label>
+                  <label class="eu-smart-check"><input id="eu-dlx-skip" type="checkbox"> Skip downloaded</label>
+                  <label class="eu-smart-check"><input id="eu-dlx-retry" type="checkbox"> Retry failures</label>
+                </div>
+              </div>
+              <div class="eu-zip-preview" id="eu-dlx-stats">Scanning…</div>
+              <div class="eu-smart-actions">
+                <button class="eu-btn-primary" id="eu-dlx-start">${ICONS.download}<span>Start</span></button>
+                <button class="eu-btn-secondary" id="eu-dlx-cancel">Cancel</button>
+              </div>
+              <div class="eu-progress-box">
+                <div class="eu-progress-bar"><div class="eu-progress-fill" id="eu-dlx-fill"></div></div>
+                <div class="eu-progress-text" id="eu-dlx-text">Ready</div>
+              </div>
+              <div class="eu-dlx-log" id="eu-dlx-log">No downloads started.</div>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.eu-modal-close').onclick = () => overlay.classList.remove('open');
+        overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+        ['#eu-dlx-source', '#eu-dlx-type', '#eu-dlx-skip'].forEach(sel => overlay.querySelector(sel).addEventListener('change', updateDownloadManagerStats));
+        overlay.querySelector('#eu-dlx-folders').checked = SETTINGS.zipFolders !== false;
+        overlay.querySelector('#eu-dlx-skip').checked = !!SETTINGS.skipDownloadedInDownloads;
+        overlay.querySelector('#eu-dlx-retry').checked = SETTINGS.retryDownloads !== false;
+        overlay.querySelector('#eu-dlx-start').onclick = runDownloadManager;
+        overlay.querySelector('#eu-dlx-cancel').onclick = () => { DLX.cancel = true; toast('Download cancel requested', 'warning'); };
+    }
+
+    function updateDownloadManagerStats() {
+        const overlay = document.getElementById('eu-dlx-modal');
+        if (!overlay) return;
+        const oldSkip = SETTINGS.skipDownloadedInDownloads;
+        SETTINGS.skipDownloadedInDownloads = overlay.querySelector('#eu-dlx-skip').checked;
+        const items = collectDownloadItems(overlay.querySelector('#eu-dlx-source').value, overlay.querySelector('#eu-dlx-type').value);
+        SETTINGS.skipDownloadedInDownloads = oldSkip;
+        const imgs = items.filter(i => i.kind === 'image' || isImageUrl(i.url)).length;
+        const vids = items.filter(i => i.kind === 'video' || isVideoUrl(i.url)).length;
+        overlay.querySelector('#eu-dlx-stats').textContent = `Ready: ${items.length} items (${imgs} images, ${vids} videos). Feed loaded: ${TT.items.length}. Queue: ${TT.albumQueue.length}.`;
+    }
+
+    function openDownloadManager() {
+        buildDownloadManager();
+        updateDownloadManagerStats();
+        document.getElementById('eu-dlx-modal').classList.add('open');
+    }
+
+    async function runDownloadManager() {
+        if (DLX.running || STATE.downloadInProgress) { toast('A download is already running', 'warning'); return; }
+        const overlay = document.getElementById('eu-dlx-modal');
+        const source = overlay.querySelector('#eu-dlx-source').value;
+        const type = overlay.querySelector('#eu-dlx-type').value;
+        const asZip = overlay.querySelector('#eu-dlx-zip').checked;
+        updateSetting('zipFolders', overlay.querySelector('#eu-dlx-folders').checked);
+        updateSetting('skipDownloadedInDownloads', overlay.querySelector('#eu-dlx-skip').checked);
+        updateSetting('retryDownloads', overlay.querySelector('#eu-dlx-retry').checked);
+        const items = collectDownloadItems(source, type);
+        const fill = overlay.querySelector('#eu-dlx-fill');
+        const text = overlay.querySelector('#eu-dlx-text');
+        const log = overlay.querySelector('#eu-dlx-log');
+        if (!items.length) { toast('No downloadable items found', 'error'); return; }
+
+        DLX.running = true; DLX.cancel = false; DLX.done = 0; DLX.ok = 0; DLX.total = items.length; DLX.failed = [];
+        STATE.downloadInProgress = true;
+        fill.style.width = '0%'; log.textContent = '';
+
+        const addLog = line => { log.textContent += line + '\n'; log.scrollTop = log.scrollHeight; };
+        try {
+            if (asZip && typeof JSZip !== 'undefined') {
+                const zip = new JSZip();
+                for (let i = 0; i < items.length; i++) {
+                    if (DLX.cancel) break;
+                    const item = items[i];
+                    const base = `${String(i + 1).padStart(4, '0')}_${getFilename(item.url)}`;
+                    const folder = SETTINGS.zipFolders ? sanitize(item.title || getPageTitle()) + '/' : '';
+                    text.textContent = `Downloading ${i + 1}/${items.length}: ${base}`;
+                    fill.style.width = `${(i / items.length) * 100}%`;
+                    try {
+                        const blob = await downloadBlobWithRetry(item.url, SETTINGS.retryDownloads ? 2 : 1);
+                        zip.file(folder + base, await blob.arrayBuffer());
+                        markDownloadedMedia(item.url, item.albumUrl);
+                        DLX.ok++;
+                        addLog(`OK  ${base}`);
+                    } catch (e) {
+                        DLX.failed.push({ url: item.url, error: String(e) });
+                        addLog(`ERR ${base} — ${e}`);
+                    }
+                    DLX.done++;
+                }
+                if (DLX.failed.length) {
+                    zip.file('FAILED_DOWNLOADS.txt', DLX.failed.map(f => `${f.url}\n${f.error}\n`).join('\n'));
+                }
+                text.textContent = 'Generating ZIP…';
+                const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }, meta => {
+                    fill.style.width = `${meta.percent}%`;
+                    text.textContent = `Compressing: ${Math.round(meta.percent)}%`;
+                });
+                if (!DLX.cancel) {
+                    if (typeof saveAs === 'function') saveAs(zipBlob, generateZipName());
+                    else {
+                        const u = URL.createObjectURL(zipBlob);
+                        const a = document.createElement('a');
+                        a.href = u; a.download = generateZipName(); a.style.display = 'none';
+                        document.body.appendChild(a); a.click(); a.remove();
+                        setTimeout(() => URL.revokeObjectURL(u), 5000);
+                    }
+                }
+            } else {
+                for (let i = 0; i < items.length; i++) {
+                    if (DLX.cancel) break;
+                    const item = items[i];
+                    const name = `${String(i + 1).padStart(4, '0')}_${getFilename(item.url)}`;
+                    text.textContent = `Downloading ${i + 1}/${items.length}: ${name}`;
+                    fill.style.width = `${(i / items.length) * 100}%`;
+                    try {
+                        const blob = await downloadBlobWithRetry(item.url, SETTINGS.retryDownloads ? 2 : 1);
+                        const u = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = u; a.download = name; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
+                        setTimeout(() => URL.revokeObjectURL(u), 5000);
+                        markDownloadedMedia(item.url, item.albumUrl);
+                        DLX.ok++;
+                        addLog(`OK  ${name}`);
+                    } catch (e) {
+                        DLX.failed.push({ url: item.url, error: String(e) });
+                        addLog(`ERR ${name} — ${e}`);
+                    }
+                    DLX.done++;
+                    await new Promise(r => setTimeout(r, SETTINGS.performanceMode === 'aggressive' ? 120 : 350));
+                }
+                if (DLX.failed.length) exportTextFile(`FAILED_DOWNLOADS_${Date.now()}.txt`, DLX.failed.map(f => `${f.url}\n${f.error}\n`).join('\n'));
+            }
+            fill.style.width = '100%';
+            text.textContent = DLX.cancel ? `Canceled (${DLX.ok}/${items.length})` : `Complete (${DLX.ok}/${items.length})`;
+            toast(text.textContent, DLX.cancel ? 'warning' : 'success');
+        } catch (e) {
+            console.error('[EU] Download manager failed:', e);
+            toast('Download manager error', 'error');
+        } finally {
+            DLX.running = false; STATE.downloadInProgress = false;
+            decorateTrackingBadges(); updateDownloadManagerStats(); updateStatusPanel();
+        }
+    }
+
     function buildHubMenu(id, iconKey, items, title = '') {
         if (document.getElementById(id)) return null;
         const hub = document.createElement('div');
@@ -2497,6 +4176,9 @@
 
         // Privacy hub
         const privacyItems = [
+            { label: 'Settings', icon: 'settings', action: openSettingsModal },
+            { label: 'Status / Debug', icon: 'bell', action: openStatusPanel },
+            { label: 'Smart Download Manager', icon: 'download', action: openDownloadManager },
             { label: 'Toggle NSFW Blur', icon: 'eye', action: toggleNSFW },
             { label: 'Toggle Hidden Filter', icon: 'clock', action: () => {
                 const s = document.querySelector('.eu-hidden-slider');
@@ -2510,6 +4192,13 @@
         // View hub (listing pages)
         if (!IS_ALBUM_PAGE) {
             const viewItems = [
+                { label: 'Desktop Feed — All', icon: 'cinema', action: () => openDesktopFeed('all') },
+                { label: 'Desktop Feed — Videos', icon: 'video', action: () => openDesktopFeed('videos') },
+                { label: 'Desktop Feed — Photos', icon: 'photo', action: () => openDesktopFeed('photos') },
+                { label: 'Search Loaded Albums', icon: 'eye', action: openAlbumSearch },
+                { label: SETTINGS.lockFeedToSearch !== false ? 'Feed Search Lock: On' : 'Feed Search Lock: Off', icon: 'eye', action: () => { updateSetting('lockFeedToSearch', !(SETTINGS.lockFeedToSearch !== false)); toast(SETTINGS.lockFeedToSearch !== false ? 'Feed locked to current search/listing' : 'Feed can expand into related albums', 'info'); } },
+                { label: SETTINGS.hideSeen ? 'Show Seen Albums' : 'Hide Seen Albums', icon: 'eye', action: () => { updateSetting('hideSeen', !SETTINGS.hideSeen); decorateTrackingBadges(); toast(SETTINGS.hideSeen ? 'Seen albums hidden' : 'Seen albums shown', 'info'); } },
+                { label: SETTINGS.hideDownloaded ? 'Show Downloaded Albums' : 'Hide Downloaded Albums', icon: 'download', action: () => { updateSetting('hideDownloaded', !SETTINGS.hideDownloaded); decorateTrackingBadges(); toast(SETTINGS.hideDownloaded ? 'Downloaded albums hidden' : 'Downloaded albums shown', 'info'); } },
                 { label: 'Sort by Views', icon: 'sort', action: () => sortAlbums('views') },
                 { label: 'Sort by Video Count', icon: 'video', action: () => sortAlbums('videos') },
                 { label: 'Sort by Photo Count', icon: 'photo', action: () => sortAlbums('photos') },
@@ -2526,10 +4215,15 @@
         // Album hub (album pages)
         if (IS_ALBUM_PAGE) {
             const albumItems = [
-                { label: 'TikTok Mode — Videos', icon: 'video', action: () => openTikTok('videos') },
-                { label: 'TikTok Mode — Photos', icon: 'photo', action: () => openTikTok('photos') },
-                { label: 'TikTok Mode — All', icon: 'cinema', action: () => openTikTok('all') },
+                { label: 'TikTok Mode — Videos', icon: 'video', action: () => openTikTok('videos', 'phone') },
+                { label: 'TikTok Mode — Photos', icon: 'photo', action: () => openTikTok('photos', 'phone') },
+                { label: 'TikTok Mode — All', icon: 'cinema', action: () => openTikTok('all', 'phone') },
+                { label: 'Desktop Feed — All', icon: 'cinema', action: () => openDesktopFeed('all') },
+                { label: 'Desktop Feed — Videos', icon: 'video', action: () => openDesktopFeed('videos') },
+                { label: 'Desktop Feed — Photos', icon: 'photo', action: () => openDesktopFeed('photos') },
+                { label: SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album Next Loading: On' : 'Album Next Loading: Off', icon: 'eye', action: () => { updateSetting('allowRelatedAlbumExpansion', !(SETTINGS.allowRelatedAlbumExpansion !== false)); toast(SETTINGS.allowRelatedAlbumExpansion !== false ? 'Album feed will load next albums' : 'Album feed limited to current album', 'info'); } },
                 { label: 'Bulk Download…', icon: 'download', action: openBulkModal },
+                { label: 'Smart Download Manager', icon: 'download', action: openDownloadManager },
                 { label: 'Toggle Download Buttons', icon: 'upload', action: toggleDownloadButtons },
                 { label: 'Toggle Photos', icon: 'photo', action: togglePhotos },
                 { label: 'Toggle Videos', icon: 'video', action: toggleVideos },
@@ -2568,29 +4262,88 @@
     function installInfiniteScroll() {
         if (IS_ALBUM_PAGE) return;
         if (!document.querySelector('.pagination')) return;
-        if (typeof $ === 'undefined' || !$.fn.infiniteScroll) return;
+
+        const container = document.querySelector('#albums') ||
+            document.querySelector('.user-albums') ||
+            document.querySelector('.albums') ||
+            document.querySelector('.page-content');
+        if (!container) return;
 
         const url = new URL(window.location.href);
-        let nextPage = parseInt(url.searchParams.get('page')) || 2;
-        const limit = parseInt($('.pagination li:last-child').prev().text()) || 50;
+        const currentPage = parseInt(url.searchParams.get('page'), 10) || 1;
+        let nextPage = currentPage + 1;
+        let loading = false;
+        let stopped = false;
+        let emptyHits = 0;
+
+        const albumKey = (album, baseUrl = location.href) => {
+            const link = album.querySelector('a.album-link, a[href*="/a/"]');
+            const href = link?.getAttribute('href') || link?.href;
+            return href ? new URL(href, baseUrl).href : album.textContent.replace(/\s+/g, ' ').trim().slice(0, 200);
+        };
+
+        const seenAlbums = new Set(Array.from(document.querySelectorAll('.album')).map(a => albumKey(a)));
 
         const nextPageUrl = () => {
             url.searchParams.set('page', nextPage);
             return url.href;
         };
 
-        try {
-            const infinite = $('#page').infiniteScroll({
-                path: nextPageUrl,
-                append: '.page-content',
-                scrollThreshold: 800
-            });
-            $('#page').on('append.infiniteScroll', () => {
+        async function loadNextPage() {
+            if (loading || stopped) return;
+            loading = true;
+
+            const pageUrl = nextPageUrl();
+            try {
+                const res = await fetch(pageUrl, { credentials: 'include' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const html = await res.text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const albums = Array.from(doc.querySelectorAll('.album'));
+                let added = 0;
+
+                for (const album of albums) {
+                    const key = albumKey(album, pageUrl);
+                    if (!key || seenAlbums.has(key)) continue;
+                    seenAlbums.add(key);
+                    container.appendChild(document.importNode(album, true));
+                    added++;
+                }
+
                 nextPage++;
-                if (nextPage > limit) infinite.infiniteScroll('destroy');
+
+                if (added === 0) emptyHits++;
+                else emptyHits = 0;
+
                 refreshAll();
-            });
-        } catch (e) { console.warn('[EU] Infinite scroll not available:', e); }
+                decorateTrackingBadges();
+                applyAlbumSearch();
+                if (SETTINGS.performanceMode !== 'lite') loadAlbumLikes();
+
+                if (emptyHits >= 2) {
+                    stopped = true;
+                    window.removeEventListener('scroll', onScroll);
+                    toast('Unlimited loading complete — no more new albums found', 'info', 3000);
+                }
+            } catch (e) {
+                stopped = true;
+                window.removeEventListener('scroll', onScroll);
+                console.warn('[EU] Unlimited scroll stopped:', e);
+                toast('Unlimited loading stopped — no more pages found', 'info', 3000);
+            } finally {
+                loading = false;
+            }
+        }
+
+        function onScroll() {
+            const docEl = document.documentElement;
+            const nearBottom = window.innerHeight + window.scrollY >= docEl.scrollHeight - 1200;
+            if (nearBottom) loadNextPage();
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
     }
 
     /* ============================================================
@@ -2603,6 +4356,8 @@
         applyNSFW();
         applyVideoOnly();
         applyHiddenFilter();
+        decorateTrackingBadges();
+        applyAlbumSearch();
         updateFabBadge();
         enhancePlayers();
     }
@@ -2617,17 +4372,21 @@
         installHubs();
         buildFAB();
         createHiddenSlider();
+        if (IS_ALBUM_PAGE) markSeenAlbum(location.href);
         refreshAll();
-        loadAlbumLikes();
+        if (SETTINGS.performanceMode !== 'lite') loadAlbumLikes();
         installInfiniteScroll();
+        applySettingsNow();
 
-        // Periodic refresh for dynamic content
-        setInterval(refreshAll, 2000);
+        // Periodic refresh for dynamic content; Lite mode scans less often.
+        const refreshMs = SETTINGS.performanceMode === 'lite' ? 6500 : (SETTINGS.performanceMode === 'aggressive' ? 1200 : 3000);
+        setInterval(() => { if (!document.hidden || SETTINGS.performanceMode !== 'lite') refreshAll(); }, refreshMs);
 
         // MutationObserver for real-time updates
         const mo = new MutationObserver(() => {
             clearTimeout(window._euDebounce);
-            window._euDebounce = setTimeout(refreshAll, 300);
+            const delay = SETTINGS.performanceMode === 'lite' ? 900 : 300;
+            window._euDebounce = setTimeout(refreshAll, delay);
         });
         mo.observe(document.body, { childList: true, subtree: true });
 
@@ -2654,7 +4413,16 @@
         config: CONFIG,
         collectAllMediaUrls,
         openBulkModal,
+        openTikTok,
+        openDesktopFeed,
+        openSettingsModal,
+        openStatusPanel,
+        openDownloadManager,
+        tracking: TRACKING,
+        settings: SETTINGS,
         toast,
-        refreshAll
+        refreshAll,
+        resetFeedScope,
+        buildNextAlbumQueue
     };
 })();
